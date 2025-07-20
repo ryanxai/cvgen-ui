@@ -63,21 +63,21 @@ interface ResumeFormData {
 interface ResumeFormProps {
   onFormSuccess: (result: { message: string; filename: string; download_url: string }) => void;
   onFormError: (error: string) => void;
-  onFormDataReady?: (formData: ResumeFormData) => void;
   onGenerateResume?: () => void;
   onDownloadJson?: () => void;
   onDownloadPdf?: () => void;
   isLoading?: boolean;
+  externalFormData?: ResumeFormData | null;
 }
 
 export default function ResumeForm({ 
   onFormSuccess, 
   onFormError, 
-  onFormDataReady,
   onGenerateResume, 
   onDownloadJson, 
   onDownloadPdf, 
-  isLoading: externalIsLoading 
+  isLoading: externalIsLoading,
+  externalFormData
 }: ResumeFormProps) {
   const [internalIsLoading, setInternalIsLoading] = useState(false);
   const isLoading = externalIsLoading !== undefined ? externalIsLoading : internalIsLoading;
@@ -129,12 +129,14 @@ export default function ResumeForm({
     publications: [],
   });
 
-  // Call onFormDataReady when formData changes
+
+
+  // Update internal formData when externalFormData changes
   useEffect(() => {
-    if (onFormDataReady) {
-      onFormDataReady(formData);
+    if (externalFormData) {
+      setFormData(externalFormData);
     }
-  }, [formData, onFormDataReady]);
+  }, [externalFormData]);
 
   const convertDateToAbbreviated = (dateString: string): string => {
     if (!dateString || dateString === 'Present') return dateString;
@@ -523,90 +525,7 @@ export default function ResumeForm({
   return (
     <div className="max-w-4xl mx-auto">
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* JSON File Upload */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload JSON Resume Data</h3>
-          <div className="space-y-4">
-            <div
-              className={`
-                relative border-2 border-dashed rounded-lg p-6 text-center cursor-pointer
-                transition-all duration-200 ease-in-out
-                ${isUploadingJson 
-                  ? 'border-blue-500 bg-blue-50' 
-                  : 'border-gray-300 hover:border-gray-400'
-                }
-              `}
-              onClick={openFileDialog}
-              onDrop={(e) => {
-                e.preventDefault();
-                const files = Array.from(e.dataTransfer.files);
-                if (files.length > 0) {
-                  handleJsonFileUpload(files[0]);
-                }
-              }}
-              onDragOver={(e) => {
-                e.preventDefault();
-              }}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".json"
-                onChange={handleFileSelect}
-                className="hidden"
-                disabled={isUploadingJson}
-              />
-              
-              <div className="flex flex-col items-center space-y-3">
-                {isUploadingJson ? (
-                  <>
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                    <p className="text-gray-600">Reading JSON file...</p>
-                  </>
-                ) : (
-                  <>
-                    <svg
-                      className="w-8 h-8 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
-                      />
-                    </svg>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        Drop your JSON file here
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        or click to browse files
-                      </p>
-                    </div>
-                    <p className="text-xs text-gray-400">
-                      Supports .json files (max 5MB)
-                    </p>
-                  </>
-                )}
-              </div>
-            </div>
-            
-            {jsonUploadSuccess && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                <div className="flex items-center">
-                  <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="text-sm text-green-800">JSON file loaded successfully! Form fields have been populated.</span>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+
 
         {/* Personal Information */}
         <div className="bg-white rounded-lg shadow-md p-6">

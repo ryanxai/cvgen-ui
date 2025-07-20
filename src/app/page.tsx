@@ -1,31 +1,49 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import ResumeGenerator from '@/components/ResumeGenerator';
 import ResumeForm from '@/components/ResumeForm';
-import PdfDownload from '@/components/PdfDownload';
 import { ResumeGenerationResponse } from '@/lib/api';
 import { api } from '@/lib/api';
 
 export default function HomePage() {
-  const [generationResult, setGenerationResult] = useState<ResumeGenerationResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isFormLoading, setIsFormLoading] = useState(false);
   const [formData, setFormData] = useState<any>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isUploadingJson, setIsUploadingJson] = useState(false);
+  const [jsonUploadSuccess, setJsonUploadSuccess] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSuccess = (result: ResumeGenerationResponse) => {
-    setGenerationResult(result);
+  const handleSuccess = async (result: ResumeGenerationResponse) => {
     setError(null);
+    
+    // Automatically trigger PDF download
+    try {
+      const blob = await api.downloadPdf(result.filename);
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = result.filename;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download failed:', error);
+      setError('PDF generated but download failed. Please try again.');
+    }
   };
 
   const handleError = (errorMessage: string) => {
     setError(errorMessage);
-    setGenerationResult(null);
   };
 
   const handleReset = () => {
-    setGenerationResult(null);
     setError(null);
     setFormData(null);
   };
@@ -233,22 +251,6 @@ export default function HomePage() {
       console.log('Request body sent to /generate-resume:');
       console.log(JSON.stringify(jsonData, null, 2));
       
-      // Create a downloadable file with the request body
-      try {
-        const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'request_body.json';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        console.log('Request body saved as request_body.json (downloaded)');
-      } catch (fileError) {
-        console.error('Failed to save request body to file:', fileError);
-      }
-      
       const result = await api.generateFromData(jsonData);
       handleSuccess(result);
     } catch (error) {
@@ -256,6 +258,131 @@ export default function HomePage() {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  // JSON file upload functions
+  const validateJsonFile = (file: File): string | null => {
+    if (file.size > 5 * 1024 * 1024) {
+      return 'File size must be less than 5MB';
+    }
+    if (!file.name.toLowerCase().endsWith('.json')) {
+      return 'File must be a JSON file';
+    }
+    return null;
+  };
+
+  const parseJsonToFormData = (jsonContent: string): any => {
+    const data = JSON.parse(jsonContent);
+    
+    // Convert the JSON structure to form data format
+    return {
+      personal: {
+        name: data.name || '',
+        email: data.contact?.email || '',
+        phone: data.contact?.phone || '',
+        location: data.contact?.location || '',
+        summary: data.summary || '',
+        links: {
+          github: data.contact?.links?.find((link: any) => link.name === 'GitHub')?.url || '',
+          stackoverflow: data.contact?.links?.find((link: any) => link.name === 'StackOverflow')?.url || '',
+          googlescholar: data.contact?.links?.find((link: any) => link.name === 'GoogleScholar')?.url || '',
+          linkedin: data.contact?.links?.find((link: any) => link.name === 'LinkedIn')?.url || '',
+        },
+      },
+      experience: data.experience?.map((exp: any) => ({
+        company: exp.company || '',
+        position: exp.title || '',
+        company_url: exp.company_url || '',
+        company_description: exp.company_description || '',
+        start_date: exp.date_start || '',
+        end_date: exp.date_end || '',
+        description: exp.achievements?.map((achievement: any) => 
+          `${achievement.name}: ${achievement.description}`
+        ) || [''],
+      })) || [{
+        company: '',
+        position: '',
+        company_url: '',
+        company_description: '',
+        start_date: '',
+        end_date: '',
+        description: [''],
+      }],
+      education: data.education?.map((edu: any) => ({
+        institution: edu.institution || '',
+        degree: edu.degree?.split(' in ')[0] || '',
+        field: edu.degree?.split(' in ')[1] || '',
+        start_date: edu.date_start || '',
+        end_date: edu.date_end || '',
+      })) || [{
+        institution: '',
+        degree: '',
+        field: '',
+        start_date: '',
+        end_date: '',
+      }],
+      skills: data.skills?.map((skillGroup: any) => ({
+        category: skillGroup.category || 'Technical Skills',
+        items: skillGroup.items || [],
+      })) || [{
+        category: 'Technical Skills',
+        items: [],
+      }],
+      awards: data.awards?.map((award: any) => ({
+        title: award.title || '',
+        organization: award.organization || '',
+        organization_detail: award.organization_detail || '',
+        organization_url: award.organization_url || '',
+        location: award.location || '',
+        date: award.date || '',
+      })) || [],
+      certifications: data.certifications?.map((cert: any) => ({
+        title: cert.title || '',
+        organization: cert.organization || '',
+        url: cert.url || '',
+        date: cert.date || '',
+      })) || [],
+      publications: data.publications?.map((pub: any) => ({
+        authors: pub.authors || '',
+        title: pub.title || '',
+        venue: pub.venue || '',
+        date: pub.date || pub.year?.toString() || '',
+        url: pub.url || '',
+      })) || [],
+    };
+  };
+
+  const handleJsonFileUpload = async (file: File) => {
+    const validationError = validateJsonFile(file);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setIsUploadingJson(true);
+    try {
+      const text = await file.text();
+      const parsedData = parseJsonToFormData(text);
+      setFormData(parsedData);
+      setJsonUploadSuccess(true);
+      // Clear success message after 3 seconds
+      setTimeout(() => setJsonUploadSuccess(false), 3000);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to parse JSON file');
+    } finally {
+      setIsUploadingJson(false);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      handleJsonFileUpload(files[0]);
+    }
+  };
+
+  const openFileDialog = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -300,12 +427,12 @@ export default function HomePage() {
         {/* Hero Section */}
 
         {/* Main Action Buttons */}
-        {!generationResult && (
+        {!isGenerating && (
           <div className="text-center mb-8">
             <div className="max-w-4xl mx-auto">
               <div className="grid md:grid-cols-3 gap-4">
-                {/* Upload JSON */}
-                <div className="bg-white rounded-lg shadow-md p-6">
+                {/* Upload JSON Resume Data */}
+                <div id="upload-json-section" className="bg-white rounded-lg shadow-md p-6">
                   <div className="flex flex-col items-center space-y-3">
                     <svg
                       className="w-8 h-8 text-blue-600"
@@ -321,17 +448,88 @@ export default function HomePage() {
                         d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
                       />
                     </svg>
-                    <h4 className="font-medium text-gray-900">Upload JSON</h4>
+                    <h4 className="font-medium text-gray-900">Upload JSON Resume Data</h4>
                     <p className="text-sm text-gray-600 text-center">
-                      Upload your resume data file in the form below
+                      Upload your resume data file to populate the form
                     </p>
-                    <button
-                      type="button"
-                      onClick={() => document.getElementById('resume-form')?.scrollIntoView({ behavior: 'smooth' })}
-                      className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    <div
+                      className={`
+                        relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer w-full
+                        transition-all duration-200 ease-in-out
+                        ${isUploadingJson 
+                          ? 'border-blue-500 bg-blue-50' 
+                          : 'border-gray-300 hover:border-gray-400'
+                        }
+                      `}
+                      onClick={openFileDialog}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        const files = Array.from(e.dataTransfer.files);
+                        if (files.length > 0) {
+                          handleJsonFileUpload(files[0]);
+                        }
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                      }}
                     >
-                      Go to Form
-                    </button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".json"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                        disabled={isUploadingJson}
+                      />
+                      
+                      <div className="flex flex-col items-center space-y-2">
+                        {isUploadingJson ? (
+                          <>
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                            <p className="text-gray-600 text-sm">Reading JSON file...</p>
+                          </>
+                        ) : (
+                          <>
+                            <svg
+                              className="w-6 h-6 text-gray-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
+                              />
+                            </svg>
+                            <div>
+                              <p className="text-xs font-medium text-gray-900">
+                                Drop your JSON file here
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                or click to browse files
+                              </p>
+                            </div>
+                            <p className="text-xs text-gray-400">
+                              Supports .json files (max 5MB)
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {jsonUploadSuccess && (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-2 w-full">
+                        <div className="flex items-center">
+                          <svg className="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span className="text-xs text-green-800">JSON file loaded successfully!</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -365,7 +563,7 @@ export default function HomePage() {
                           : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       }`}
                     >
-                      {isGenerating ? 'Generating...' : 'Generate PDF'}
+                      Generate PDF
                     </button>
                   </div>
                 </div>
@@ -411,6 +609,49 @@ export default function HomePage() {
           </div>
         )}
 
+        {/* Loading Section */}
+        {isGenerating && (
+          <div className="text-center mb-8">
+            <div className="max-w-md mx-auto">
+              <div className="bg-white rounded-lg shadow-md p-8">
+                <div className="flex flex-col items-center space-y-4">
+                  {/* Sand Clock Icon */}
+                  <div className="relative">
+                    <svg
+                      className="w-16 h-16 text-blue-600 animate-pulse"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="text-center">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      Generating Your PDF
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Please wait while we create your professional resume...
+                    </p>
+                  </div>
+                  {/* Spinning dots */}
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Error Display */}
         {error && (
           <div className="mb-8 max-w-md mx-auto">
@@ -451,24 +692,11 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Success/Download Section */}
-        {generationResult && (
-          <div className="mb-8">
-            <PdfDownload generationResult={generationResult} />
-            <div className="text-center mt-6">
-              <button
-                onClick={handleReset}
-                className="text-blue-600 hover:text-blue-800 font-medium text-sm"
-              >
-                Generate Another Resume
-              </button>
-            </div>
-          </div>
-        )}
 
-        {/* Main Actions - Only show if no result */}
-        {!generationResult && (
-          <div className="space-y-8 mb-12">
+
+        {/* Main Actions */}
+        <div className="space-y-8 mb-12">
+
             {/* Form Section */}
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-gray-900 text-center">
@@ -477,27 +705,32 @@ export default function HomePage() {
               <p className="text-gray-600 text-center text-sm mb-6">
                 Fill out our comprehensive form to create your resume data and generate a professional PDF.
               </p>
-              <div id="resume-form">
+                                        <div id="resume-form" className="relative">
                 <ResumeForm
                   onFormSuccess={handleSuccess}
                   onFormError={handleError}
-                  onFormDataReady={(data) => {
-                    setFormData(data);
-                  }}
                   onGenerateResume={handleFormGenerateResume}
                   onDownloadJson={handleFormDownloadJson}
                   onDownloadPdf={handleFormDownloadPdf}
                   isLoading={isFormLoading}
+                  externalFormData={formData}
                 />
-              </div>
+              
+              {/* Loading overlay */}
+              {isGenerating && (
+                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-lg flex items-center justify-center z-10">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600 font-medium">Generating PDF...</p>
+                  </div>
+                </div>
+              )}
             </div>
-
-
-          </div>
-        )}
+            </div>
+        </div>
 
         {/* Features Section */}
-        {!generationResult && (
+        {!isGenerating && (
           <div className="grid md:grid-cols-3 gap-8 mt-16">
             <div className="text-center">
               <div className="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
