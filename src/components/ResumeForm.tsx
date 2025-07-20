@@ -35,7 +35,7 @@ interface ResumeFormData {
   }>;
   skills: Array<{
     category: string;
-    items: string;
+    items: string[];
   }>;
   awards: Array<{
     title: string;
@@ -121,7 +121,7 @@ export default function ResumeForm({
     skills: [
       {
         category: 'Technical Skills',
-        items: '',
+        items: [],
       },
     ],
     awards: [],
@@ -231,7 +231,8 @@ export default function ResumeForm({
         })),
         skills: ((data.skills as Array<Record<string, unknown>>) || []).map((skillGroup) => ({
           category: (skillGroup.category as string) || '',
-          items: typeof skillGroup.items === 'string' ? skillGroup.items : (skillGroup.items as string[])?.join(', ') || '',
+          items: Array.isArray(skillGroup.items) ? skillGroup.items as string[] : 
+                 typeof skillGroup.items === 'string' ? skillGroup.items.split(',').map(s => s.trim()).filter(s => s) : [],
         })),
         awards: ((data.awards as Array<Record<string, unknown>>) || []).map((award) => ({
           title: (award.title as string) || '',
@@ -295,10 +296,10 @@ export default function ResumeForm({
 
     // Convert skills to the correct format
     const skills = data.skills
-      .filter(skillGroup => skillGroup.items.trim() !== '')
+      .filter(skillGroup => skillGroup.items.length > 0)
       .map(skillGroup => ({
         category: skillGroup.category,
-        items: skillGroup.items.trim()
+        items: skillGroup.items
       }));
 
     // Build the JSON content
@@ -442,12 +443,39 @@ export default function ResumeForm({
       ...prev,
       skills: [...prev.skills, {
         category: 'Technical Skills',
-        items: '',
+        items: [],
       }]
     }));
   };
 
+  const addSkillTag = (skillGroupIndex: number, skill: string) => {
+    if (!skill.trim()) return;
+    
+    const skillGroup = formData.skills[skillGroupIndex];
+    const currentSkills = skillGroup.items || [];
+    
+    if (!currentSkills.includes(skill.trim())) {
+      const newSkills = [...formData.skills];
+      newSkills[skillGroupIndex] = {
+        ...skillGroup,
+        items: [...currentSkills, skill.trim()]
+      };
+      setFormData(prev => ({ ...prev, skills: newSkills }));
+    }
+  };
 
+  const removeSkillTag = (skillGroupIndex: number, skillToRemove: string) => {
+    const skillGroup = formData.skills[skillGroupIndex];
+    const currentSkills = skillGroup.items || [];
+    const updatedSkills = currentSkills.filter(skill => skill !== skillToRemove);
+    
+    const newSkills = [...formData.skills];
+    newSkills[skillGroupIndex] = {
+      ...skillGroup,
+      items: updatedSkills
+    };
+    setFormData(prev => ({ ...prev, skills: newSkills }));
+  };
 
   const validateJsonFile = (file: File): string | null => {
     if (!file.name.endsWith('.json')) {
@@ -920,24 +948,63 @@ export default function ResumeForm({
                 </button>
               </div>
               
-              {/* Skills Textarea */}
+              {/* Skills Tags */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Skills (comma-separated)
+                  Skills
                 </label>
-                <textarea
-                  value={skillGroup.items}
-                  onChange={(e) => {
-                    const newSkills = [...formData.skills];
-                    newSkills[skillGroupIndex] = { ...skillGroup, items: e.target.value };
-                    setFormData(prev => ({ ...prev, skills: newSkills }));
-                  }}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                  placeholder="e.g., JavaScript, React, Node.js, Python, Docker"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Enter skills separated by commas (e.g., JavaScript, React, Node.js)
+                
+                {/* Skill Input */}
+                <div className="flex gap-2 mb-3">
+                  <input
+                    type="text"
+                    placeholder="Add a skill..."
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const target = e.target as HTMLInputElement;
+                        addSkillTag(skillGroupIndex, target.value);
+                        target.value = '';
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                      addSkillTag(skillGroupIndex, input.value);
+                      input.value = '';
+                    }}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    Add
+                  </button>
+                </div>
+                
+                {/* Skill Tags */}
+                <div className="flex flex-wrap gap-2">
+                  {skillGroup.items && skillGroup.items.length > 0 ? skillGroup.items.map((skill, skillIndex) => (
+                    <div
+                      key={skillIndex}
+                      className="flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                    >
+                      <span>{skill}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeSkillTag(skillGroupIndex, skill)}
+                        className="ml-1 text-blue-600 hover:text-blue-800 focus:outline-none"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  )) : null}
+                </div>
+                
+                <p className="text-xs text-gray-500 mt-2">
+                  Type a skill and press Enter or click Add to add it as a tag
                 </p>
               </div>
             </div>

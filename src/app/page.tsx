@@ -60,10 +60,10 @@ export default function HomePage() {
         },
         summary: formData.personal.summary,
         skills: formData.skills
-          .filter((skillGroup: any) => skillGroup.items.trim() !== '')
+          .filter((skillGroup: any) => skillGroup.items.length > 0)
           .map((skillGroup: any) => ({
             category: skillGroup.category,
-            items: skillGroup.items.trim()
+            items: skillGroup.items
           })),
         experience: formData.experience
           .filter((exp: any) => exp.company && exp.position)
@@ -175,10 +175,10 @@ export default function HomePage() {
         },
         summary: formData.personal.summary,
         skills: formData.skills
-          .filter((skillGroup: any) => skillGroup.items.trim() !== '')
+          .filter((skillGroup: any) => skillGroup.items.length > 0)
           .map((skillGroup: any) => ({
             category: skillGroup.category,
-            items: skillGroup.items.trim()
+            items: skillGroup.items
           })),
         experience: formData.experience
           .filter((exp: any) => exp.company && exp.position)
