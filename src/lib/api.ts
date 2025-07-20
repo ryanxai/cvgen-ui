@@ -1,5 +1,5 @@
 // API client for Resume Builder backend
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://cvgen.fly.dev';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://cvgen-c-jysq.fly.dev';
 
 export interface ResumeGenerationResponse {
   message: string;

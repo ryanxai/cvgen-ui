@@ -38,7 +38,7 @@ Open [http://localhost:3000](http://localhost:3000) to see the application.
 Create a `.env.local` file:
 
 ```bash
-NEXT_PUBLIC_API_BASE_URL=https://cvgen.fly.dev
+NEXT_PUBLIC_API_BASE_URL=https://cvgen-c-jysq.fly.dev
 ```
 
 ## Deployment
@@ -48,7 +48,7 @@ NEXT_PUBLIC_API_BASE_URL=https://cvgen.fly.dev
 1. Push your code to a Git repository
 2. Connect your repository to Vercel
 3. Set the environment variable:
-   - `NEXT_PUBLIC_API_BASE_URL`: `https://cvgen.fly.dev`
+   - `NEXT_PUBLIC_API_BASE_URL`: `https://cvgen-c-jysq.fly.dev`
 4. Deploy!
 
 Alternatively, use the Vercel CLI:
