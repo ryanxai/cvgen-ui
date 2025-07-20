@@ -5,6 +5,6 @@
   "installCommand": "npm install",
   "outputDirectory": ".next",
   "env": {
-    "NEXT_PUBLIC_API_BASE_URL": "https://yaml2pdf-resume-builder.fly.dev"
+    "NEXT_PUBLIC_API_BASE_URL": "https://cvgen.fly.dev"
   }
-} 
+}

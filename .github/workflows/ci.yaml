@@ -11,7 +11,7 @@ on:
 
 jobs:
   build-and-test:
-    if: ${{ github.repository == 'ryanxai/resume-builder-ui' }}
+    if: ${{ github.repository == 'ryanxai/der-ui' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -42,7 +42,7 @@ jobs:
         run: npm run build
 
   publish-tag:
-    if: ${{ github.repository == 'ryanxai/resume-builder-ui' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.repository == 'ryanxai/cvgen-ui' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write

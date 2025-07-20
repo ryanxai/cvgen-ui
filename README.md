@@ -1,6 +1,6 @@
-# Resume Builder UI
+# CVGen UI
 
-A beautiful, modern frontend for the JSON to PDF Resume Builder API. Built with Next.js, TypeScript, and Tailwind CSS.
+A beautiful, modern frontend for the YAML to PDF CVGen API. Built with Next.js, TypeScript, and Tailwind CSS.
 
 ## Features
 
@@ -38,7 +38,7 @@ Open [http://localhost:3000](http://localhost:3000) to see the application.
 Create a `.env.local` file:
 
 ```bash
-NEXT_PUBLIC_API_BASE_URL=https://yaml2pdf-resume-builder.fly.dev
+NEXT_PUBLIC_API_BASE_URL=https://cvgen.fly.dev
 ```
 
 ## Deployment
@@ -48,7 +48,7 @@ NEXT_PUBLIC_API_BASE_URL=https://yaml2pdf-resume-builder.fly.dev
 1. Push your code to a Git repository
 2. Connect your repository to Vercel
 3. Set the environment variable:
-   - `NEXT_PUBLIC_API_BASE_URL`: `https://yaml2pdf-resume-builder.fly.dev`
+   - `NEXT_PUBLIC_API_BASE_URL`: `https://cvgen.fly.dev`
 4. Deploy!
 
 Alternatively, use the Vercel CLI:
