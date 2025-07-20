@@ -1,5 +1,5 @@
 const fs = require('fs');
- 
+
 // Simulate the parsing logic from ResumeForm.tsx
 function parseYamlToFormData(yamlContent) {
   try {
