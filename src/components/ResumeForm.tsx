@@ -10,10 +10,18 @@ interface ResumeFormData {
     phone: string;
     location: string;
     summary: string;
+    links: {
+      github: string;
+      stackoverflow: string;
+      googlescholar: string;
+      linkedin: string;
+    };
   };
   experience: Array<{
     company: string;
     position: string;
+    company_url: string;
+    company_description: string;
     start_date: string;
     end_date: string;
     description: string[];
@@ -25,7 +33,31 @@ interface ResumeFormData {
     start_date: string;
     end_date: string;
   }>;
-  skills: string[];
+  skills: Array<{
+    category: string;
+    items: string[];
+  }>;
+  awards: Array<{
+    title: string;
+    organization: string;
+    organization_detail: string;
+    organization_url: string;
+    location: string;
+    date: string;
+  }>;
+  certifications: Array<{
+    title: string;
+    organization: string;
+    url: string;
+    date: string;
+  }>;
+  publications: Array<{
+    authors: string;
+    title: string;
+    venue: string;
+    date: string;
+    url: string;
+  }>;
 }
 
 interface ResumeFormProps {
@@ -42,11 +74,19 @@ export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormPro
       phone: '',
       location: '',
       summary: '',
+      links: {
+        github: '',
+        stackoverflow: '',
+        googlescholar: '',
+        linkedin: '',
+      },
     },
     experience: [
       {
         company: '',
         position: '',
+        company_url: '',
+        company_description: '',
         start_date: '',
         end_date: '',
         description: [''],
@@ -61,7 +101,15 @@ export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormPro
         end_date: '',
       },
     ],
-    skills: [''],
+    skills: [
+      {
+        category: 'Technical Skills',
+        items: [''],
+      },
+    ],
+    awards: [],
+    certifications: [],
+    publications: [],
   });
 
   const convertDateToAbbreviated = (dateString: string): string => {
@@ -85,6 +133,8 @@ export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormPro
       .map(exp => ({
         title: exp.position,
         company: exp.company,
+        company_url: exp.company_url || '',
+        company_description: exp.company_description || '',
         location: data.personal.location,
         date_start: convertDateToAbbreviated(exp.start_date),
         date_end: exp.end_date ? convertDateToAbbreviated(exp.end_date) : 'Present',
@@ -108,12 +158,12 @@ export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormPro
       }));
 
     // Convert skills to the correct format
-    const skills = [
-      {
-        category: 'Technical Skills',
-        items: data.skills.filter(skill => skill.trim() !== '')
-      }
-    ];
+    const skills = data.skills
+      .filter(skillGroup => skillGroup.items.some(item => item.trim() !== ''))
+      .map(skillGroup => ({
+        category: skillGroup.category,
+        items: skillGroup.items.filter(item => item.trim() !== '')
+      }));
 
 
 
@@ -124,6 +174,15 @@ contact:
   phone: ${data.personal.phone}
   email: ${data.personal.email}
   location: ${data.personal.location}
+  links:
+    - name: GitHub
+      url: ${data.personal.links.github}
+    - name: StackOverflow
+      url: ${data.personal.links.stackoverflow}
+    - name: GoogleScholar
+      url: ${data.personal.links.googlescholar}
+    - name: LinkedIn
+      url: ${data.personal.links.linkedin}
 
 summary: >
   ${data.personal.summary}
@@ -146,6 +205,8 @@ experience:
     experience.forEach(exp => {
       yamlContent += `  - title: ${exp.title}
     company: ${exp.company}
+    company_url: ${exp.company_url}
+    company_description: ${exp.company_description}
     location: ${exp.location}
     date_start: ${exp.date_start}
     date_end: ${exp.date_end}
@@ -173,7 +234,50 @@ experience:
 `;
     });
 
+    // Add awards if any
+    if (data.awards.length > 0) {
+      yamlContent += `awards:
+`;
+      data.awards.forEach(award => {
+        yamlContent += `  - title: ${award.title}
+    organization: ${award.organization}
+    organization_detail: ${award.organization_detail}
+    organization_url: ${award.organization_url}
+    location: ${award.location}
+    date: ${convertDateToAbbreviated(award.date)}
 
+`;
+      });
+    }
+
+    // Add certifications if any
+    if (data.certifications.length > 0) {
+      yamlContent += `certifications:
+`;
+      data.certifications.forEach(cert => {
+        yamlContent += `  - title: ${cert.title}
+    organization: ${cert.organization}
+    url: ${cert.url}
+    date: ${convertDateToAbbreviated(cert.date)}
+
+`;
+      });
+    }
+
+    // Add publications if any
+    if (data.publications.length > 0) {
+      yamlContent += `publications:
+`;
+      data.publications.forEach(pub => {
+        yamlContent += `  - authors: ${pub.authors}
+    title: ${pub.title}
+    venue: ${pub.venue}
+    date: ${convertDateToAbbreviated(pub.date)}
+    url: ${pub.url}
+
+`;
+      });
+    }
 
     yamlContent += '---';
 
@@ -211,6 +315,38 @@ experience:
     downloadLink.click();
     document.body.removeChild(downloadLink);
     URL.revokeObjectURL(downloadUrl);
+  };
+
+  const handleDownloadResume = async () => {
+    setIsLoading(true);
+    
+    try {
+      const yamlContent = convertToYaml(formData);
+      const yamlBlob = new Blob([yamlContent], { type: 'text/yaml' });
+      const yamlFile = new File([yamlBlob], 'resume.yaml', { type: 'text/yaml' });
+
+      const result = await api.uploadYamlAndGenerate(yamlFile);
+      
+      // Download the generated PDF
+      const pdfBlob = await api.downloadPdf(result.filename);
+      
+      // Create download link for the PDF file
+      const downloadUrl = URL.createObjectURL(pdfBlob);
+      const downloadLink = document.createElement('a');
+      downloadLink.href = downloadUrl;
+      downloadLink.download = `resume_${formData.personal.name.replace(/\s+/g, '_')}.pdf`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(downloadUrl);
+      
+      // Show success message
+      onFormSuccess(result);
+    } catch (error) {
+      onFormError(error instanceof Error ? error.message : 'Failed to download resume');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const updatePersonal = (field: keyof ResumeFormData['personal'], value: string) => {
@@ -267,7 +403,6 @@ experience:
         field: '',
         start_date: '',
         end_date: '',
-        gpa: '',
       }]
     }));
   };
@@ -279,24 +414,41 @@ experience:
     }));
   };
 
-  const updateSkills = (index: number, value: string) => {
+  const updateSkills = (skillGroupIndex: number, itemIndex: number, value: string) => {
     setFormData(prev => ({
       ...prev,
-      skills: prev.skills.map((skill, i) => i === index ? value : skill)
+      skills: prev.skills.map((skillGroup, i) =>
+        i === skillGroupIndex
+          ? {
+              ...skillGroup,
+              items: skillGroup.items.map((item, j) => j === itemIndex ? value : item)
+            }
+          : skillGroup
+      )
     }));
   };
 
   const addSkill = () => {
     setFormData(prev => ({
       ...prev,
-      skills: [...prev.skills, '']
+      skills: [...prev.skills, {
+        category: 'Technical Skills',
+        items: [''],
+      }]
     }));
   };
 
-  const removeSkill = (index: number) => {
+  const removeSkill = (skillGroupIndex: number, itemIndex: number) => {
     setFormData(prev => ({
       ...prev,
-      skills: prev.skills.filter((_, i) => i !== index)
+      skills: prev.skills.map((skillGroup, i) =>
+        i === skillGroupIndex
+          ? {
+              ...skillGroup,
+              items: skillGroup.items.filter((_, j) => j !== itemIndex)
+            }
+          : skillGroup
+      ).filter(skillGroup => skillGroup.items.length > 0)
     }));
   };
 
@@ -380,6 +532,95 @@ experience:
               placeholder="Experienced software engineer with 5+ years of expertise in..."
             />
           </div>
+
+          {/* Links Section */}
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
+              Professional Links
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  GitHub URL
+                </label>
+                <input
+                  type="url"
+                  value={formData.personal.links.github}
+                  onChange={(e) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      personal: {
+                        ...prev.personal,
+                        links: { ...prev.personal.links, github: e.target.value }
+                      }
+                    }));
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  placeholder="https://github.com/username"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  LinkedIn URL
+                </label>
+                <input
+                  type="url"
+                  value={formData.personal.links.linkedin}
+                  onChange={(e) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      personal: {
+                        ...prev.personal,
+                        links: { ...prev.personal.links, linkedin: e.target.value }
+                      }
+                    }));
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  placeholder="https://linkedin.com/in/username"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Stack Overflow URL
+                </label>
+                <input
+                  type="url"
+                  value={formData.personal.links.stackoverflow}
+                  onChange={(e) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      personal: {
+                        ...prev.personal,
+                        links: { ...prev.personal.links, stackoverflow: e.target.value }
+                      }
+                    }));
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  placeholder="https://stackoverflow.com/users/username"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Google Scholar URL
+                </label>
+                <input
+                  type="url"
+                  value={formData.personal.links.googlescholar}
+                  onChange={(e) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      personal: {
+                        ...prev.personal,
+                        links: { ...prev.personal.links, googlescholar: e.target.value }
+                      }
+                    }));
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  placeholder="https://scholar.google.com/citations?user=ID"
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Experience */}
@@ -433,6 +674,30 @@ experience:
                     onChange={(e) => updateExperience(index, 'position', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
                     placeholder="Senior Software Engineer"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Company URL
+                  </label>
+                  <input
+                    type="url"
+                    value={exp.company_url}
+                    onChange={(e) => updateExperience(index, 'company_url', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="https://techcorp.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Company Description
+                  </label>
+                  <input
+                    type="text"
+                    value={exp.company_description}
+                    onChange={(e) => updateExperience(index, 'company_description', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="AI-powered business intelligence platform"
                   />
                 </div>
                 <div>
@@ -608,54 +873,567 @@ experience:
               onClick={addSkill}
               className="text-blue-600 hover:text-blue-800 text-sm font-medium"
             >
-              + Add Skill
+              + Add Skill Category
             </button>
           </div>
-          <div className="space-y-2">
-            {formData.skills.map((skill, index) => (
-              <div key={index} className="flex gap-2">
-                <input
-                  type="text"
-                  value={skill}
-                  onChange={(e) => updateSkills(index, e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                  placeholder="JavaScript, React, Node.js"
-                />
-                {formData.skills.length > 1 && (
+          <div className="space-y-4">
+            {formData.skills.map((skillGroup, skillGroupIndex) => (
+              <div key={skillGroupIndex} className="bg-gray-50 rounded-lg p-4 space-y-3">
+                <div className="flex justify-between items-center">
+                  <input
+                    type="text"
+                    value={skillGroup.category}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        skills: prev.skills.map((sg, i) =>
+                          i === skillGroupIndex ? { ...sg, category: e.target.value } : sg
+                        )
+                      }));
+                    }}
+                    className="text-lg font-semibold text-gray-900 bg-transparent border-none focus:outline-none"
+                    placeholder="Technical Skills"
+                  />
+                  {formData.skills.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData(prev => ({
+                          ...prev,
+                          skills: prev.skills.filter((_, i) => i !== skillGroupIndex)
+                        }));
+                      }}
+                      className="text-red-600 hover:text-red-800 text-sm"
+                    >
+                      Remove Category
+                    </button>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  {skillGroup.items.map((item, itemIndex) => (
+                    <div key={itemIndex} className="flex gap-2">
+                      <input
+                        type="text"
+                        value={item}
+                        onChange={(e) => updateSkills(skillGroupIndex, itemIndex, e.target.value)}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                        placeholder="JavaScript, React, Node.js"
+                      />
+                      {skillGroup.items.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeSkill(skillGroupIndex, itemIndex)}
+                          className="text-red-600 hover:text-red-800 px-3"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  ))}
                   <button
                     type="button"
-                    onClick={() => removeSkill(index)}
-                    className="text-red-600 hover:text-red-800 px-3"
+                    onClick={() => {
+                      setFormData(prev => ({
+                        ...prev,
+                        skills: prev.skills.map((sg, i) =>
+                          i === skillGroupIndex
+                            ? { ...sg, items: [...sg.items, ''] }
+                            : sg
+                        )
+                      }));
+                    }}
+                    className="text-blue-600 hover:text-blue-800 text-sm"
                   >
-                    ×
+                    + Add skill
                   </button>
-                )}
+                </div>
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Awards */}
+        <div className="space-y-6">
+          <div className="flex justify-between items-center border-b border-gray-200 pb-2">
+            <h4 className="text-lg font-semibold text-gray-900">Awards</h4>
+            <button
+              type="button"
+              onClick={() => {
+                setFormData(prev => ({
+                  ...prev,
+                  awards: [...prev.awards, {
+                    title: '',
+                    organization: '',
+                    organization_detail: '',
+                    organization_url: '',
+                    location: '',
+                    date: '',
+                  }]
+                }));
+              }}
+              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+            >
+              + Add Award
+            </button>
+          </div>
+          {formData.awards.map((award, index) => (
+            <div key={index} className="bg-gray-50 rounded-lg p-4 space-y-4">
+              <div className="flex justify-between items-center">
+                <h5 className="font-medium text-gray-900">Award {index + 1}</h5>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData(prev => ({
+                      ...prev,
+                      awards: prev.awards.filter((_, i) => i !== index)
+                    }));
+                  }}
+                  className="text-red-600 hover:text-red-800 text-sm"
+                >
+                  Remove
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Award Title *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={award.title}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        awards: prev.awards.map((a, i) =>
+                          i === index ? { ...a, title: e.target.value } : a
+                        )
+                      }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="Best Paper Award"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Organization *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={award.organization}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        awards: prev.awards.map((a, i) =>
+                          i === index ? { ...a, organization: e.target.value } : a
+                        )
+                      }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="International Conference"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Organization Detail
+                  </label>
+                  <input
+                    type="text"
+                    value={award.organization_detail}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        awards: prev.awards.map((a, i) =>
+                          i === index ? { ...a, organization_detail: e.target.value } : a
+                        )
+                      }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="Advanced Techniques in ML"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Organization URL
+                  </label>
+                  <input
+                    type="url"
+                    value={award.organization_url}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        awards: prev.awards.map((a, i) =>
+                          i === index ? { ...a, organization_url: e.target.value } : a
+                        )
+                      }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="https://conference.example.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    value={award.location}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        awards: prev.awards.map((a, i) =>
+                          i === index ? { ...a, location: e.target.value } : a
+                        )
+                      }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="San Francisco, CA"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Date *
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={award.date}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        awards: prev.awards.map((a, i) =>
+                          i === index ? { ...a, date: e.target.value } : a
+                        )
+                      }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Certifications */}
+        <div className="space-y-6">
+          <div className="flex justify-between items-center border-b border-gray-200 pb-2">
+            <h4 className="text-lg font-semibold text-gray-900">Certifications</h4>
+            <button
+              type="button"
+              onClick={() => {
+                setFormData(prev => ({
+                  ...prev,
+                  certifications: [...prev.certifications, {
+                    title: '',
+                    organization: '',
+                    url: '',
+                    date: '',
+                  }]
+                }));
+              }}
+              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+            >
+              + Add Certification
+            </button>
+          </div>
+          {formData.certifications.map((cert, index) => (
+            <div key={index} className="bg-gray-50 rounded-lg p-4 space-y-4">
+              <div className="flex justify-between items-center">
+                <h5 className="font-medium text-gray-900">Certification {index + 1}</h5>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData(prev => ({
+                      ...prev,
+                      certifications: prev.certifications.filter((_, i) => i !== index)
+                    }));
+                  }}
+                  className="text-red-600 hover:text-red-800 text-sm"
+                >
+                  Remove
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Certification Title *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={cert.title}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        certifications: prev.certifications.map((c, i) =>
+                          i === index ? { ...c, title: e.target.value } : c
+                        )
+                      }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="AWS Certified Solutions Architect"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Organization *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={cert.organization}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        certifications: prev.certifications.map((c, i) =>
+                          i === index ? { ...c, organization: e.target.value } : c
+                        )
+                      }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="Amazon Web Services"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    URL
+                  </label>
+                  <input
+                    type="url"
+                    value={cert.url}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        certifications: prev.certifications.map((c, i) =>
+                          i === index ? { ...c, url: e.target.value } : c
+                        )
+                      }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="https://aws.amazon.com/certification"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Date *
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={cert.date}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        certifications: prev.certifications.map((c, i) =>
+                          i === index ? { ...c, date: e.target.value } : c
+                        )
+                      }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Publications */}
+        <div className="space-y-6">
+          <div className="flex justify-between items-center border-b border-gray-200 pb-2">
+            <h4 className="text-lg font-semibold text-gray-900">Publications</h4>
+            <button
+              type="button"
+              onClick={() => {
+                setFormData(prev => ({
+                  ...prev,
+                  publications: [...prev.publications, {
+                    authors: '',
+                    title: '',
+                    venue: '',
+                    date: '',
+                    url: '',
+                  }]
+                }));
+              }}
+              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+            >
+              + Add Publication
+            </button>
+          </div>
+          {formData.publications.map((pub, index) => (
+            <div key={index} className="bg-gray-50 rounded-lg p-4 space-y-4">
+              <div className="flex justify-between items-center">
+                <h5 className="font-medium text-gray-900">Publication {index + 1}</h5>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData(prev => ({
+                      ...prev,
+                      publications: prev.publications.filter((_, i) => i !== index)
+                    }));
+                  }}
+                  className="text-red-600 hover:text-red-800 text-sm"
+                >
+                  Remove
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Authors *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={pub.authors}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        publications: prev.publications.map((p, i) =>
+                          i === index ? { ...p, authors: e.target.value } : p
+                        )
+                      }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="Doe, J., Smith, A., Johnson, B."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Publication Title *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={pub.title}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        publications: prev.publications.map((p, i) =>
+                          i === index ? { ...p, title: e.target.value } : p
+                        )
+                      }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="Advanced Machine Learning Techniques"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Venue *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={pub.venue}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        publications: prev.publications.map((p, i) =>
+                          i === index ? { ...p, venue: e.target.value } : p
+                        )
+                      }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="Journal of Applied Data Science"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Date *
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={pub.date}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        publications: prev.publications.map((p, i) =>
+                          i === index ? { ...p, date: e.target.value } : p
+                        )
+                      }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    URL
+                  </label>
+                  <input
+                    type="url"
+                    value={pub.url}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        publications: prev.publications.map((p, i) =>
+                          i === index ? { ...p, url: e.target.value } : p
+                        )
+                      }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="https://example.com/publication"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
 
 
 
         {/* Action Buttons */}
         <div className="pt-6 border-t border-gray-200 space-y-4">
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
-          >
-            {isLoading ? (
-              <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Generating Resume...
-              </>
-            ) : (
-              'Generate Resume'
-            )}
-          </button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
+            >
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Generating Resume...
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Generate Resume
+                </>
+              )}
+            </button>
+            
+            <button
+              type="button"
+              onClick={handleDownloadResume}
+              disabled={isLoading}
+              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
+            >
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Generating PDF...
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Download Resume
+                </>
+              )}
+            </button>
+          </div>
           
           <div className="flex gap-4">
             <button
