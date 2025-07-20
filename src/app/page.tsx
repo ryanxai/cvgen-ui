@@ -434,27 +434,9 @@ export default function HomePage() {
                 {/* Upload JSON Resume Data */}
                 <div id="upload-json-section" className="bg-white rounded-lg shadow-md p-6">
                   <div className="flex flex-col items-center space-y-3">
-                    <svg
-                      className="w-8 h-8 text-blue-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
-                      />
-                    </svg>
-                    <h4 className="font-medium text-gray-900">Upload JSON Resume Data</h4>
-                    <p className="text-sm text-gray-600 text-center">
-                      Upload your resume data file to populate the form
-                    </p>
                     <div
                       className={`
-                        relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer w-full
+                        relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer w-full
                         transition-all duration-200 ease-in-out
                         ${isUploadingJson 
                           ? 'border-blue-500 bg-blue-50' 
@@ -491,7 +473,7 @@ export default function HomePage() {
                         ) : (
                           <>
                             <svg
-                              className="w-6 h-6 text-gray-400"
+                              className="w-6 h-6 text-blue-500"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
