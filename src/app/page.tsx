@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import FileUpload from '@/components/FileUpload';
 import ResumeGenerator from '@/components/ResumeGenerator';
+import ResumeForm from '@/components/ResumeForm';
 import PdfDownload from '@/components/PdfDownload';
 import { ResumeGenerationResponse } from '@/lib/api';
 
@@ -70,7 +71,7 @@ export default function HomePage() {
             Transform Your Resume
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-            Upload your YAML resume file or use our default template to generate 
+            Fill out our form, upload your YAML file, or use our default template to generate 
             a professional PDF resume in seconds.
           </p>
         </div>
@@ -132,49 +133,59 @@ export default function HomePage() {
 
         {/* Main Actions - Only show if no result */}
         {!generationResult && (
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
-            {/* Upload Section */}
+          <div className="space-y-8 mb-12">
+            {/* Form Section */}
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-gray-900 text-center">
-                Upload Custom YAML
+                Create Resume with Form
               </h3>
               <p className="text-gray-600 text-center text-sm mb-6">
-                Have your own resume.yaml file? Upload it here to generate a custom PDF.
+                Fill out our comprehensive form to create your resume data and generate a professional PDF.
               </p>
-              <FileUpload 
-                onUploadSuccess={handleSuccess}
-                onUploadError={handleError}
+              <ResumeForm
+                onFormSuccess={handleSuccess}
+                onFormError={handleError}
               />
             </div>
 
             {/* Divider */}
-            <div className="hidden md:flex items-center justify-center">
-              <div className="bg-gray-200 w-px h-32"></div>
-              <div className="absolute bg-white px-4 py-2 text-gray-500 text-sm font-medium">
+            <div className="flex items-center justify-center py-4">
+              <div className="bg-gray-200 h-px flex-1"></div>
+              <div className="px-4 text-gray-500 text-sm font-medium">
                 OR
               </div>
+              <div className="bg-gray-200 h-px flex-1"></div>
             </div>
 
-            {/* Mobile Divider */}
-            <div className="md:hidden flex items-center justify-center py-4">
-              <div className="bg-gray-200 h-px w-32"></div>
-              <div className="absolute bg-white px-4 py-2 text-gray-500 text-sm font-medium">
-                OR
+            {/* Alternative Options */}
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Upload Section */}
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold text-gray-900 text-center">
+                  Upload Custom YAML
+                </h3>
+                <p className="text-gray-600 text-center text-sm mb-6">
+                  Have your own resume.yaml file? Upload it here to generate a custom PDF.
+                </p>
+                <FileUpload 
+                  onUploadSuccess={handleSuccess}
+                  onUploadError={handleError}
+                />
               </div>
-            </div>
 
-            {/* Generate Section */}
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-gray-900 text-center">
-                Use Default Template
-              </h3>
-              <p className="text-gray-600 text-center text-sm mb-6">
-                Generate a resume using our pre-configured template and sample data.
-              </p>
-              <ResumeGenerator
-                onGenerationSuccess={handleSuccess}
-                onGenerationError={handleError}
-              />
+              {/* Generate Section */}
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold text-gray-900 text-center">
+                  Use Default Template
+                </h3>
+                <p className="text-gray-600 text-center text-sm mb-6">
+                  Generate a resume using our pre-configured template and sample data.
+                </p>
+                <ResumeGenerator
+                  onGenerationSuccess={handleSuccess}
+                  onGenerationError={handleError}
+                />
+              </div>
             </div>
           </div>
         )}
