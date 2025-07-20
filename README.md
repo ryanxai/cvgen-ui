@@ -1,12 +1,12 @@
 # Resume Builder UI
 
-A beautiful, modern frontend for the YAML to PDF Resume Builder API. Built with Next.js, TypeScript, and Tailwind CSS.
+A beautiful, modern frontend for the JSON to PDF Resume Builder API. Built with Next.js, TypeScript, and Tailwind CSS.
 
 ## Features
 
-- 🎯 **Drag & Drop File Upload**: Upload YAML resume files with an intuitive interface
+- 🎯 **Drag & Drop File Upload**: Upload JSON resume files with an intuitive interface
 - 📝 **Interactive Form**: Fill out a comprehensive form to create your resume data
-- 🔄 **YAML Form Population**: Upload a YAML file to automatically populate the form
+- 🔄 **JSON Form Population**: Upload a JSON file to automatically populate the form
 - ⚡ **Instant Generation**: Generate professional PDFs in seconds
 - 🎨 **Beautiful UI**: Modern, responsive design with smooth animations
 - 📱 **Mobile Friendly**: Works perfectly on all devices
@@ -62,16 +62,16 @@ npx vercel --prod
 ### Interactive Form
 1. Fill out the comprehensive form with your personal information, experience, education, skills, and more
 2. Click "Generate Resume" to create a PDF
-3. Or click "Download YAML" to save your data as a YAML file for later use
+3. Or click "Download JSON" to save your data as a JSON file for later use
 
-### YAML File Upload
-1. Upload a pre-filled `resume.yaml` file using the "Upload YAML" button in the form
-2. The form will be automatically populated with the YAML content
+### JSON File Upload
+1. Upload a pre-filled `resume.json` file using the "Upload JSON" button in the form
+2. The form will be automatically populated with the JSON content
 3. You can edit the populated data before generating the resume
-4. Supports standard YAML format with sections for personal info, experience, education, skills, awards, certifications, and publications
+4. Supports standard JSON format with sections for personal info, experience, education, skills, awards, certifications, and publications
 
-### Direct YAML Upload
-1. Use the drag & drop area to upload a YAML file directly
+### Direct JSON Upload
+1. Use the drag & drop area to upload a JSON file directly
 2. The PDF will be generated immediately from the uploaded file
 
 ## API Integration
@@ -79,8 +79,8 @@ npx vercel --prod
 This frontend communicates with the Resume Builder API deployed on Fly.dev:
 
 - **Health Check**: `GET /health`
-- **Upload YAML**: `POST /upload-yaml`
-- **Generate from Default**: `POST /generate-from-yaml`
+- **Upload JSON**: `POST /upload-json`
+- **Generate from Default**: `POST /generate-from-json`
 - **Download PDF**: `GET /download/{filename}`
 
 ## Tech Stack
@@ -100,7 +100,7 @@ src/
 ├── components/
 │   ├── FileUpload.tsx    # Drag & drop file upload
 │   ├── PdfDownload.tsx   # PDF download component
-│   ├── ResumeForm.tsx    # Interactive resume form with YAML upload
+│   ├── ResumeForm.tsx    # Interactive resume form with JSON upload
 │   └── ResumeGenerator.tsx # Resume generation
 └── lib/
     └── api.ts            # API client

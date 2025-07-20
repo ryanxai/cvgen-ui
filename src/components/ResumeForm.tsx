@@ -176,257 +176,72 @@ export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormPro
   const parseJsonToFormData = (jsonContent: string): ResumeFormData => {
     try {
       // Parse JSON content
-      const data = JSON.parse(jsonContent);
+      const data = JSON.parse(jsonContent) as Record<string, unknown>;
+      
       const formData: ResumeFormData = {
         personal: {
-          name: data.name || '',
-          email: data.contact?.email || '',
-          phone: data.contact?.phone || '',
-          location: data.contact?.location || '',
-          summary: data.summary || '',
+          name: (data.name as string) || '',
+          email: ((data.contact as Record<string, unknown>)?.email as string) || '',
+          phone: ((data.contact as Record<string, unknown>)?.phone as string) || '',
+          location: ((data.contact as Record<string, unknown>)?.location as string) || '',
+          summary: (data.summary as string) || '',
           links: {
-            github: data.contact?.links?.find((link: any) => link.name === 'GitHub')?.url || '',
-            stackoverflow: data.contact?.links?.find((link: any) => link.name === 'StackOverflow')?.url || '',
-            googlescholar: data.contact?.links?.find((link: any) => link.name === 'GoogleScholar')?.url || '',
-            linkedin: data.contact?.links?.find((link: any) => link.name === 'LinkedIn')?.url || '',
+            github: ((data.contact as Record<string, unknown>)?.links as Array<Record<string, string>>)?.find((link) => link.name === 'GitHub')?.url || '',
+            stackoverflow: ((data.contact as Record<string, unknown>)?.links as Array<Record<string, string>>)?.find((link) => link.name === 'StackOverflow')?.url || '',
+            googlescholar: ((data.contact as Record<string, unknown>)?.links as Array<Record<string, string>>)?.find((link) => link.name === 'GoogleScholar')?.url || '',
+            linkedin: ((data.contact as Record<string, unknown>)?.links as Array<Record<string, string>>)?.find((link) => link.name === 'LinkedIn')?.url || '',
           },
         },
-        experience: data.experience?.map((exp: any) => ({
-          company: exp.company || '',
-          position: exp.title || '',
-          company_url: exp.company_url || '',
-          company_description: exp.company_description || '',
-          start_date: convertAbbreviatedDateToFormDate(exp.date_start || ''),
-          end_date: exp.date_end === 'Present' ? 'Present' : convertAbbreviatedDateToFormDate(exp.date_end || ''),
-          description: exp.achievements?.map((achievement: any) => achievement.description || '') || [''],
-        })) || [],
-        education: data.education?.map((edu: any) => ({
-          institution: edu.institution || '',
-          degree: edu.degree || '',
+        experience: ((data.experience as Array<Record<string, unknown>>) || []).map((exp) => ({
+          company: (exp.company as string) || '',
+          position: (exp.title as string) || '',
+          company_url: (exp.company_url as string) || '',
+          company_description: (exp.company_description as string) || '',
+          start_date: convertAbbreviatedDateToFormDate((exp.date_start as string) || ''),
+          end_date: (exp.date_end as string) === 'Present' ? 'Present' : convertAbbreviatedDateToFormDate((exp.date_end as string) || ''),
+          description: ((exp.achievements as Array<Record<string, string>>) || []).map((achievement) => achievement.description || ''),
+        })),
+        education: ((data.education as Array<Record<string, unknown>>) || []).map((edu) => ({
+          institution: (edu.institution as string) || '',
+          degree: (edu.degree as string) || '',
           field: '',
-          start_date: convertAbbreviatedDateToFormDate(edu.date_start || ''),
-          end_date: convertAbbreviatedDateToFormDate(edu.date_end || ''),
-        })) || [],
-        skills: data.skills?.map((skillGroup: any) => ({
-          category: skillGroup.category || '',
-          items: typeof skillGroup.items === 'string' ? skillGroup.items.split(', ') : skillGroup.items || [''],
-        })) || [],
-        awards: data.awards?.map((award: any) => ({
-          title: award.title || '',
-          organization: award.organization || '',
-          organization_detail: award.organization_detail || '',
-          organization_url: award.organization_url || '',
-          location: award.location || '',
-          date: award.date || '',
-        })) || [],
-        certifications: data.certifications?.map((cert: any) => ({
-          title: cert.title || '',
-          organization: cert.organization || '',
-          url: cert.url || '',
-          date: cert.date || '',
-        })) || [],
-        publications: data.publications?.map((pub: any) => ({
-          authors: pub.authors || '',
-          title: pub.title || '',
-          venue: pub.venue || '',
-          date: pub.year?.toString() || '',
-          url: pub.url || '',
-        })) || [],
+          start_date: convertAbbreviatedDateToFormDate((edu.date_start as string) || ''),
+          end_date: convertAbbreviatedDateToFormDate((edu.date_end as string) || ''),
+        })),
+        skills: ((data.skills as Array<Record<string, unknown>>) || []).map((skillGroup) => ({
+          category: (skillGroup.category as string) || '',
+          items: typeof skillGroup.items === 'string' ? skillGroup.items.split(', ') : (skillGroup.items as string[]) || [''],
+        })),
+        awards: ((data.awards as Array<Record<string, unknown>>) || []).map((award) => ({
+          title: (award.title as string) || '',
+          organization: (award.organization as string) || '',
+          organization_detail: (award.organization_detail as string) || '',
+          organization_url: (award.organization_url as string) || '',
+          location: (award.location as string) || '',
+          date: (award.date as string) || '',
+        })),
+        certifications: ((data.certifications as Array<Record<string, unknown>>) || []).map((cert) => ({
+          title: (cert.title as string) || '',
+          organization: (cert.organization as string) || '',
+          url: (cert.url as string) || '',
+          date: (cert.date as string) || '',
+        })),
+        publications: ((data.publications as Array<Record<string, unknown>>) || []).map((pub) => ({
+          authors: (pub.authors as string) || '',
+          title: (pub.title as string) || '',
+          venue: (pub.venue as string) || '',
+          date: ((pub.year as number)?.toString()) || '',
+          url: (pub.url as string) || '',
+        })),
       };
-        const line = lines[i].trim();
-        const originalLine = lines[i];
-        
-        if (line.startsWith('name:')) {
-          formData.personal.name = line.substring(5).trim();
-        } else if (line.startsWith('contact:')) {
-          currentSection = 'contact';
-        } else if (originalLine.startsWith('  phone:')) {
-          formData.personal.phone = originalLine.substring(8).trim();
-        } else if (originalLine.startsWith('  email:')) {
-          formData.personal.email = originalLine.substring(8).trim();
-        } else if (originalLine.startsWith('  location:')) {
-          formData.personal.location = originalLine.substring(11).trim();
-        } else if (originalLine.startsWith('  links:')) {
-          currentSection = 'links';
-        } else if (originalLine.startsWith('    - name: GitHub')) {
-          // Look for the URL on the next line
-          if (i + 1 < lines.length && lines[i + 1].trim().startsWith('url:')) {
-            formData.personal.links.github = lines[i + 1].trim().substring(5).trim();
-          }
-        } else if (originalLine.startsWith('    - name: LinkedIn')) {
-          if (i + 1 < lines.length && lines[i + 1].trim().startsWith('url:')) {
-            formData.personal.links.linkedin = lines[i + 1].trim().substring(5).trim();
-          }
-        } else if (originalLine.startsWith('    - name: StackOverflow')) {
-          if (i + 1 < lines.length && lines[i + 1].trim().startsWith('url:')) {
-            formData.personal.links.stackoverflow = lines[i + 1].trim().substring(5).trim();
-          }
-        } else if (originalLine.startsWith('    - name: GoogleScholar')) {
-          if (i + 1 < lines.length && lines[i + 1].trim().startsWith('url:')) {
-            formData.personal.links.googlescholar = lines[i + 1].trim().substring(5).trim();
-          }
-        } else if (line.startsWith('summary:')) {
-          currentSection = 'summary';
-          // Collect multi-line summary
-          const summaryLines = [];
-          let j = i + 1;
-          while (j < lines.length && (lines[j].startsWith('  ') || lines[j].trim() === '')) {
-            if (lines[j].trim() !== '') {
-              summaryLines.push(lines[j].trim());
-            }
-            j++;
-          }
-          formData.personal.summary = summaryLines.join(' ');
-        } else if (line.startsWith('skills:')) {
-          currentSection = 'skills';
-        } else if (originalLine.startsWith('  - category:')) {
-          const category = originalLine.substring(13).trim();
-          currentSkillGroup = { category, items: [] };
-          formData.skills.push(currentSkillGroup);
-        } else if (originalLine.startsWith('    items:') && currentSkillGroup) {
-          const items = originalLine.substring(10).trim();
-          currentSkillGroup.items = items.split(',').map(item => item.trim());
-        } else if (line.startsWith('experience:')) {
-          currentSection = 'experience';
-        } else if (originalLine.startsWith('  - title:') && currentSection === 'experience') {
-          const title = originalLine.substring(10).trim();
-          currentExperience = {
-            position: title,
-            company: '',
-            company_url: '',
-            company_description: '',
-            start_date: '',
-            end_date: '',
-            description: [],
-          };
-          formData.experience.push(currentExperience);
-        } else if (originalLine.startsWith('    company:') && currentExperience) {
-          currentExperience.company = originalLine.substring(12).trim();
-        } else if (originalLine.startsWith('    company_url:') && currentExperience) {
-          currentExperience.company_url = originalLine.substring(16).trim();
-        } else if (originalLine.startsWith('    company_description:') && currentExperience) {
-          currentExperience.company_description = originalLine.substring(24).trim();
-        } else if (originalLine.startsWith('    date_start:') && currentExperience) {
-          const dateValue = originalLine.substring(15).trim();
-          currentExperience.start_date = convertAbbreviatedDateToFormDate(dateValue);
-        } else if (originalLine.startsWith('    date_end:') && currentExperience) {
-          const dateValue = originalLine.substring(13).trim();
-          currentExperience.end_date = convertAbbreviatedDateToFormDate(dateValue);
-        } else if (line.startsWith('    achievements:') && currentExperience) {
-          // Parse achievements
-          let j = i + 1;
-          while (j < lines.length && lines[j].startsWith('      -')) {
-            const achievementLine = lines[j].trim();
-            if (achievementLine.startsWith('- name:')) {
-              const name = achievementLine.substring(7).trim();
-              if (j + 1 < lines.length && lines[j + 1].trim().startsWith('description:')) {
-                const description = lines[j + 1].trim().substring(12).trim();
-                currentExperience.description.push(`${name}: ${description}`);
-                j++;
-              } else {
-                currentExperience.description.push(name);
-              }
-            }
-            j++;
-          }
-        } else if (line.startsWith('education:')) {
-          currentSection = 'education';
-        } else if (originalLine.startsWith('  - degree:') && currentSection === 'education') {
-          const degree = originalLine.substring(11).trim();
-          // Handle complex degree strings like "B.S. in Computer Science, Minor in Statistics"
-          let degreeName = degree;
-          let fieldName = '';
-          
-          if (degree.includes(' in ')) {
-            const parts = degree.split(' in ');
-            degreeName = parts[0];
-            fieldName = parts.slice(1).join(' in '); // Join remaining parts in case there are multiple "in"
-          }
-          
-          currentEducation = {
-            degree: degreeName || '',
-            field: fieldName || '',
-            institution: '',
-            start_date: '',
-            end_date: '',
-          };
-          formData.education.push(currentEducation);
-        } else if (originalLine.startsWith('    institution:') && currentEducation) {
-          currentEducation.institution = originalLine.substring(16).trim();
-        } else if (originalLine.startsWith('    date_start:') && currentEducation) {
-          const dateValue = originalLine.substring(15).trim();
-          currentEducation.start_date = convertAbbreviatedDateToFormDate(dateValue);
-        } else if (originalLine.startsWith('    date_end:') && currentEducation) {
-          const dateValue = originalLine.substring(13).trim();
-          currentEducation.end_date = convertAbbreviatedDateToFormDate(dateValue);
-        } else if (line.startsWith('awards:') && currentSection !== 'awards') {
-          currentSection = 'awards';
-        } else if (originalLine.startsWith('  - title:') && currentSection === 'awards') {
-          const title = originalLine.substring(10).trim();
-          currentAward = {
-            title,
-            organization: '',
-            organization_detail: '',
-            organization_url: '',
-            location: '',
-            date: '',
-          };
-          formData.awards.push(currentAward);
-        } else if (originalLine.startsWith('    organization:') && currentAward) {
-          currentAward.organization = originalLine.substring(16).trim();
-        } else if (originalLine.startsWith('    organization_detail:') && currentAward) {
-          currentAward.organization_detail = originalLine.substring(23).trim();
-        } else if (originalLine.startsWith('    organization_url:') && currentAward) {
-          currentAward.organization_url = originalLine.substring(20).trim();
-        } else if (originalLine.startsWith('    location:') && currentAward) {
-          currentAward.location = originalLine.substring(12).trim();
-        } else if (originalLine.startsWith('    date:') && currentAward) {
-          const dateValue = originalLine.substring(7).trim();
-          currentAward.date = convertAbbreviatedDateToFormDate(dateValue);
-        } else if (line.startsWith('certifications:') && currentSection !== 'certifications') {
-          currentSection = 'certifications';
-        } else if (originalLine.startsWith('  - title:') && currentSection === 'certifications') {
-          const title = originalLine.substring(10).trim();
-          currentCertification = {
-            title,
-            organization: '',
-            url: '',
-            date: '',
-          };
-          formData.certifications.push(currentCertification);
-        } else if (originalLine.startsWith('    organization:') && currentCertification) {
-          currentCertification.organization = originalLine.substring(16).trim();
-        } else if (originalLine.startsWith('    url:') && currentCertification) {
-          currentCertification.url = originalLine.substring(7).trim();
-        } else if (originalLine.startsWith('    date:') && currentCertification) {
-          const dateValue = originalLine.substring(7).trim();
-          currentCertification.date = convertAbbreviatedDateToFormDate(dateValue);
-        } else if (line.startsWith('publications:') && currentSection !== 'publications') {
-          currentSection = 'publications';
-        } else if (originalLine.startsWith('  - authors:') && currentSection === 'publications') {
-          const authors = originalLine.substring(11).trim();
-          currentPublication = {
-            authors,
-            title: '',
-            venue: '',
-            date: '',
-            url: '',
-          };
-          formData.publications.push(currentPublication);
-        } else if (originalLine.startsWith('    title:') && currentPublication) {
-          currentPublication.title = originalLine.substring(9).trim();
-        } else if (originalLine.startsWith('    venue:') && currentPublication) {
-          currentPublication.venue = originalLine.substring(9).trim();
-        } else if (originalLine.startsWith('    date:') && currentPublication) {
-          const dateValue = originalLine.substring(7).trim();
-          currentPublication.date = convertAbbreviatedDateToFormDate(dateValue);
+
       return formData;
-    } catch (error) {
+    } catch {
       throw new Error('Failed to parse JSON file. Please check the format.');
     }
   };
 
-  const convertToYaml = (data: ResumeFormData): string => {
+  const convertToJson = (data: ResumeFormData): string => {
     // Convert experience to the correct format
     const experience = data.experience
       .filter(exp => exp.company && exp.position)
@@ -465,123 +280,48 @@ export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormPro
         items: skillGroup.items.filter(item => item.trim() !== '')
       }));
 
+    // Build the JSON content
+    const jsonData = {
+      name: data.personal.name,
+      contact: {
+        phone: data.personal.phone,
+        email: data.personal.email,
+        location: data.personal.location,
+        links: [
+          { name: 'GitHub', url: data.personal.links.github },
+          { name: 'StackOverflow', url: data.personal.links.stackoverflow },
+          { name: 'GoogleScholar', url: data.personal.links.googlescholar },
+          { name: 'LinkedIn', url: data.personal.links.linkedin }
+        ].filter(link => link.url.trim() !== '')
+      },
+      summary: data.personal.summary,
+      skills: skills,
+      experience: experience,
+      education: education,
+      awards: data.awards.map(award => ({
+        title: award.title,
+        organization: award.organization,
+        organization_detail: award.organization_detail,
+        organization_url: award.organization_url,
+        location: award.location,
+        date: convertDateToAbbreviated(award.date)
+      })),
+      certifications: data.certifications.map(cert => ({
+        title: cert.title,
+        organization: cert.organization,
+        url: cert.url,
+        date: convertDateToAbbreviated(cert.date)
+      })),
+      publications: data.publications.map(pub => ({
+        authors: pub.authors,
+        title: pub.title,
+        venue: pub.venue,
+        year: parseInt(pub.date) || new Date().getFullYear(),
+        url: pub.url
+      }))
+    };
 
-
-    // Build the YAML content
-    let yamlContent = `---
-name: ${data.personal.name}
-contact:
-  phone: ${data.personal.phone}
-  email: ${data.personal.email}
-  location: ${data.personal.location}
-  links:
-    - name: GitHub
-      url: ${data.personal.links.github}
-    - name: StackOverflow
-      url: ${data.personal.links.stackoverflow}
-    - name: GoogleScholar
-      url: ${data.personal.links.googlescholar}
-    - name: LinkedIn
-      url: ${data.personal.links.linkedin}
-
-summary: >
-  ${data.personal.summary}
-
-skills:
-`;
-
-    // Add skills
-    skills.forEach(skillGroup => {
-      yamlContent += `  - category: ${skillGroup.category}
-    items: ${skillGroup.items.join(', ')}
-`;
-    });
-
-    yamlContent += `
-experience:
-`;
-
-    // Add experience
-    experience.forEach(exp => {
-      yamlContent += `  - title: ${exp.title}
-    company: ${exp.company}
-    company_url: ${exp.company_url}
-    company_description: ${exp.company_description}
-    location: ${exp.location}
-    date_start: ${exp.date_start}
-    date_end: ${exp.date_end}
-    achievements:
-`;
-      exp.achievements.forEach(achievement => {
-        yamlContent += `      - name: ${achievement.name}
-        description: ${achievement.description}
-`;
-      });
-      yamlContent += '\n';
-    });
-
-    yamlContent += `education:
-`;
-
-    // Add education
-    education.forEach(edu => {
-      yamlContent += `  - degree: ${edu.degree}
-    institution: ${edu.institution}
-    location: ${edu.location}
-    date_start: ${edu.date_start}
-    date_end: ${edu.date_end}
-
-`;
-    });
-
-    // Add awards if any
-    if (data.awards.length > 0) {
-      yamlContent += `awards:
-`;
-      data.awards.forEach(award => {
-        yamlContent += `  - title: ${award.title}
-    organization: ${award.organization}
-    organization_detail: ${award.organization_detail}
-    organization_url: ${award.organization_url}
-    location: ${award.location}
-    date: ${convertDateToAbbreviated(award.date)}
-
-`;
-      });
-    }
-
-    // Add certifications if any
-    if (data.certifications.length > 0) {
-      yamlContent += `certifications:
-`;
-      data.certifications.forEach(cert => {
-        yamlContent += `  - title: ${cert.title}
-    organization: ${cert.organization}
-    url: ${cert.url}
-    date: ${convertDateToAbbreviated(cert.date)}
-
-`;
-      });
-    }
-
-    // Add publications if any
-    if (data.publications.length > 0) {
-      yamlContent += `publications:
-`;
-      data.publications.forEach(pub => {
-        yamlContent += `  - authors: ${pub.authors}
-    title: ${pub.title}
-    venue: ${pub.venue}
-    date: ${convertDateToAbbreviated(pub.date)}
-    url: ${pub.url}
-
-`;
-      });
-    }
-
-    yamlContent += '---';
-
-    return yamlContent;
+    return JSON.stringify(jsonData, null, 2);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -589,11 +329,11 @@ experience:
     setIsLoading(true);
 
     try {
-      const yamlContent = convertToYaml(formData);
-      const yamlBlob = new Blob([yamlContent], { type: 'text/yaml' });
-      const yamlFile = new File([yamlBlob], 'resume.yaml', { type: 'text/yaml' });
+      const jsonContent = convertToJson(formData);
+      const jsonBlob = new Blob([jsonContent], { type: 'application/json' });
+      const jsonFile = new File([jsonBlob], 'resume.json', { type: 'application/json' });
 
-      const result = await api.uploadYamlAndGenerate(yamlFile);
+      const result = await api.uploadJsonAndGenerate(jsonFile);
       onFormSuccess(result);
     } catch (error) {
       onFormError(error instanceof Error ? error.message : 'Failed to generate resume');
@@ -602,15 +342,15 @@ experience:
     }
   };
 
-  const handleDownloadYaml = () => {
-    const yamlContent = convertToYaml(formData);
-    const yamlBlob = new Blob([yamlContent], { type: 'text/yaml' });
+  const handleDownloadJson = () => {
+    const jsonContent = convertToJson(formData);
+    const jsonBlob = new Blob([jsonContent], { type: 'application/json' });
     
-    // Create download link for the YAML file
-    const downloadUrl = URL.createObjectURL(yamlBlob);
+    // Create download link for the JSON file
+    const downloadUrl = URL.createObjectURL(jsonBlob);
     const downloadLink = document.createElement('a');
     downloadLink.href = downloadUrl;
-    downloadLink.download = 'resume.yaml';
+    downloadLink.download = 'resume.json';
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
@@ -621,11 +361,11 @@ experience:
     setIsLoading(true);
     
     try {
-      const yamlContent = convertToYaml(formData);
-      const yamlBlob = new Blob([yamlContent], { type: 'text/yaml' });
-      const yamlFile = new File([yamlBlob], 'resume.yaml', { type: 'text/yaml' });
+      const jsonContent = convertToJson(formData);
+      const jsonBlob = new Blob([jsonContent], { type: 'application/json' });
+      const jsonFile = new File([jsonBlob], 'resume.json', { type: 'application/json' });
 
-      const result = await api.uploadYamlAndGenerate(yamlFile);
+      const result = await api.uploadJsonAndGenerate(jsonFile);
       
       // Download the generated PDF
       const pdfBlob = await api.downloadPdf(result.filename);
@@ -649,7 +389,7 @@ experience:
     }
   };
 
-  const updatePersonal = (field: keyof ResumeFormData['personal'], value: string) => {
+  const updatePersonal = (field: keyof ResumeFormData['personal'], value: string | ResumeFormData['personal']['links']) => {
     setFormData(prev => ({
       ...prev,
       personal: { ...prev.personal, [field]: value }
@@ -754,9 +494,9 @@ experience:
     }));
   };
 
-  const validateYamlFile = (file: File): string | null => {
-    if (!file.name.endsWith('.yaml') && !file.name.endsWith('.yml')) {
-      return 'Please select a YAML file (.yaml or .yml)';
+  const validateJsonFile = (file: File): string | null => {
+    if (!file.name.endsWith('.json')) {
+      return 'Please select a JSON file (.json)';
     }
     if (file.size > 5 * 1024 * 1024) { // 5MB limit
       return 'File size must be less than 5MB';
@@ -764,32 +504,32 @@ experience:
     return null;
   };
 
-  const handleYamlFileUpload = async (file: File) => {
-    const validationError = validateYamlFile(file);
+  const handleJsonFileUpload = async (file: File) => {
+    const validationError = validateJsonFile(file);
     if (validationError) {
       onFormError(validationError);
       return;
     }
 
-    setIsUploadingYaml(true);
+    setIsUploadingJson(true);
     try {
       const text = await file.text();
-      const parsedData = parseYamlToFormData(text);
+      const parsedData = parseJsonToFormData(text);
       setFormData(parsedData);
-      setYamlUploadSuccess(true);
+      setJsonUploadSuccess(true);
       // Clear success message after 3 seconds
-      setTimeout(() => setYamlUploadSuccess(false), 3000);
+      setTimeout(() => setJsonUploadSuccess(false), 3000);
     } catch (error) {
-      onFormError(error instanceof Error ? error.message : 'Failed to parse YAML file');
+      onFormError(error instanceof Error ? error.message : 'Failed to parse JSON file');
     } finally {
-      setIsUploadingYaml(false);
+      setIsUploadingJson(false);
     }
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      handleYamlFileUpload(files[0]);
+      handleJsonFileUpload(files[0]);
     }
   };
 
@@ -797,378 +537,256 @@ experience:
     fileInputRef.current?.click();
   };
 
-
-
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
-      <div className="mb-8">
-        <h3 className="text-2xl font-bold text-gray-900 mb-2">Create Your Resume</h3>
-        <p className="text-gray-600">Fill out the form below to generate your professional resume</p>
-      </div>
-
-      {/* YAML File Upload Section */}
-      <div className="mb-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h4 className="text-lg font-semibold text-gray-900">Load from YAML File</h4>
-            <p className="text-sm text-gray-600">Upload a pre-filled resume.yaml file to populate the form</p>
-          </div>
-          <button
-            type="button"
-            onClick={openFileDialog}
-            disabled={isUploadingYaml}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center"
-          >
-            {isUploadingYaml ? (
-              <>
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Loading...
-              </>
-            ) : (
-              <>
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                Upload YAML
-              </>
-            )}
-          </button>
-        </div>
-        
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".yaml,.yml"
-          onChange={handleFileSelect}
-          className="hidden"
-          disabled={isUploadingYaml}
-        />
-        
-        {/* Success Message */}
-        {yamlUploadSuccess && (
-          <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-            <div className="flex items-center">
-              <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span className="text-sm font-medium text-green-800">
-                YAML file loaded successfully! The form has been populated with your data.
-              </span>
-            </div>
-          </div>
-        )}
-        
-        <div className="text-sm text-gray-600">
-          <p>• Supports .yaml and .yml files (max 5MB)</p>
-          <p>• The form will be populated with the YAML content</p>
-          <p>• You can still edit the form after loading</p>
-        </div>
-      </div>
-
+    <div className="max-w-4xl mx-auto">
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Personal Information */}
-        <div className="space-y-6">
-          <h4 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
-            Personal Information
-          </h4>
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Full Name *
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
               <input
                 type="text"
-                required
                 value={formData.personal.name}
                 onChange={(e) => updatePersonal('name', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                placeholder="John Doe"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email *
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               <input
                 type="email"
-                required
                 value={formData.personal.email}
                 onChange={(e) => updatePersonal('email', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                placeholder="john@example.com"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Phone
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
               <input
                 type="tel"
                 value={formData.personal.phone}
                 onChange={(e) => updatePersonal('phone', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                placeholder="+1 (555) 123-4567"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Location
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
               <input
                 type="text"
                 value={formData.personal.location}
                 onChange={(e) => updatePersonal('location', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                placeholder="San Francisco, CA"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Professional Summary *
-            </label>
+          
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Professional Summary</label>
             <textarea
-              required
-              rows={3}
               value={formData.personal.summary}
               onChange={(e) => updatePersonal('summary', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-              placeholder="Experienced software engineer with 5+ years of expertise in..."
+              rows={4}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Brief professional summary..."
             />
           </div>
 
-          {/* Links Section */}
-          <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-gray-900 border-b border-gray-200 pb-2">
-              Professional Links
-            </h4>
+          {/* Social Links */}
+          <div className="mt-4">
+            <h4 className="text-md font-medium text-gray-900 mb-2">Social Links</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  GitHub URL
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">GitHub</label>
                 <input
                   type="url"
                   value={formData.personal.links.github}
-                  onChange={(e) => {
-                    setFormData(prev => ({
-                      ...prev,
-                      personal: {
-                        ...prev.personal,
-                        links: { ...prev.personal.links, github: e.target.value }
-                      }
-                    }));
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                  placeholder="https://github.com/username"
+                  onChange={(e) => updatePersonal('links', { ...formData.personal.links, github: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  LinkedIn URL
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn</label>
                 <input
                   type="url"
                   value={formData.personal.links.linkedin}
-                  onChange={(e) => {
-                    setFormData(prev => ({
-                      ...prev,
-                      personal: {
-                        ...prev.personal,
-                        links: { ...prev.personal.links, linkedin: e.target.value }
-                      }
-                    }));
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                  placeholder="https://linkedin.com/in/username"
+                  onChange={(e) => updatePersonal('links', { ...formData.personal.links, linkedin: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Stack Overflow URL
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Stack Overflow</label>
                 <input
                   type="url"
                   value={formData.personal.links.stackoverflow}
-                  onChange={(e) => {
-                    setFormData(prev => ({
-                      ...prev,
-                      personal: {
-                        ...prev.personal,
-                        links: { ...prev.personal.links, stackoverflow: e.target.value }
-                      }
-                    }));
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                  placeholder="https://stackoverflow.com/users/username"
+                  onChange={(e) => updatePersonal('links', { ...formData.personal.links, stackoverflow: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Google Scholar URL
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Google Scholar</label>
                 <input
                   type="url"
                   value={formData.personal.links.googlescholar}
-                  onChange={(e) => {
-                    setFormData(prev => ({
-                      ...prev,
-                      personal: {
-                        ...prev.personal,
-                        links: { ...prev.personal.links, googlescholar: e.target.value }
-                      }
-                    }));
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                  placeholder="https://scholar.google.com/citations?user=ID"
+                  onChange={(e) => updatePersonal('links', { ...formData.personal.links, googlescholar: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
           </div>
         </div>
 
+        {/* JSON File Upload */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload JSON File</h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Upload a JSON file to automatically populate the form fields.
+          </p>
+          
+          <div className="flex items-center space-x-4">
+            <button
+              type="button"
+              onClick={openFileDialog}
+              disabled={isUploadingJson}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            >
+              {isUploadingJson ? 'Uploading...' : 'Upload JSON'}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            {jsonUploadSuccess && (
+              <span className="text-green-600 text-sm">✓ JSON file uploaded successfully!</span>
+            )}
+          </div>
+        </div>
+
         {/* Experience */}
-        <div className="space-y-6">
-          <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-            <h4 className="text-lg font-semibold text-gray-900">Work Experience</h4>
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Experience</h3>
             <button
               type="button"
               onClick={addExperience}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
-              + Add Experience
+              Add Experience
             </button>
           </div>
+          
           {formData.experience.map((exp, index) => (
-            <div key={index} className="bg-gray-50 rounded-lg p-4 space-y-4">
-              <div className="flex justify-between items-center">
-                <h5 className="font-medium text-gray-900">Experience {index + 1}</h5>
-                {formData.experience.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeExperience(index)}
-                    className="text-red-600 hover:text-red-800 text-sm"
-                  >
-                    Remove
-                  </button>
-                )}
+            <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="text-md font-medium text-gray-900">Experience {index + 1}</h4>
+                <button
+                  type="button"
+                  onClick={() => removeExperience(index)}
+                  className="text-red-600 hover:text-red-800"
+                >
+                  Remove
+                </button>
               </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Company *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Position</label>
                   <input
                     type="text"
-                    required
-                    value={exp.company}
-                    onChange={(e) => updateExperience(index, 'company', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="Tech Corp"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Position *
-                  </label>
-                  <input
-                    type="text"
-                    required
                     value={exp.position}
                     onChange={(e) => updateExperience(index, 'position', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="Senior Software Engineer"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Company URL
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Company</label>
+                  <input
+                    type="text"
+                    value={exp.company}
+                    onChange={(e) => updateExperience(index, 'company', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Company URL</label>
                   <input
                     type="url"
                     value={exp.company_url}
                     onChange={(e) => updateExperience(index, 'company_url', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="https://techcorp.com"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Company Description
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Company Description</label>
                   <input
                     type="text"
                     value={exp.company_description}
                     onChange={(e) => updateExperience(index, 'company_description', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="AI-powered business intelligence platform"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Start Date *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
                   <input
                     type="date"
-                    required
                     value={exp.start_date}
                     onChange={(e) => updateExperience(index, 'start_date', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    End Date
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
                   <input
                     type="date"
                     value={exp.end_date}
                     onChange={(e) => updateExperience(index, 'end_date', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
+              
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Achievements/Description</label>
                 {exp.description.map((desc, descIndex) => (
-                  <div key={descIndex} className="flex gap-2 mb-2">
+                  <div key={descIndex} className="flex items-center space-x-2 mb-2">
                     <input
                       type="text"
                       value={desc}
                       onChange={(e) => {
-                        const newDesc = [...exp.description];
-                        newDesc[descIndex] = e.target.value;
-                        updateExperience(index, 'description', newDesc);
+                        const newDescription = [...exp.description];
+                        newDescription[descIndex] = e.target.value;
+                        updateExperience(index, 'description', newDescription);
                       }}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                      placeholder="• Led development of..."
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Achievement or responsibility..."
                     />
                     <button
                       type="button"
                       onClick={() => {
-                        const newDesc = exp.description.filter((_, i) => i !== descIndex);
-                        updateExperience(index, 'description', newDesc);
+                        const newDescription = exp.description.filter((_, i) => i !== descIndex);
+                        updateExperience(index, 'description', newDescription);
                       }}
-                      className="text-red-600 hover:text-red-800 px-2"
+                      className="text-red-600 hover:text-red-800"
                     >
-                      ×
+                      Remove
                     </button>
                   </div>
                 ))}
                 <button
                   type="button"
                   onClick={() => {
-                    const newDesc = [...exp.description, ''];
-                    updateExperience(index, 'description', newDesc);
+                    const newDescription = [...exp.description, ''];
+                    updateExperience(index, 'description', newDescription);
                   }}
                   className="text-blue-600 hover:text-blue-800 text-sm"
                 >
-                  + Add bullet point
+                  + Add Achievement
                 </button>
               </div>
             </div>
@@ -1176,94 +794,75 @@ experience:
         </div>
 
         {/* Education */}
-        <div className="space-y-6">
-          <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-            <h4 className="text-lg font-semibold text-gray-900">Education</h4>
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Education</h3>
             <button
               type="button"
               onClick={addEducation}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
-              + Add Education
+              Add Education
             </button>
           </div>
+          
           {formData.education.map((edu, index) => (
-            <div key={index} className="bg-gray-50 rounded-lg p-4 space-y-4">
-              <div className="flex justify-between items-center">
-                <h5 className="font-medium text-gray-900">Education {index + 1}</h5>
-                {formData.education.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeEducation(index)}
-                    className="text-red-600 hover:text-red-800 text-sm"
-                  >
-                    Remove
-                  </button>
-                )}
+            <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="text-md font-medium text-gray-900">Education {index + 1}</h4>
+                <button
+                  type="button"
+                  onClick={() => removeEducation(index)}
+                  className="text-red-600 hover:text-red-800"
+                >
+                  Remove
+                </button>
               </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Institution *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Institution</label>
                   <input
                     type="text"
-                    required
                     value={edu.institution}
                     onChange={(e) => updateEducation(index, 'institution', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="University of California"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Degree *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Degree</label>
                   <input
                     type="text"
-                    required
                     value={edu.degree}
                     onChange={(e) => updateEducation(index, 'degree', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="Bachelor of Science"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Field of Study *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Field of Study</label>
                   <input
                     type="text"
-                    required
                     value={edu.field}
                     onChange={(e) => updateEducation(index, 'field', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="Computer Science"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Start Date *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
                   <input
                     type="date"
-                    required
                     value={edu.start_date}
                     onChange={(e) => updateEducation(index, 'start_date', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    End Date *
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
                   <input
                     type="date"
-                    required
                     value={edu.end_date}
                     onChange={(e) => updateEducation(index, 'end_date', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -1272,591 +871,105 @@ experience:
         </div>
 
         {/* Skills */}
-        <div className="space-y-6">
-          <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-            <h4 className="text-lg font-semibold text-gray-900">Skills</h4>
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Skills</h3>
             <button
               type="button"
               onClick={addSkill}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
-              + Add Skill Category
+              Add Skill Category
             </button>
           </div>
-          <div className="space-y-4">
-            {formData.skills.map((skillGroup, skillGroupIndex) => (
-              <div key={skillGroupIndex} className="bg-gray-50 rounded-lg p-4 space-y-3">
-                <div className="flex justify-between items-center">
+          
+          {formData.skills.map((skillGroup, skillGroupIndex) => (
+            <div key={skillGroupIndex} className="border border-gray-200 rounded-lg p-4 mb-4">
+              <div className="flex justify-between items-center mb-4">
+                <input
+                  type="text"
+                  value={skillGroup.category}
+                  onChange={(e) => {
+                    const newSkills = [...formData.skills];
+                    newSkills[skillGroupIndex] = { ...skillGroup, category: e.target.value };
+                    setFormData(prev => ({ ...prev, skills: newSkills }));
+                  }}
+                  className="text-md font-medium text-gray-900 border-none bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1"
+                  placeholder="Skill Category"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newSkills = formData.skills.filter((_, i) => i !== skillGroupIndex);
+                    setFormData(prev => ({ ...prev, skills: newSkills }));
+                  }}
+                  className="text-red-600 hover:text-red-800"
+                >
+                  Remove Category
+                </button>
+              </div>
+              
+              {skillGroup.items.map((item, itemIndex) => (
+                <div key={itemIndex} className="flex items-center space-x-2 mb-2">
                   <input
                     type="text"
-                    value={skillGroup.category}
-                    onChange={(e) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        skills: prev.skills.map((sg, i) =>
-                          i === skillGroupIndex ? { ...sg, category: e.target.value } : sg
-                        )
-                      }));
-                    }}
-                    className="text-lg font-semibold text-gray-900 bg-transparent border-none focus:outline-none"
-                    placeholder="Technical Skills"
+                    value={item}
+                    onChange={(e) => updateSkills(skillGroupIndex, itemIndex, e.target.value)}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Skill..."
                   />
-                  {formData.skills.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormData(prev => ({
-                          ...prev,
-                          skills: prev.skills.filter((_, i) => i !== skillGroupIndex)
-                        }));
-                      }}
-                      className="text-red-600 hover:text-red-800 text-sm"
-                    >
-                      Remove Category
-                    </button>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  {skillGroup.items.map((item, itemIndex) => (
-                    <div key={itemIndex} className="flex gap-2">
-                      <input
-                        type="text"
-                        value={item}
-                        onChange={(e) => updateSkills(skillGroupIndex, itemIndex, e.target.value)}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                        placeholder="JavaScript, React, Node.js"
-                      />
-                      {skillGroup.items.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeSkill(skillGroupIndex, itemIndex)}
-                          className="text-red-600 hover:text-red-800 px-3"
-                        >
-                          ×
-                        </button>
-                      )}
-                    </div>
-                  ))}
                   <button
                     type="button"
-                    onClick={() => {
-                      setFormData(prev => ({
-                        ...prev,
-                        skills: prev.skills.map((sg, i) =>
-                          i === skillGroupIndex
-                            ? { ...sg, items: [...sg.items, ''] }
-                            : sg
-                        )
-                      }));
-                    }}
-                    className="text-blue-600 hover:text-blue-800 text-sm"
+                    onClick={() => removeSkill(skillGroupIndex, itemIndex)}
+                    className="text-red-600 hover:text-red-800"
                   >
-                    + Add skill
+                    Remove
                   </button>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Awards */}
-        <div className="space-y-6">
-          <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-            <h4 className="text-lg font-semibold text-gray-900">Awards</h4>
-            <button
-              type="button"
-              onClick={() => {
-                setFormData(prev => ({
-                  ...prev,
-                  awards: [...prev.awards, {
-                    title: '',
-                    organization: '',
-                    organization_detail: '',
-                    organization_url: '',
-                    location: '',
-                    date: '',
-                  }]
-                }));
-              }}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-            >
-              + Add Award
-            </button>
-          </div>
-          {formData.awards.map((award, index) => (
-            <div key={index} className="bg-gray-50 rounded-lg p-4 space-y-4">
-              <div className="flex justify-between items-center">
-                <h5 className="font-medium text-gray-900">Award {index + 1}</h5>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFormData(prev => ({
-                      ...prev,
-                      awards: prev.awards.filter((_, i) => i !== index)
-                    }));
-                  }}
-                  className="text-red-600 hover:text-red-800 text-sm"
-                >
-                  Remove
-                </button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Award Title *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={award.title}
-                    onChange={(e) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        awards: prev.awards.map((a, i) =>
-                          i === index ? { ...a, title: e.target.value } : a
-                        )
-                      }));
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="Best Paper Award"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Organization *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={award.organization}
-                    onChange={(e) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        awards: prev.awards.map((a, i) =>
-                          i === index ? { ...a, organization: e.target.value } : a
-                        )
-                      }));
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="International Conference"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Organization Detail
-                  </label>
-                  <input
-                    type="text"
-                    value={award.organization_detail}
-                    onChange={(e) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        awards: prev.awards.map((a, i) =>
-                          i === index ? { ...a, organization_detail: e.target.value } : a
-                        )
-                      }));
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="Advanced Techniques in ML"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Organization URL
-                  </label>
-                  <input
-                    type="url"
-                    value={award.organization_url}
-                    onChange={(e) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        awards: prev.awards.map((a, i) =>
-                          i === index ? { ...a, organization_url: e.target.value } : a
-                        )
-                      }));
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="https://conference.example.com"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Location
-                  </label>
-                  <input
-                    type="text"
-                    value={award.location}
-                    onChange={(e) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        awards: prev.awards.map((a, i) =>
-                          i === index ? { ...a, location: e.target.value } : a
-                        )
-                      }));
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="San Francisco, CA"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Date *
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={award.date}
-                    onChange={(e) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        awards: prev.awards.map((a, i) =>
-                          i === index ? { ...a, date: e.target.value } : a
-                        )
-                      }));
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                  />
-                </div>
-              </div>
+              ))}
+              
+              <button
+                type="button"
+                onClick={() => {
+                  const newSkills = [...formData.skills];
+                  newSkills[skillGroupIndex] = { ...skillGroup, items: [...skillGroup.items, ''] };
+                  setFormData(prev => ({ ...prev, skills: newSkills }));
+                }}
+                className="text-blue-600 hover:text-blue-800 text-sm"
+              >
+                + Add Skill
+              </button>
             </div>
           ))}
         </div>
-
-        {/* Certifications */}
-        <div className="space-y-6">
-          <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-            <h4 className="text-lg font-semibold text-gray-900">Certifications</h4>
-            <button
-              type="button"
-              onClick={() => {
-                setFormData(prev => ({
-                  ...prev,
-                  certifications: [...prev.certifications, {
-                    title: '',
-                    organization: '',
-                    url: '',
-                    date: '',
-                  }]
-                }));
-              }}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-            >
-              + Add Certification
-            </button>
-          </div>
-          {formData.certifications.map((cert, index) => (
-            <div key={index} className="bg-gray-50 rounded-lg p-4 space-y-4">
-              <div className="flex justify-between items-center">
-                <h5 className="font-medium text-gray-900">Certification {index + 1}</h5>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFormData(prev => ({
-                      ...prev,
-                      certifications: prev.certifications.filter((_, i) => i !== index)
-                    }));
-                  }}
-                  className="text-red-600 hover:text-red-800 text-sm"
-                >
-                  Remove
-                </button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Certification Title *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={cert.title}
-                    onChange={(e) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        certifications: prev.certifications.map((c, i) =>
-                          i === index ? { ...c, title: e.target.value } : c
-                        )
-                      }));
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="AWS Certified Solutions Architect"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Organization *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={cert.organization}
-                    onChange={(e) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        certifications: prev.certifications.map((c, i) =>
-                          i === index ? { ...c, organization: e.target.value } : c
-                        )
-                      }));
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="Amazon Web Services"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    URL
-                  </label>
-                  <input
-                    type="url"
-                    value={cert.url}
-                    onChange={(e) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        certifications: prev.certifications.map((c, i) =>
-                          i === index ? { ...c, url: e.target.value } : c
-                        )
-                      }));
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="https://aws.amazon.com/certification"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Date *
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={cert.date}
-                    onChange={(e) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        certifications: prev.certifications.map((c, i) =>
-                          i === index ? { ...c, date: e.target.value } : c
-                        )
-                      }));
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Publications */}
-        <div className="space-y-6">
-          <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-            <h4 className="text-lg font-semibold text-gray-900">Publications</h4>
-            <button
-              type="button"
-              onClick={() => {
-                setFormData(prev => ({
-                  ...prev,
-                  publications: [...prev.publications, {
-                    authors: '',
-                    title: '',
-                    venue: '',
-                    date: '',
-                    url: '',
-                  }]
-                }));
-              }}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-            >
-              + Add Publication
-            </button>
-          </div>
-          {formData.publications.map((pub, index) => (
-            <div key={index} className="bg-gray-50 rounded-lg p-4 space-y-4">
-              <div className="flex justify-between items-center">
-                <h5 className="font-medium text-gray-900">Publication {index + 1}</h5>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFormData(prev => ({
-                      ...prev,
-                      publications: prev.publications.filter((_, i) => i !== index)
-                    }));
-                  }}
-                  className="text-red-600 hover:text-red-800 text-sm"
-                >
-                  Remove
-                </button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Authors *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={pub.authors}
-                    onChange={(e) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        publications: prev.publications.map((p, i) =>
-                          i === index ? { ...p, authors: e.target.value } : p
-                        )
-                      }));
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="Doe, J., Smith, A., Johnson, B."
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Publication Title *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={pub.title}
-                    onChange={(e) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        publications: prev.publications.map((p, i) =>
-                          i === index ? { ...p, title: e.target.value } : p
-                        )
-                      }));
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="Advanced Machine Learning Techniques"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Venue *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={pub.venue}
-                    onChange={(e) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        publications: prev.publications.map((p, i) =>
-                          i === index ? { ...p, venue: e.target.value } : p
-                        )
-                      }));
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="Journal of Applied Data Science"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Date *
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={pub.date}
-                    onChange={(e) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        publications: prev.publications.map((p, i) =>
-                          i === index ? { ...p, date: e.target.value } : p
-                        )
-                      }));
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    URL
-                  </label>
-                  <input
-                    type="url"
-                    value={pub.url}
-                    onChange={(e) => {
-                      setFormData(prev => ({
-                        ...prev,
-                        publications: prev.publications.map((p, i) =>
-                          i === index ? { ...p, url: e.target.value } : p
-                        )
-                      }));
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="https://example.com/publication"
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-
 
         {/* Action Buttons */}
-        <div className="pt-6 border-t border-gray-200 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex flex-col sm:flex-row gap-4">
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
+              className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             >
-              {isLoading ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Generating Resume...
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Generate Resume
-                </>
-              )}
+              {isLoading ? 'Generating...' : 'Generate Resume PDF'}
+            </button>
+            
+            <button
+              type="button"
+              onClick={handleDownloadJson}
+              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500"
+            >
+              Download JSON
             </button>
             
             <button
               type="button"
               onClick={handleDownloadResume}
               disabled={isLoading}
-              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
+              className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
             >
-              {isLoading ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Generating PDF...
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Download Resume
-                </>
-              )}
+              {isLoading ? 'Downloading...' : 'Download PDF'}
             </button>
-          </div>
-          
-          <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={handleDownloadYaml}
-              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              Download YAML
-            </button>
-            
-            <div className="text-center text-sm text-gray-500 flex items-center">
-              <span>Save your data for later</span>
-            </div>
           </div>
         </div>
       </form>
