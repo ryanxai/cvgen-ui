@@ -20,7 +20,7 @@ export interface HealthResponse {
   environment: {
     temp_dir_exists: boolean;
     template_file_exists: boolean;
-    resume_yaml_exists: boolean;
+    resume_json_exists: boolean;
   };
 }
 
@@ -39,8 +39,8 @@ class ResumeBuilderAPI {
     return response.json();
   }
 
-  async generateFromExistingYaml(): Promise<ResumeGenerationResponse> {
-    const response = await fetch(`${this.baseUrl}/generate-from-yaml`, {
+  async generateFromExistingJson(): Promise<ResumeGenerationResponse> {
+    const response = await fetch(`${this.baseUrl}/generate-from-json`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -54,17 +54,17 @@ class ResumeBuilderAPI {
     return response.json();
   }
 
-  async uploadYamlAndGenerate(file: File): Promise<ResumeGenerationResponse> {
+  async uploadJsonAndGenerate(file: File): Promise<ResumeGenerationResponse> {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await fetch(`${this.baseUrl}/upload-yaml`, {
+    const response = await fetch(`${this.baseUrl}/upload-json`, {
       method: 'POST',
       body: formData,
     });
 
     if (!response.ok) {
-      throw new Error(`YAML upload failed: ${response.statusText}`);
+      throw new Error(`JSON upload failed: ${response.statusText}`);
     }
 
     return response.json();

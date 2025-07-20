@@ -14,8 +14,8 @@ export default function FileUpload({ onUploadSuccess, onUploadError }: FileUploa
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateFile = (file: File): string | null => {
-    if (!file.name.endsWith('.yaml') && !file.name.endsWith('.yml')) {
-      return 'Please select a YAML file (.yaml or .yml)';
+    if (!file.name.endsWith('.json')) {
+      return 'Please select a JSON file (.json)';
     }
     if (file.size > 5 * 1024 * 1024) { // 5MB limit
       return 'File size must be less than 5MB';
@@ -32,7 +32,7 @@ export default function FileUpload({ onUploadSuccess, onUploadError }: FileUploa
 
     setIsUploading(true);
     try {
-      const result = await api.uploadYamlAndGenerate(file);
+      const result = await api.uploadJsonAndGenerate(file);
       onUploadSuccess(result);
     } catch (error) {
       onUploadError(error instanceof Error ? error.message : 'Upload failed');
@@ -92,7 +92,7 @@ export default function FileUpload({ onUploadSuccess, onUploadError }: FileUploa
         <input
           ref={fileInputRef}
           type="file"
-          accept=".yaml,.yml"
+          accept=".json"
           onChange={handleFileSelect}
           className="hidden"
           disabled={isUploading}
@@ -122,14 +122,14 @@ export default function FileUpload({ onUploadSuccess, onUploadError }: FileUploa
               </svg>
               <div>
                 <p className="text-lg font-medium text-gray-900">
-                  Drop your YAML file here
+                  Drop your JSON file here
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
                   or click to browse files
                 </p>
               </div>
               <p className="text-xs text-gray-400">
-                Supports .yaml and .yml files (max 5MB)
+                Supports .json files (max 5MB)
               </p>
             </>
           )}

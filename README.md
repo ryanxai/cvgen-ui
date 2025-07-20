@@ -5,6 +5,8 @@ A beautiful, modern frontend for the YAML to PDF Resume Builder API. Built with 
 ## Features
 
 - 🎯 **Drag & Drop File Upload**: Upload YAML resume files with an intuitive interface
+- 📝 **Interactive Form**: Fill out a comprehensive form to create your resume data
+- 🔄 **YAML Form Population**: Upload a YAML file to automatically populate the form
 - ⚡ **Instant Generation**: Generate professional PDFs in seconds
 - 🎨 **Beautiful UI**: Modern, responsive design with smooth animations
 - 📱 **Mobile Friendly**: Works perfectly on all devices
@@ -55,6 +57,23 @@ Alternatively, use the Vercel CLI:
 npx vercel --prod
 ```
 
+## Usage
+
+### Interactive Form
+1. Fill out the comprehensive form with your personal information, experience, education, skills, and more
+2. Click "Generate Resume" to create a PDF
+3. Or click "Download YAML" to save your data as a YAML file for later use
+
+### YAML File Upload
+1. Upload a pre-filled `resume.yaml` file using the "Upload YAML" button in the form
+2. The form will be automatically populated with the YAML content
+3. You can edit the populated data before generating the resume
+4. Supports standard YAML format with sections for personal info, experience, education, skills, awards, certifications, and publications
+
+### Direct YAML Upload
+1. Use the drag & drop area to upload a YAML file directly
+2. The PDF will be generated immediately from the uploaded file
+
 ## API Integration
 
 This frontend communicates with the Resume Builder API deployed on Fly.dev:
@@ -81,6 +100,7 @@ src/
 ├── components/
 │   ├── FileUpload.tsx    # Drag & drop file upload
 │   ├── PdfDownload.tsx   # PDF download component
+│   ├── ResumeForm.tsx    # Interactive resume form with YAML upload
 │   └── ResumeGenerator.tsx # Resume generation
 └── lib/
     └── api.ts            # API client

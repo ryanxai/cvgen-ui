@@ -51,7 +51,7 @@ export default function HomePage() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Resume Builder</h1>
-                <p className="text-sm text-gray-500">Create professional PDFs from YAML</p>
+                <p className="text-sm text-gray-500">Create professional PDFs from JSON</p>
               </div>
             </div>
             
@@ -71,7 +71,7 @@ export default function HomePage() {
             Transform Your Resume
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
-            Fill out our form, upload your YAML file, or use our default template to generate 
+            Fill out our form, upload your JSON file, or use our default template to generate 
             a professional PDF resume in seconds.
           </p>
         </div>
@@ -162,10 +162,10 @@ export default function HomePage() {
               {/* Upload Section */}
               <div className="space-y-4">
                 <h3 className="text-xl font-semibold text-gray-900 text-center">
-                  Upload Custom YAML
+                  Upload Custom JSON
                 </h3>
                 <p className="text-gray-600 text-center text-sm mb-6">
-                  Have your own resume.yaml file? Upload it here to generate a custom PDF.
+                  Have your own resume.json file? Upload it here to generate a custom PDF.
                 </p>
                 <FileUpload 
                   onUploadSuccess={handleSuccess}
@@ -238,7 +238,7 @@ export default function HomePage() {
           <div className="text-center text-gray-500 text-sm">
             <p>
               Powered by{' '}
-              <span className="font-medium text-gray-700">YAML to PDF Resume Builder API</span>
+              <span className="font-medium text-gray-700">JSON to PDF Resume Builder API</span>
               {' • '}
               Built with Next.js and deployed on Vercel
             </p>

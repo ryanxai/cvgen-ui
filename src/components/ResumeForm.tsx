@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { api } from '@/lib/api';
 
 interface ResumeFormData {
@@ -61,12 +61,15 @@ interface ResumeFormData {
 }
 
 interface ResumeFormProps {
-  onFormSuccess: (result: any) => void;
+  onFormSuccess: (result: { message: string; filename: string; download_url: string }) => void;
   onFormError: (error: string) => void;
 }
 
 export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploadingJson, setIsUploadingJson] = useState(false);
+  const [jsonUploadSuccess, setJsonUploadSuccess] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<ResumeFormData>({
     personal: {
       name: '',
@@ -124,6 +127,303 @@ export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormPro
     const year = date.getFullYear();
     
     return `${month} ${year}`;
+  };
+
+  const convertAbbreviatedDateToFormDate = (dateString: string): string => {
+    if (!dateString || dateString === 'Present') return '';
+    
+    // Handle "Mar 2021" format
+    const match = dateString.match(/^([A-Za-z]{3})\s+(\d{4})$/);
+    if (match) {
+      const monthStr = match[1];
+      const year = match[2];
+      
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const monthIndex = months.findIndex(m => m.toLowerCase() === monthStr.toLowerCase());
+      
+      if (monthIndex !== -1) {
+        const month = (monthIndex + 1).toString().padStart(2, '0');
+        return `${year}-${month}-01`;
+      }
+    }
+    
+    // Handle year-only format like "2023"
+    const yearMatch = dateString.match(/^(\d{4})$/);
+    if (yearMatch) {
+      const year = yearMatch[1];
+      return `${year}-01-01`; // Default to January 1st of that year
+    }
+    
+    // Handle "yyyy-mm-dd" format directly
+    const isoMatch = dateString.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (isoMatch) {
+      return dateString; // Already in correct format
+    }
+    
+    // Try to parse as regular date
+    const date = new Date(dateString);
+    if (!isNaN(date.getTime())) {
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    
+    return '';
+  };
+
+  const parseJsonToFormData = (jsonContent: string): ResumeFormData => {
+    try {
+      // Parse JSON content
+      const data = JSON.parse(jsonContent);
+      const formData: ResumeFormData = {
+        personal: {
+          name: data.name || '',
+          email: data.contact?.email || '',
+          phone: data.contact?.phone || '',
+          location: data.contact?.location || '',
+          summary: data.summary || '',
+          links: {
+            github: data.contact?.links?.find((link: any) => link.name === 'GitHub')?.url || '',
+            stackoverflow: data.contact?.links?.find((link: any) => link.name === 'StackOverflow')?.url || '',
+            googlescholar: data.contact?.links?.find((link: any) => link.name === 'GoogleScholar')?.url || '',
+            linkedin: data.contact?.links?.find((link: any) => link.name === 'LinkedIn')?.url || '',
+          },
+        },
+        experience: data.experience?.map((exp: any) => ({
+          company: exp.company || '',
+          position: exp.title || '',
+          company_url: exp.company_url || '',
+          company_description: exp.company_description || '',
+          start_date: convertAbbreviatedDateToFormDate(exp.date_start || ''),
+          end_date: exp.date_end === 'Present' ? 'Present' : convertAbbreviatedDateToFormDate(exp.date_end || ''),
+          description: exp.achievements?.map((achievement: any) => achievement.description || '') || [''],
+        })) || [],
+        education: data.education?.map((edu: any) => ({
+          institution: edu.institution || '',
+          degree: edu.degree || '',
+          field: '',
+          start_date: convertAbbreviatedDateToFormDate(edu.date_start || ''),
+          end_date: convertAbbreviatedDateToFormDate(edu.date_end || ''),
+        })) || [],
+        skills: data.skills?.map((skillGroup: any) => ({
+          category: skillGroup.category || '',
+          items: typeof skillGroup.items === 'string' ? skillGroup.items.split(', ') : skillGroup.items || [''],
+        })) || [],
+        awards: data.awards?.map((award: any) => ({
+          title: award.title || '',
+          organization: award.organization || '',
+          organization_detail: award.organization_detail || '',
+          organization_url: award.organization_url || '',
+          location: award.location || '',
+          date: award.date || '',
+        })) || [],
+        certifications: data.certifications?.map((cert: any) => ({
+          title: cert.title || '',
+          organization: cert.organization || '',
+          url: cert.url || '',
+          date: cert.date || '',
+        })) || [],
+        publications: data.publications?.map((pub: any) => ({
+          authors: pub.authors || '',
+          title: pub.title || '',
+          venue: pub.venue || '',
+          date: pub.year?.toString() || '',
+          url: pub.url || '',
+        })) || [],
+      };
+        const line = lines[i].trim();
+        const originalLine = lines[i];
+        
+        if (line.startsWith('name:')) {
+          formData.personal.name = line.substring(5).trim();
+        } else if (line.startsWith('contact:')) {
+          currentSection = 'contact';
+        } else if (originalLine.startsWith('  phone:')) {
+          formData.personal.phone = originalLine.substring(8).trim();
+        } else if (originalLine.startsWith('  email:')) {
+          formData.personal.email = originalLine.substring(8).trim();
+        } else if (originalLine.startsWith('  location:')) {
+          formData.personal.location = originalLine.substring(11).trim();
+        } else if (originalLine.startsWith('  links:')) {
+          currentSection = 'links';
+        } else if (originalLine.startsWith('    - name: GitHub')) {
+          // Look for the URL on the next line
+          if (i + 1 < lines.length && lines[i + 1].trim().startsWith('url:')) {
+            formData.personal.links.github = lines[i + 1].trim().substring(5).trim();
+          }
+        } else if (originalLine.startsWith('    - name: LinkedIn')) {
+          if (i + 1 < lines.length && lines[i + 1].trim().startsWith('url:')) {
+            formData.personal.links.linkedin = lines[i + 1].trim().substring(5).trim();
+          }
+        } else if (originalLine.startsWith('    - name: StackOverflow')) {
+          if (i + 1 < lines.length && lines[i + 1].trim().startsWith('url:')) {
+            formData.personal.links.stackoverflow = lines[i + 1].trim().substring(5).trim();
+          }
+        } else if (originalLine.startsWith('    - name: GoogleScholar')) {
+          if (i + 1 < lines.length && lines[i + 1].trim().startsWith('url:')) {
+            formData.personal.links.googlescholar = lines[i + 1].trim().substring(5).trim();
+          }
+        } else if (line.startsWith('summary:')) {
+          currentSection = 'summary';
+          // Collect multi-line summary
+          const summaryLines = [];
+          let j = i + 1;
+          while (j < lines.length && (lines[j].startsWith('  ') || lines[j].trim() === '')) {
+            if (lines[j].trim() !== '') {
+              summaryLines.push(lines[j].trim());
+            }
+            j++;
+          }
+          formData.personal.summary = summaryLines.join(' ');
+        } else if (line.startsWith('skills:')) {
+          currentSection = 'skills';
+        } else if (originalLine.startsWith('  - category:')) {
+          const category = originalLine.substring(13).trim();
+          currentSkillGroup = { category, items: [] };
+          formData.skills.push(currentSkillGroup);
+        } else if (originalLine.startsWith('    items:') && currentSkillGroup) {
+          const items = originalLine.substring(10).trim();
+          currentSkillGroup.items = items.split(',').map(item => item.trim());
+        } else if (line.startsWith('experience:')) {
+          currentSection = 'experience';
+        } else if (originalLine.startsWith('  - title:') && currentSection === 'experience') {
+          const title = originalLine.substring(10).trim();
+          currentExperience = {
+            position: title,
+            company: '',
+            company_url: '',
+            company_description: '',
+            start_date: '',
+            end_date: '',
+            description: [],
+          };
+          formData.experience.push(currentExperience);
+        } else if (originalLine.startsWith('    company:') && currentExperience) {
+          currentExperience.company = originalLine.substring(12).trim();
+        } else if (originalLine.startsWith('    company_url:') && currentExperience) {
+          currentExperience.company_url = originalLine.substring(16).trim();
+        } else if (originalLine.startsWith('    company_description:') && currentExperience) {
+          currentExperience.company_description = originalLine.substring(24).trim();
+        } else if (originalLine.startsWith('    date_start:') && currentExperience) {
+          const dateValue = originalLine.substring(15).trim();
+          currentExperience.start_date = convertAbbreviatedDateToFormDate(dateValue);
+        } else if (originalLine.startsWith('    date_end:') && currentExperience) {
+          const dateValue = originalLine.substring(13).trim();
+          currentExperience.end_date = convertAbbreviatedDateToFormDate(dateValue);
+        } else if (line.startsWith('    achievements:') && currentExperience) {
+          // Parse achievements
+          let j = i + 1;
+          while (j < lines.length && lines[j].startsWith('      -')) {
+            const achievementLine = lines[j].trim();
+            if (achievementLine.startsWith('- name:')) {
+              const name = achievementLine.substring(7).trim();
+              if (j + 1 < lines.length && lines[j + 1].trim().startsWith('description:')) {
+                const description = lines[j + 1].trim().substring(12).trim();
+                currentExperience.description.push(`${name}: ${description}`);
+                j++;
+              } else {
+                currentExperience.description.push(name);
+              }
+            }
+            j++;
+          }
+        } else if (line.startsWith('education:')) {
+          currentSection = 'education';
+        } else if (originalLine.startsWith('  - degree:') && currentSection === 'education') {
+          const degree = originalLine.substring(11).trim();
+          // Handle complex degree strings like "B.S. in Computer Science, Minor in Statistics"
+          let degreeName = degree;
+          let fieldName = '';
+          
+          if (degree.includes(' in ')) {
+            const parts = degree.split(' in ');
+            degreeName = parts[0];
+            fieldName = parts.slice(1).join(' in '); // Join remaining parts in case there are multiple "in"
+          }
+          
+          currentEducation = {
+            degree: degreeName || '',
+            field: fieldName || '',
+            institution: '',
+            start_date: '',
+            end_date: '',
+          };
+          formData.education.push(currentEducation);
+        } else if (originalLine.startsWith('    institution:') && currentEducation) {
+          currentEducation.institution = originalLine.substring(16).trim();
+        } else if (originalLine.startsWith('    date_start:') && currentEducation) {
+          const dateValue = originalLine.substring(15).trim();
+          currentEducation.start_date = convertAbbreviatedDateToFormDate(dateValue);
+        } else if (originalLine.startsWith('    date_end:') && currentEducation) {
+          const dateValue = originalLine.substring(13).trim();
+          currentEducation.end_date = convertAbbreviatedDateToFormDate(dateValue);
+        } else if (line.startsWith('awards:') && currentSection !== 'awards') {
+          currentSection = 'awards';
+        } else if (originalLine.startsWith('  - title:') && currentSection === 'awards') {
+          const title = originalLine.substring(10).trim();
+          currentAward = {
+            title,
+            organization: '',
+            organization_detail: '',
+            organization_url: '',
+            location: '',
+            date: '',
+          };
+          formData.awards.push(currentAward);
+        } else if (originalLine.startsWith('    organization:') && currentAward) {
+          currentAward.organization = originalLine.substring(16).trim();
+        } else if (originalLine.startsWith('    organization_detail:') && currentAward) {
+          currentAward.organization_detail = originalLine.substring(23).trim();
+        } else if (originalLine.startsWith('    organization_url:') && currentAward) {
+          currentAward.organization_url = originalLine.substring(20).trim();
+        } else if (originalLine.startsWith('    location:') && currentAward) {
+          currentAward.location = originalLine.substring(12).trim();
+        } else if (originalLine.startsWith('    date:') && currentAward) {
+          const dateValue = originalLine.substring(7).trim();
+          currentAward.date = convertAbbreviatedDateToFormDate(dateValue);
+        } else if (line.startsWith('certifications:') && currentSection !== 'certifications') {
+          currentSection = 'certifications';
+        } else if (originalLine.startsWith('  - title:') && currentSection === 'certifications') {
+          const title = originalLine.substring(10).trim();
+          currentCertification = {
+            title,
+            organization: '',
+            url: '',
+            date: '',
+          };
+          formData.certifications.push(currentCertification);
+        } else if (originalLine.startsWith('    organization:') && currentCertification) {
+          currentCertification.organization = originalLine.substring(16).trim();
+        } else if (originalLine.startsWith('    url:') && currentCertification) {
+          currentCertification.url = originalLine.substring(7).trim();
+        } else if (originalLine.startsWith('    date:') && currentCertification) {
+          const dateValue = originalLine.substring(7).trim();
+          currentCertification.date = convertAbbreviatedDateToFormDate(dateValue);
+        } else if (line.startsWith('publications:') && currentSection !== 'publications') {
+          currentSection = 'publications';
+        } else if (originalLine.startsWith('  - authors:') && currentSection === 'publications') {
+          const authors = originalLine.substring(11).trim();
+          currentPublication = {
+            authors,
+            title: '',
+            venue: '',
+            date: '',
+            url: '',
+          };
+          formData.publications.push(currentPublication);
+        } else if (originalLine.startsWith('    title:') && currentPublication) {
+          currentPublication.title = originalLine.substring(9).trim();
+        } else if (originalLine.startsWith('    venue:') && currentPublication) {
+          currentPublication.venue = originalLine.substring(9).trim();
+        } else if (originalLine.startsWith('    date:') && currentPublication) {
+          const dateValue = originalLine.substring(7).trim();
+          currentPublication.date = convertAbbreviatedDateToFormDate(dateValue);
+      return formData;
+    } catch (error) {
+      throw new Error('Failed to parse JSON file. Please check the format.');
+    }
   };
 
   const convertToYaml = (data: ResumeFormData): string => {
@@ -371,6 +671,8 @@ experience:
       experience: [...prev.experience, {
         company: '',
         position: '',
+        company_url: '',
+        company_description: '',
         start_date: '',
         end_date: '',
         description: [''],
@@ -452,6 +754,49 @@ experience:
     }));
   };
 
+  const validateYamlFile = (file: File): string | null => {
+    if (!file.name.endsWith('.yaml') && !file.name.endsWith('.yml')) {
+      return 'Please select a YAML file (.yaml or .yml)';
+    }
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      return 'File size must be less than 5MB';
+    }
+    return null;
+  };
+
+  const handleYamlFileUpload = async (file: File) => {
+    const validationError = validateYamlFile(file);
+    if (validationError) {
+      onFormError(validationError);
+      return;
+    }
+
+    setIsUploadingYaml(true);
+    try {
+      const text = await file.text();
+      const parsedData = parseYamlToFormData(text);
+      setFormData(parsedData);
+      setYamlUploadSuccess(true);
+      // Clear success message after 3 seconds
+      setTimeout(() => setYamlUploadSuccess(false), 3000);
+    } catch (error) {
+      onFormError(error instanceof Error ? error.message : 'Failed to parse YAML file');
+    } finally {
+      setIsUploadingYaml(false);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      handleYamlFileUpload(files[0]);
+    }
+  };
+
+  const openFileDialog = () => {
+    fileInputRef.current?.click();
+  };
+
 
 
   return (
@@ -459,6 +804,68 @@ experience:
       <div className="mb-8">
         <h3 className="text-2xl font-bold text-gray-900 mb-2">Create Your Resume</h3>
         <p className="text-gray-600">Fill out the form below to generate your professional resume</p>
+      </div>
+
+      {/* YAML File Upload Section */}
+      <div className="mb-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h4 className="text-lg font-semibold text-gray-900">Load from YAML File</h4>
+            <p className="text-sm text-gray-600">Upload a pre-filled resume.yaml file to populate the form</p>
+          </div>
+          <button
+            type="button"
+            onClick={openFileDialog}
+            disabled={isUploadingYaml}
+            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center"
+          >
+            {isUploadingYaml ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Loading...
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                Upload YAML
+              </>
+            )}
+          </button>
+        </div>
+        
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".yaml,.yml"
+          onChange={handleFileSelect}
+          className="hidden"
+          disabled={isUploadingYaml}
+        />
+        
+        {/* Success Message */}
+        {yamlUploadSuccess && (
+          <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="text-sm font-medium text-green-800">
+                YAML file loaded successfully! The form has been populated with your data.
+              </span>
+            </div>
+          </div>
+        )}
+        
+        <div className="text-sm text-gray-600">
+          <p>• Supports .yaml and .yml files (max 5MB)</p>
+          <p>• The form will be populated with the YAML content</p>
+          <p>• You can still edit the form after loading</p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">

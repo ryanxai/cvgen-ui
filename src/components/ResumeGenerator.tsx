@@ -14,7 +14,7 @@ export default function ResumeGenerator({ onGenerationSuccess, onGenerationError
   const handleGenerateFromExisting = async () => {
     setIsGenerating(true);
     try {
-      const result = await api.generateFromExistingYaml();
+      const result = await api.generateFromExistingJson();
       onGenerationSuccess(result);
     } catch (error) {
       onGenerationError(error instanceof Error ? error.message : 'Generation failed');
@@ -30,7 +30,7 @@ export default function ResumeGenerator({ onGenerationSuccess, onGenerationError
           Generate from Default Template
         </h3>
         <p className="text-sm text-gray-600 mb-6">
-          Use the existing resume.yaml file on the server to generate a PDF resume.
+          Use the existing resume.json file on the server to generate a PDF resume.
         </p>
         
         <button
