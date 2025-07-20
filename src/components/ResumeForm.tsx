@@ -107,7 +107,7 @@ export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormPro
     skills: [
       {
         category: 'Technical Skills',
-        items: [''],
+        items: [],
       },
     ],
     awards: [],
@@ -210,7 +210,7 @@ export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormPro
         })),
         skills: ((data.skills as Array<Record<string, unknown>>) || []).map((skillGroup) => ({
           category: (skillGroup.category as string) || '',
-          items: typeof skillGroup.items === 'string' ? skillGroup.items.split(', ') : (skillGroup.items as string[]) || [''],
+          items: typeof skillGroup.items === 'string' ? skillGroup.items.split(', ') : (skillGroup.items as string[]) || [],
         })),
         awards: ((data.awards as Array<Record<string, unknown>>) || []).map((award) => ({
           title: (award.title as string) || '',
@@ -456,31 +456,33 @@ export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormPro
     }));
   };
 
-  const updateSkills = (skillGroupIndex: number, itemIndex: number, value: string) => {
+  const addSkill = () => {
+    setFormData(prev => ({
+      ...prev,
+      skills: [...prev.skills, {
+        category: 'Technical Skills',
+        items: [],
+      }]
+    }));
+  };
+
+  const addSkillToCategory = (skillGroupIndex: number, skillName: string) => {
+    if (!skillName.trim()) return;
+    
     setFormData(prev => ({
       ...prev,
       skills: prev.skills.map((skillGroup, i) =>
         i === skillGroupIndex
           ? {
               ...skillGroup,
-              items: skillGroup.items.map((item, j) => j === itemIndex ? value : item)
+              items: [...skillGroup.items, skillName.trim()]
             }
           : skillGroup
       )
     }));
   };
 
-  const addSkill = () => {
-    setFormData(prev => ({
-      ...prev,
-      skills: [...prev.skills, {
-        category: 'Technical Skills',
-        items: [''],
-      }]
-    }));
-  };
-
-  const removeSkill = (skillGroupIndex: number, itemIndex: number) => {
+  const removeSkillFromCategory = (skillGroupIndex: number, itemIndex: number) => {
     setFormData(prev => ({
       ...prev,
       skills: prev.skills.map((skillGroup, i) =>
@@ -909,36 +911,56 @@ export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormPro
                 </button>
               </div>
               
-              {skillGroup.items.map((item, itemIndex) => (
-                <div key={itemIndex} className="flex items-center space-x-2 mb-2">
+              {/* Skill Tags */}
+              <div className="mb-4">
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {skillGroup.items.filter(item => item.trim() !== '').map((item, itemIndex) => (
+                    <div
+                      key={itemIndex}
+                      className="inline-flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium"
+                    >
+                      <span>{item}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeSkillFromCategory(skillGroupIndex, itemIndex)}
+                        className="ml-2 text-blue-600 hover:text-blue-800 focus:outline-none"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Add New Skill Input */}
+                <div className="flex items-center space-x-2">
                   <input
                     type="text"
-                    value={item}
-                    onChange={(e) => updateSkills(skillGroupIndex, itemIndex, e.target.value)}
+                    placeholder="Add a skill..."
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="Skill..."
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const input = e.target as HTMLInputElement;
+                        addSkillToCategory(skillGroupIndex, input.value);
+                        input.value = '';
+                      }
+                    }}
                   />
                   <button
                     type="button"
-                    onClick={() => removeSkill(skillGroupIndex, itemIndex)}
-                    className="text-red-600 hover:text-red-800"
+                    onClick={(e) => {
+                      const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                      addSkillToCategory(skillGroupIndex, input.value);
+                      input.value = '';
+                    }}
+                    className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    Remove
+                    Add
                   </button>
                 </div>
-              ))}
-              
-              <button
-                type="button"
-                onClick={() => {
-                  const newSkills = [...formData.skills];
-                  newSkills[skillGroupIndex] = { ...skillGroup, items: [...skillGroup.items, ''] };
-                  setFormData(prev => ({ ...prev, skills: newSkills }));
-                }}
-                className="text-blue-600 hover:text-blue-800 text-sm"
-              >
-                + Add Skill
-              </button>
+              </div>
             </div>
           ))}
         </div>
