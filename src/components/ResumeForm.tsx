@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { api } from '@/lib/api';
 
 interface ResumeFormData {
@@ -35,7 +35,7 @@ interface ResumeFormData {
   }>;
   skills: Array<{
     category: string;
-    items: string[];
+    items: string;
   }>;
   awards: Array<{
     title: string;
@@ -63,10 +63,24 @@ interface ResumeFormData {
 interface ResumeFormProps {
   onFormSuccess: (result: { message: string; filename: string; download_url: string }) => void;
   onFormError: (error: string) => void;
+  onFormDataReady?: (formData: ResumeFormData) => void;
+  onGenerateResume?: () => void;
+  onDownloadJson?: () => void;
+  onDownloadPdf?: () => void;
+  isLoading?: boolean;
 }
 
-export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
+export default function ResumeForm({ 
+  onFormSuccess, 
+  onFormError, 
+  onFormDataReady,
+  onGenerateResume, 
+  onDownloadJson, 
+  onDownloadPdf, 
+  isLoading: externalIsLoading 
+}: ResumeFormProps) {
+  const [internalIsLoading, setInternalIsLoading] = useState(false);
+  const isLoading = externalIsLoading !== undefined ? externalIsLoading : internalIsLoading;
   const [isUploadingJson, setIsUploadingJson] = useState(false);
   const [jsonUploadSuccess, setJsonUploadSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -107,13 +121,20 @@ export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormPro
     skills: [
       {
         category: 'Technical Skills',
-        items: [],
+        items: '',
       },
     ],
     awards: [],
     certifications: [],
     publications: [],
   });
+
+  // Call onFormDataReady when formData changes
+  useEffect(() => {
+    if (onFormDataReady) {
+      onFormDataReady(formData);
+    }
+  }, [formData, onFormDataReady]);
 
   const convertDateToAbbreviated = (dateString: string): string => {
     if (!dateString || dateString === 'Present') return dateString;
@@ -210,7 +231,7 @@ export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormPro
         })),
         skills: ((data.skills as Array<Record<string, unknown>>) || []).map((skillGroup) => ({
           category: (skillGroup.category as string) || '',
-          items: typeof skillGroup.items === 'string' ? skillGroup.items.split(', ') : (skillGroup.items as string[]) || [],
+          items: typeof skillGroup.items === 'string' ? skillGroup.items : (skillGroup.items as string[])?.join(', ') || '',
         })),
         awards: ((data.awards as Array<Record<string, unknown>>) || []).map((award) => ({
           title: (award.title as string) || '',
@@ -274,10 +295,10 @@ export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormPro
 
     // Convert skills to the correct format
     const skills = data.skills
-      .filter(skillGroup => skillGroup.items.some(item => item.trim() !== ''))
+      .filter(skillGroup => skillGroup.items.trim() !== '')
       .map(skillGroup => ({
         category: skillGroup.category,
-        items: skillGroup.items.filter(item => item.trim() !== '')
+        items: skillGroup.items.trim()
       }));
 
     // Build the JSON content
@@ -326,7 +347,12 @@ export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormPro
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    if (onGenerateResume) {
+      onGenerateResume();
+      return;
+    }
+    
+    setInternalIsLoading(true);
 
     try {
       const jsonContent = convertToJson(formData);
@@ -338,56 +364,11 @@ export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormPro
     } catch (error) {
       onFormError(error instanceof Error ? error.message : 'Failed to generate resume');
     } finally {
-      setIsLoading(false);
+      setInternalIsLoading(false);
     }
   };
 
-  const handleDownloadJson = () => {
-    const jsonContent = convertToJson(formData);
-    const jsonBlob = new Blob([jsonContent], { type: 'application/json' });
-    
-    // Create download link for the JSON file
-    const downloadUrl = URL.createObjectURL(jsonBlob);
-    const downloadLink = document.createElement('a');
-    downloadLink.href = downloadUrl;
-    downloadLink.download = 'resume.json';
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-    URL.revokeObjectURL(downloadUrl);
-  };
 
-  const handleDownloadResume = async () => {
-    setIsLoading(true);
-    
-    try {
-      const jsonContent = convertToJson(formData);
-      const jsonBlob = new Blob([jsonContent], { type: 'application/json' });
-      const jsonFile = new File([jsonBlob], 'resume.json', { type: 'application/json' });
-
-      const result = await api.uploadJsonAndGenerate(jsonFile);
-      
-      // Download the generated PDF
-      const pdfBlob = await api.downloadPdf(result.filename);
-      
-      // Create download link for the PDF file
-      const downloadUrl = URL.createObjectURL(pdfBlob);
-      const downloadLink = document.createElement('a');
-      downloadLink.href = downloadUrl;
-      downloadLink.download = `resume_${formData.personal.name.replace(/\s+/g, '_')}.pdf`;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-      URL.revokeObjectURL(downloadUrl);
-      
-      // Show success message
-      onFormSuccess(result);
-    } catch (error) {
-      onFormError(error instanceof Error ? error.message : 'Failed to download resume');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const updatePersonal = (field: keyof ResumeFormData['personal'], value: string | ResumeFormData['personal']['links']) => {
     setFormData(prev => ({
@@ -461,40 +442,12 @@ export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormPro
       ...prev,
       skills: [...prev.skills, {
         category: 'Technical Skills',
-        items: [],
+        items: '',
       }]
     }));
   };
 
-  const addSkillToCategory = (skillGroupIndex: number, skillName: string) => {
-    if (!skillName.trim()) return;
-    
-    setFormData(prev => ({
-      ...prev,
-      skills: prev.skills.map((skillGroup, i) =>
-        i === skillGroupIndex
-          ? {
-              ...skillGroup,
-              items: [...skillGroup.items, skillName.trim()]
-            }
-          : skillGroup
-      )
-    }));
-  };
 
-  const removeSkillFromCategory = (skillGroupIndex: number, itemIndex: number) => {
-    setFormData(prev => ({
-      ...prev,
-      skills: prev.skills.map((skillGroup, i) =>
-        i === skillGroupIndex
-          ? {
-              ...skillGroup,
-              items: skillGroup.items.filter((_, j) => j !== itemIndex)
-            }
-          : skillGroup
-      ).filter(skillGroup => skillGroup.items.length > 0)
-    }));
-  };
 
   const validateJsonFile = (file: File): string | null => {
     if (!file.name.endsWith('.json')) {
@@ -544,29 +497,85 @@ export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormPro
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* JSON File Upload */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload JSON File</h3>
-          <p className="text-sm text-gray-600 mb-4">
-            Upload a JSON file to automatically populate the form fields.
-          </p>
-          
-          <div className="flex items-center space-x-4">
-            <button
-              type="button"
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload JSON Resume Data</h3>
+          <div className="space-y-4">
+            <div
+              className={`
+                relative border-2 border-dashed rounded-lg p-6 text-center cursor-pointer
+                transition-all duration-200 ease-in-out
+                ${isUploadingJson 
+                  ? 'border-blue-500 bg-blue-50' 
+                  : 'border-gray-300 hover:border-gray-400'
+                }
+              `}
               onClick={openFileDialog}
-              disabled={isUploadingJson}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+              onDrop={(e) => {
+                e.preventDefault();
+                const files = Array.from(e.dataTransfer.files);
+                if (files.length > 0) {
+                  handleJsonFileUpload(files[0]);
+                }
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+              }}
             >
-              {isUploadingJson ? 'Uploading...' : 'Upload JSON'}
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".json"
-              onChange={handleFileSelect}
-              className="hidden"
-            />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json"
+                onChange={handleFileSelect}
+                className="hidden"
+                disabled={isUploadingJson}
+              />
+              
+              <div className="flex flex-col items-center space-y-3">
+                {isUploadingJson ? (
+                  <>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    <p className="text-gray-600">Reading JSON file...</p>
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="w-8 h-8 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
+                      />
+                    </svg>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">
+                        Drop your JSON file here
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        or click to browse files
+                      </p>
+                    </div>
+                    <p className="text-xs text-gray-400">
+                      Supports .json files (max 5MB)
+                    </p>
+                  </>
+                )}
+              </div>
+            </div>
+            
             {jsonUploadSuccess && (
-              <span className="text-green-600 text-sm">✓ JSON file uploaded successfully!</span>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-sm text-green-800">JSON file loaded successfully! Form fields have been populated.</span>
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -911,89 +920,31 @@ export default function ResumeForm({ onFormSuccess, onFormError }: ResumeFormPro
                 </button>
               </div>
               
-              {/* Skill Tags */}
+              {/* Skills Textarea */}
               <div className="mb-4">
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {skillGroup.items.filter(item => item.trim() !== '').map((item, itemIndex) => (
-                    <div
-                      key={itemIndex}
-                      className="inline-flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium"
-                    >
-                      <span>{item}</span>
-                      <button
-                        type="button"
-                        onClick={() => removeSkillFromCategory(skillGroupIndex, itemIndex)}
-                        className="ml-2 text-blue-600 hover:text-blue-800 focus:outline-none"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                
-                {/* Add New Skill Input */}
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="text"
-                    placeholder="Add a skill..."
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        const input = e.target as HTMLInputElement;
-                        addSkillToCategory(skillGroupIndex, input.value);
-                        input.value = '';
-                      }
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                      addSkillToCategory(skillGroupIndex, input.value);
-                      input.value = '';
-                    }}
-                    className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    Add
-                  </button>
-                </div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Skills (comma-separated)
+                </label>
+                <textarea
+                  value={skillGroup.items}
+                  onChange={(e) => {
+                    const newSkills = [...formData.skills];
+                    newSkills[skillGroupIndex] = { ...skillGroup, items: e.target.value };
+                    setFormData(prev => ({ ...prev, skills: newSkills }));
+                  }}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                  placeholder="e.g., JavaScript, React, Node.js, Python, Docker"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Enter skills separated by commas (e.g., JavaScript, React, Node.js)
+                </p>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Action Buttons */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-            >
-              {isLoading ? 'Generating...' : 'Generate Resume PDF'}
-            </button>
-            
-            <button
-              type="button"
-              onClick={handleDownloadJson}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500"
-            >
-              Download JSON
-            </button>
-            
-            <button
-              type="button"
-              onClick={handleDownloadResume}
-              disabled={isLoading}
-              className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
-            >
-              {isLoading ? 'Downloading...' : 'Download PDF'}
-            </button>
-          </div>
-        </div>
+
       </form>
     </div>
   );

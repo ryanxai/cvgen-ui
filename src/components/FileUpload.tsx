@@ -1,10 +1,9 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { api, ResumeGenerationResponse } from '@/lib/api';
 
 interface FileUploadProps {
-  onUploadSuccess: (result: ResumeGenerationResponse) => void;
+  onUploadSuccess: (fileData: any) => void;
   onUploadError: (error: string) => void;
 }
 
@@ -32,10 +31,12 @@ export default function FileUpload({ onUploadSuccess, onUploadError }: FileUploa
 
     setIsUploading(true);
     try {
-      const result = await api.uploadJsonAndGenerate(file);
-      onUploadSuccess(result);
+      // Read the JSON file content
+      const text = await file.text();
+      const jsonData = JSON.parse(text);
+      onUploadSuccess(jsonData);
     } catch (error) {
-      onUploadError(error instanceof Error ? error.message : 'Upload failed');
+      onUploadError(error instanceof Error ? error.message : 'Failed to parse JSON file');
     } finally {
       setIsUploading(false);
     }
@@ -102,7 +103,7 @@ export default function FileUpload({ onUploadSuccess, onUploadError }: FileUploa
           {isUploading ? (
             <>
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-              <p className="text-gray-600">Uploading and generating resume...</p>
+              <p className="text-gray-600">Reading JSON file...</p>
             </>
           ) : (
             <>
@@ -117,7 +118,7 @@ export default function FileUpload({ onUploadSuccess, onUploadError }: FileUploa
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
                 />
               </svg>
               <div>
