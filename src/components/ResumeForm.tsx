@@ -85,6 +85,7 @@ export default function ResumeForm({
   const isLoading = externalIsLoading !== undefined ? externalIsLoading : internalIsLoading;
   const [isUploadingJson, setIsUploadingJson] = useState(false);
   const [jsonUploadSuccess, setJsonUploadSuccess] = useState(false);
+  const [isPersonalInfoCollapsed, setIsPersonalInfoCollapsed] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<ResumeFormData>({
     personal: {
@@ -100,32 +101,9 @@ export default function ResumeForm({
         linkedin: '',
       },
     },
-    experience: [
-      {
-        company: '',
-        position: '',
-        company_url: '',
-        company_description: '',
-        start_date: '',
-        end_date: '',
-        description: [''],
-      },
-    ],
-    education: [
-      {
-        institution: '',
-        degree: '',
-        field: '',
-        start_date: '',
-        end_date: '',
-      },
-    ],
-    skills: [
-      {
-        category: 'Skill Category 1',
-        items: [],
-      },
-    ],
+    experience: [],
+    education: [],
+    skills: [],
     awards: [],
     certifications: [],
     publications: [],
@@ -568,101 +546,131 @@ export default function ResumeForm({
 
         {/* Personal Information */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                              <input
-                  type="text"
-                  value={formData.personal.name}
-                  onChange={(e) => updatePersonal('name', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                  required
-                />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                              <input
-                  type="email"
-                  value={formData.personal.email}
-                  onChange={(e) => updatePersonal('email', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                  required
-                />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                              <input
-                  type="tel"
-                  value={formData.personal.phone}
-                  onChange={(e) => updatePersonal('phone', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                              <input
-                  type="text"
-                  value={formData.personal.location}
-                  onChange={(e) => updatePersonal('location', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                />
-            </div>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
+            <button
+              type="button"
+              onClick={() => setIsPersonalInfoCollapsed(!isPersonalInfoCollapsed)}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                isPersonalInfoCollapsed 
+                  ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-300' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+              }`}
+            >
+              <span className="text-sm font-semibold">
+                {isPersonalInfoCollapsed ? 'Fill Personal Info' : 'Collapse'}
+              </span>
+              <svg
+                className={`w-5 h-5 transition-transform duration-200 ${
+                  isPersonalInfoCollapsed ? 'rotate-0' : 'rotate-180'
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
           </div>
           
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Professional Summary</label>
-                          <textarea
-                value={formData.personal.summary}
-                onChange={(e) => updatePersonal('summary', e.target.value)}
-                rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                placeholder="Brief professional summary..."
-              />
-          </div>
+          {!isPersonalInfoCollapsed && (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <input
+                    type="text"
+                    value={formData.personal.name}
+                    onChange={(e) => updatePersonal('name', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={formData.personal.email}
+                    onChange={(e) => updatePersonal('email', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <input
+                    type="tel"
+                    value={formData.personal.phone}
+                    onChange={(e) => updatePersonal('phone', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                  <input
+                    type="text"
+                    value={formData.personal.location}
+                    onChange={(e) => updatePersonal('location', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                  />
+                </div>
+              </div>
+              
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Professional Summary</label>
+                <textarea
+                  value={formData.personal.summary}
+                  onChange={(e) => updatePersonal('summary', e.target.value)}
+                  rows={4}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                  placeholder="Brief professional summary..."
+                />
+              </div>
 
-          {/* Social Links */}
-          <div className="mt-4">
-            <h4 className="text-md font-medium text-gray-900 mb-2">Social Links</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">GitHub</label>
-                                  <input
-                    type="url"
-                    value={formData.personal.links.github}
-                    onChange={(e) => updatePersonal('links', { ...formData.personal.links, github: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                  />
+              {/* Social Links */}
+              <div className="mt-4">
+                <h4 className="text-md font-medium text-gray-900 mb-2">Social Links</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">GitHub</label>
+                    <input
+                      type="url"
+                      value={formData.personal.links.github}
+                      onChange={(e) => updatePersonal('links', { ...formData.personal.links, github: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn</label>
+                    <input
+                      type="url"
+                      value={formData.personal.links.linkedin}
+                      onChange={(e) => updatePersonal('links', { ...formData.personal.links, linkedin: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Stack Overflow</label>
+                    <input
+                      type="url"
+                      value={formData.personal.links.stackoverflow}
+                      onChange={(e) => updatePersonal('links', { ...formData.personal.links, stackoverflow: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Google Scholar</label>
+                    <input
+                      type="url"
+                      value={formData.personal.links.googlescholar}
+                      onChange={(e) => updatePersonal('links', { ...formData.personal.links, googlescholar: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    />
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn</label>
-                                  <input
-                    type="url"
-                    value={formData.personal.links.linkedin}
-                    onChange={(e) => updatePersonal('links', { ...formData.personal.links, linkedin: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                  />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Stack Overflow</label>
-                                  <input
-                    type="url"
-                    value={formData.personal.links.stackoverflow}
-                    onChange={(e) => updatePersonal('links', { ...formData.personal.links, stackoverflow: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                  />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Google Scholar</label>
-                                  <input
-                    type="url"
-                    value={formData.personal.links.googlescholar}
-                    onChange={(e) => updatePersonal('links', { ...formData.personal.links, googlescholar: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                  />
-              </div>
-            </div>
-          </div>
+            </>
+          )}
         </div>
 
         {/* Experience */}
@@ -672,9 +680,12 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={addExperience}
-              className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="flex items-center space-x-2 px-4 py-2 bg-green-100 text-green-700 hover:bg-green-200 border border-green-300 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
-              Add Experience
+              <span className="text-sm font-semibold">Add Experience</span>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
             </button>
           </div>
           
@@ -797,9 +808,12 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={addEducation}
-              className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="flex items-center space-x-2 px-4 py-2 bg-green-100 text-green-700 hover:bg-green-200 border border-green-300 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
-              Add Education
+              <span className="text-sm font-semibold">Add Education</span>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
             </button>
           </div>
           
@@ -874,9 +888,12 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={addSkill}
-              className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="flex items-center space-x-2 px-4 py-2 bg-green-100 text-green-700 hover:bg-green-200 border border-green-300 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
-              Add Skill Category
+              <span className="text-sm font-semibold">Add Skill Category</span>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
             </button>
           </div>
           
@@ -988,9 +1005,12 @@ export default function ResumeForm({
                   }]
                 }));
               }}
-              className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="flex items-center space-x-2 px-4 py-2 bg-green-100 text-green-700 hover:bg-green-200 border border-green-300 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
-              Add Award
+              <span className="text-sm font-semibold">Add Award</span>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
             </button>
           </div>
           
@@ -1118,9 +1138,12 @@ export default function ResumeForm({
                   }]
                 }));
               }}
-              className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="flex items-center space-x-2 px-4 py-2 bg-green-100 text-green-700 hover:bg-green-200 border border-green-300 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
-              Add Certification
+              <span className="text-sm font-semibold">Add Certification</span>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
             </button>
           </div>
           
@@ -1221,9 +1244,12 @@ export default function ResumeForm({
                   }]
                 }));
               }}
-              className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="flex items-center space-x-2 px-4 py-2 bg-green-100 text-green-700 hover:bg-green-200 border border-green-300 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
-              Add Publication
+              <span className="text-sm font-semibold">Add Publication</span>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
             </button>
           </div>
           
@@ -1323,18 +1349,7 @@ export default function ResumeForm({
           ))}
         </div>
 
-        {/* Submit Button */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex justify-center">
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? 'Generating Resume...' : 'Generate Resume'}
-            </button>
-          </div>
-        </div>
+
 
       </form>
     </div>

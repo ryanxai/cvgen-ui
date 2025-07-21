@@ -387,36 +387,19 @@ export default function HomePage() {
         description: exp.achievements?.map((achievement: any) => 
           `${achievement.name}: ${achievement.description}`
         ) || [''],
-      })) || [{
-        company: '',
-        position: '',
-        company_url: '',
-        company_description: '',
-        start_date: '',
-        end_date: '',
-        description: [''],
-      }],
+      })) || [],
       education: data.education?.map((edu: any) => ({
         institution: edu.institution || '',
         degree: edu.degree?.split(' in ')[0] || '',
         field: edu.degree?.split(' in ')[1] || '',
         start_date: convertAbbreviatedDateToFormDate(edu.date_start || ''),
         end_date: convertAbbreviatedDateToFormDate(edu.date_end || ''),
-      })) || [{
-        institution: '',
-        degree: '',
-        field: '',
-        start_date: '',
-        end_date: '',
-      }],
+      })) || [],
       skills: data.skills?.map((skillGroup: any) => ({
         category: skillGroup.category || 'Technical Skills',
         items: Array.isArray(skillGroup.items) ? skillGroup.items : 
                typeof skillGroup.items === 'string' ? skillGroup.items.split(',').map((s: string) => s.trim()).filter((s: string) => s) : [],
-      })) || [{
-        category: 'Technical Skills',
-        items: [],
-      }],
+      })) || [],
       awards: data.awards?.map((award: any) => ({
         title: award.title || '',
         organization: award.organization || '',
@@ -805,12 +788,6 @@ export default function HomePage() {
 
             {/* Form Section */}
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-gray-900 text-center">
-                Create Resume with Form
-              </h3>
-              <p className="text-gray-600 text-center text-sm mb-6">
-                Fill out our comprehensive form to create your resume data and generate a professional PDF.
-              </p>
                                         <div id="resume-form" className="relative">
                 <ResumeForm
                   onFormSuccess={handleSuccess}
