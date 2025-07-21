@@ -77,6 +77,12 @@ export default function ResumeForm({
   onFormDataChange
 }: ResumeFormProps) {
   const [isPersonalInfoCollapsed, setIsPersonalInfoCollapsed] = useState(true);
+  const [isExperienceCollapsed, setIsExperienceCollapsed] = useState(true);
+  const [isEducationCollapsed, setIsEducationCollapsed] = useState(true);
+  const [isSkillsCollapsed, setIsSkillsCollapsed] = useState(true);
+  const [isAwardsCollapsed, setIsAwardsCollapsed] = useState(true);
+  const [isCertificationsCollapsed, setIsCertificationsCollapsed] = useState(true);
+  const [isPublicationsCollapsed, setIsPublicationsCollapsed] = useState(true);
   const [formData, setFormData] = useState<ResumeFormData>({
     personal: {
       name: '',
@@ -382,30 +388,25 @@ export default function ResumeForm({
         {/* Personal Information */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
-            <button
-              type="button"
-              onClick={() => setIsPersonalInfoCollapsed(!isPersonalInfoCollapsed)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                isPersonalInfoCollapsed 
-                  ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-300' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
-              }`}
-            >
-              <span className="text-sm font-semibold">
-                {isPersonalInfoCollapsed ? 'Expand Personal Info' : 'Collapse Personal Info'}
-              </span>
-              <svg
-                className={`w-5 h-5 transition-transform duration-200 ${
-                  isPersonalInfoCollapsed ? 'rotate-0' : 'rotate-180'
-                }`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <div className="flex items-center space-x-3">
+              <button
+                type="button"
+                onClick={() => setIsPersonalInfoCollapsed(!isPersonalInfoCollapsed)}
+                className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-100"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
+                <svg
+                  className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${
+                    isPersonalInfoCollapsed ? 'rotate-0' : 'rotate-180'
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
+            </div>
           </div>
           
           {!isPersonalInfoCollapsed && (
@@ -511,7 +512,25 @@ export default function ResumeForm({
         {/* Experience */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Experience</h3>
+            <div className="flex items-center space-x-3">
+              <button
+                type="button"
+                onClick={() => setIsExperienceCollapsed(!isExperienceCollapsed)}
+                className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-100"
+              >
+                <svg
+                  className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${
+                    isExperienceCollapsed ? 'rotate-0' : 'rotate-180'
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <h3 className="text-lg font-semibold text-gray-900">Experience</h3>
+            </div>
             <button
               type="button"
               onClick={addExperience}
@@ -524,7 +543,7 @@ export default function ResumeForm({
             </button>
           </div>
           
-          {formData.experience.map((exp, index) => (
+          {!isExperienceCollapsed && formData.experience.map((exp, index) => (
             <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
               <div className="flex justify-between items-center mb-4">
                 <h4 className="text-md font-medium text-gray-900">Experience {index + 1}</h4>
@@ -639,7 +658,25 @@ export default function ResumeForm({
         {/* Education */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Education</h3>
+            <div className="flex items-center space-x-3">
+              <button
+                type="button"
+                onClick={() => setIsEducationCollapsed(!isEducationCollapsed)}
+                className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-100"
+              >
+                <svg
+                  className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${
+                    isEducationCollapsed ? 'rotate-0' : 'rotate-180'
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <h3 className="text-lg font-semibold text-gray-900">Education</h3>
+            </div>
             <button
               type="button"
               onClick={addEducation}
@@ -652,7 +689,7 @@ export default function ResumeForm({
             </button>
           </div>
           
-          {formData.education.map((edu, index) => (
+          {!isEducationCollapsed && formData.education.map((edu, index) => (
             <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
               <div className="flex justify-between items-center mb-4">
                 <h4 className="text-md font-medium text-gray-900">Education {index + 1}</h4>
@@ -719,7 +756,25 @@ export default function ResumeForm({
         {/* Skills */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Skills</h3>
+            <div className="flex items-center space-x-3">
+              <button
+                type="button"
+                onClick={() => setIsSkillsCollapsed(!isSkillsCollapsed)}
+                className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-100"
+              >
+                <svg
+                  className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${
+                    isSkillsCollapsed ? 'rotate-0' : 'rotate-180'
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <h3 className="text-lg font-semibold text-gray-900">Skills</h3>
+            </div>
             <button
               type="button"
               onClick={addSkill}
@@ -732,7 +787,7 @@ export default function ResumeForm({
             </button>
           </div>
           
-          {formData.skills.map((skillGroup, skillGroupIndex) => (
+          {!isSkillsCollapsed && formData.skills.map((skillGroup, skillGroupIndex) => (
             <div key={skillGroupIndex} className="border border-gray-200 rounded-lg p-4 mb-4">
               <div className="flex justify-between items-center mb-4">
                 <input
@@ -827,7 +882,25 @@ export default function ResumeForm({
         {/* Awards */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Awards</h3>
+            <div className="flex items-center space-x-3">
+              <button
+                type="button"
+                onClick={() => setIsAwardsCollapsed(!isAwardsCollapsed)}
+                className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-100"
+              >
+                <svg
+                  className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${
+                    isAwardsCollapsed ? 'rotate-0' : 'rotate-180'
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <h3 className="text-lg font-semibold text-gray-900">Awards</h3>
+            </div>
             <button
               type="button"
               onClick={() => {
@@ -852,7 +925,7 @@ export default function ResumeForm({
             </button>
           </div>
           
-          {formData.awards.map((award, index) => (
+          {!isAwardsCollapsed && formData.awards.map((award, index) => (
             <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
               <div className="flex justify-between items-center mb-4">
                 <h4 className="text-md font-medium text-gray-900">Award {index + 1}</h4>
@@ -962,7 +1035,25 @@ export default function ResumeForm({
         {/* Certifications */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Certifications</h3>
+            <div className="flex items-center space-x-3">
+              <button
+                type="button"
+                onClick={() => setIsCertificationsCollapsed(!isCertificationsCollapsed)}
+                className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-100"
+              >
+                <svg
+                  className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${
+                    isCertificationsCollapsed ? 'rotate-0' : 'rotate-180'
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <h3 className="text-lg font-semibold text-gray-900">Certifications</h3>
+            </div>
             <button
               type="button"
               onClick={() => {
@@ -985,7 +1076,7 @@ export default function ResumeForm({
             </button>
           </div>
           
-          {formData.certifications.map((cert, index) => (
+          {!isCertificationsCollapsed && formData.certifications.map((cert, index) => (
             <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
               <div className="flex justify-between items-center mb-4">
                 <h4 className="text-md font-medium text-gray-900">Certification {index + 1}</h4>
@@ -1067,7 +1158,25 @@ export default function ResumeForm({
         {/* Publications */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Publications</h3>
+            <div className="flex items-center space-x-3">
+              <button
+                type="button"
+                onClick={() => setIsPublicationsCollapsed(!isPublicationsCollapsed)}
+                className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-100"
+              >
+                <svg
+                  className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${
+                    isPublicationsCollapsed ? 'rotate-0' : 'rotate-180'
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <h3 className="text-lg font-semibold text-gray-900">Publications</h3>
+            </div>
             <button
               type="button"
               onClick={() => {
@@ -1091,7 +1200,7 @@ export default function ResumeForm({
             </button>
           </div>
           
-          {formData.publications.map((pub, index) => (
+          {!isPublicationsCollapsed && formData.publications.map((pub, index) => (
             <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
               <div className="flex justify-between items-center mb-4">
                 <h4 className="text-md font-medium text-gray-900">Publication {index + 1}</h4>

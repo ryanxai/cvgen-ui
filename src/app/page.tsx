@@ -585,13 +585,8 @@ export default function HomePage() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Resume Builder</h1>
-                <p className="text-sm text-gray-500">Create professional PDFs from JSON</p>
+                <p className="text-sm text-gray-500">Create Professional PDF Resumes</p>
               </div>
-            </div>
-            
-            <div className="hidden md:flex items-center space-x-2 text-sm text-gray-500">
-              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-              <span>API Ready</span>
             </div>
           </div>
         </div>
