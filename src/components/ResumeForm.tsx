@@ -297,6 +297,7 @@ export default function ResumeForm({
         description: [''],
       }]
     }));
+    setIsExperienceCollapsed(false);
   };
 
   const removeExperience = (index: number) => {
@@ -326,6 +327,7 @@ export default function ResumeForm({
         end_date: '',
       }]
     }));
+    setIsEducationCollapsed(false);
   };
 
   const removeEducation = (index: number) => {
@@ -343,6 +345,7 @@ export default function ResumeForm({
         items: [],
       }]
     }));
+    setIsSkillsCollapsed(false);
   };
 
   const addSkillTag = (skillGroupIndex: number, skill: string) => {
@@ -915,6 +918,7 @@ export default function ResumeForm({
                     date: '',
                   }]
                 }));
+                setIsAwardsCollapsed(false);
               }}
               className="flex items-center space-x-2 px-4 py-2 bg-green-100 text-green-700 hover:bg-green-200 border border-green-300 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
@@ -1066,6 +1070,7 @@ export default function ResumeForm({
                     date: '',
                   }]
                 }));
+                setIsCertificationsCollapsed(false);
               }}
               className="flex items-center space-x-2 px-4 py-2 bg-green-100 text-green-700 hover:bg-green-200 border border-green-300 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
@@ -1190,6 +1195,7 @@ export default function ResumeForm({
                     url: '',
                   }]
                 }));
+                setIsPublicationsCollapsed(false);
               }}
               className="flex items-center space-x-2 px-4 py-2 bg-green-100 text-green-700 hover:bg-green-200 border border-green-300 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
