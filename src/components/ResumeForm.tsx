@@ -122,7 +122,7 @@ export default function ResumeForm({
     ],
     skills: [
       {
-        category: 'Technical Skills',
+        category: 'Skill Category 1',
         items: [],
       },
     ],
@@ -453,7 +453,7 @@ export default function ResumeForm({
     setFormData(prev => ({
       ...prev,
       skills: [...prev.skills, {
-        category: 'Technical Skills',
+        category: `Skill Category ${prev.skills.length + 1}`,
         items: [],
       }]
     }));
@@ -861,8 +861,8 @@ export default function ResumeForm({
                     newSkills[skillGroupIndex] = { ...skillGroup, category: e.target.value };
                     setFormData(prev => ({ ...prev, skills: newSkills }));
                   }}
-                  className="text-md font-medium text-gray-900 border-none bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1"
-                  placeholder="Skill Category"
+                  className="text-md font-medium text-gray-900 border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-3 py-2 shadow-sm"
+                  placeholder="e.g., Technical Skills"
                 />
                 <button
                   type="button"
