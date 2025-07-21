@@ -14,10 +14,12 @@ interface FormData {
     location: string;
     summary: string;
     links: {
+      website: string;
       github: string;
       stackoverflow: string;
       googlescholar: string;
       linkedin: string;
+      twitter: string;
     };
   };
   experience: Array<{
@@ -232,10 +234,12 @@ export default function HomePage() {
           email: formData.personal.email,
           location: formData.personal.location,
           links: [
+            { name: 'Website', url: formData.personal.links.website },
             { name: 'GitHub', url: formData.personal.links.github },
             { name: 'StackOverflow', url: formData.personal.links.stackoverflow },
             { name: 'GoogleScholar', url: formData.personal.links.googlescholar },
-            { name: 'LinkedIn', url: formData.personal.links.linkedin }
+            { name: 'LinkedIn', url: formData.personal.links.linkedin },
+            { name: 'Twitter', url: formData.personal.links.twitter }
           ].filter((link: Link) => link.url.trim() !== '')
         },
         summary: formData.personal.summary,
@@ -333,10 +337,12 @@ export default function HomePage() {
           email: formData.personal.email,
           location: formData.personal.location,
           links: [
+            { name: 'Website', url: formData.personal.links.website },
             { name: 'GitHub', url: formData.personal.links.github },
             { name: 'StackOverflow', url: formData.personal.links.stackoverflow },
             { name: 'GoogleScholar', url: formData.personal.links.googlescholar },
-            { name: 'LinkedIn', url: formData.personal.links.linkedin }
+            { name: 'LinkedIn', url: formData.personal.links.linkedin },
+            { name: 'Twitter', url: formData.personal.links.twitter }
           ].filter(link => link.url.trim() !== '')
         },
         summary: formData.personal.summary,
@@ -475,10 +481,12 @@ export default function HomePage() {
         location: data.contact?.location || '',
         summary: data.summary || '',
         links: {
+          website: data.contact?.links?.find((link: Link) => link.name === 'Website')?.url || '',
           github: data.contact?.links?.find((link: Link) => link.name === 'GitHub')?.url || '',
           stackoverflow: data.contact?.links?.find((link: Link) => link.name === 'StackOverflow')?.url || '',
           googlescholar: data.contact?.links?.find((link: Link) => link.name === 'GoogleScholar')?.url || '',
           linkedin: data.contact?.links?.find((link: Link) => link.name === 'LinkedIn')?.url || '',
+          twitter: data.contact?.links?.find((link: Link) => link.name === 'Twitter')?.url || '',
         },
       },
       experience: data.experience?.map((exp: Experience) => ({

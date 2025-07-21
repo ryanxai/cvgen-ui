@@ -11,10 +11,12 @@ interface ResumeFormData {
     location: string;
     summary: string;
     links: {
+      website: string;
       github: string;
       stackoverflow: string;
       googlescholar: string;
       linkedin: string;
+      twitter: string;
     };
   };
   experience: Array<{
@@ -91,10 +93,12 @@ export default function ResumeForm({
       location: '',
       summary: '',
       links: {
+        website: '',
         github: '',
         stackoverflow: '',
         googlescholar: '',
         linkedin: '',
+        twitter: '',
       },
     },
     experience: [],
@@ -211,10 +215,12 @@ export default function ResumeForm({
         email: data.personal.email,
         location: data.personal.location,
         links: [
+          { name: 'Website', url: data.personal.links.website },
           { name: 'GitHub', url: data.personal.links.github },
           { name: 'StackOverflow', url: data.personal.links.stackoverflow },
           { name: 'GoogleScholar', url: data.personal.links.googlescholar },
-          { name: 'LinkedIn', url: data.personal.links.linkedin }
+          { name: 'LinkedIn', url: data.personal.links.linkedin },
+          { name: 'Twitter', url: data.personal.links.twitter }
         ].filter(link => link.url.trim() !== '')
       },
       summary: data.personal.summary,
@@ -471,6 +477,16 @@ export default function ResumeForm({
                 <h4 className="text-md font-medium text-gray-900 mb-2">Social Links</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
+                    <input
+                      type="url"
+                      value={formData.personal.links.website}
+                      onChange={(e) => updatePersonal('links', { ...formData.personal.links, website: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                      placeholder="https://yourwebsite.com"
+                    />
+                  </div>
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">GitHub</label>
                     <input
                       type="url"
@@ -504,6 +520,16 @@ export default function ResumeForm({
                       value={formData.personal.links.googlescholar}
                       onChange={(e) => updatePersonal('links', { ...formData.personal.links, googlescholar: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">X/Twitter</label>
+                    <input
+                      type="url"
+                      value={formData.personal.links.twitter}
+                      onChange={(e) => updatePersonal('links', { ...formData.personal.links, twitter: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                      placeholder="https://x.com/yourusername"
                     />
                   </div>
                 </div>
