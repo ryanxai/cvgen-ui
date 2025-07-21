@@ -262,10 +262,15 @@ export default function HomePage() {
             date_end: exp.end_date === 'Present' ? 'Present' : convertDateToAbbreviated(exp.end_date),
             achievements: exp.description
               .filter((desc: string) => desc.trim() !== '')
-              .map((desc: string) => ({
-                name: desc.split(':')[0] || 'Achievement',
-                description: desc.split(':')[1] || desc
-              }))
+              .map((desc: string) => {
+                const parts = desc.split(':');
+                const name = parts[0]?.trim() || 'Achievement';
+                const description = parts[1]?.trim() || desc.trim();
+                return {
+                  name,
+                  description
+                };
+              })
           })),
         education: formData.education
           .filter((edu) => edu.institution && edu.degree)
@@ -365,10 +370,15 @@ export default function HomePage() {
             date_end: exp.end_date === 'Present' ? 'Present' : convertDateToAbbreviated(exp.end_date),
             achievements: exp.description
               .filter((desc: string) => desc.trim() !== '')
-              .map((desc: string) => ({
-                name: desc.split(':')[0] || 'Achievement',
-                description: desc.split(':')[1] || desc
-              }))
+              .map((desc: string) => {
+                const parts = desc.split(':');
+                const name = parts[0]?.trim() || 'Achievement';
+                const description = parts[1]?.trim() || desc.trim();
+                return {
+                  name,
+                  description
+                };
+              })
           })),
         education: formData.education
           .filter((edu) => edu.institution && edu.degree)
@@ -499,7 +509,7 @@ export default function HomePage() {
         end_date: exp.date_end === 'Present' ? 'Present' : convertAbbreviatedDateToFormDate(exp.date_end || ''),
         isCurrentRole: exp.date_end === 'Present',
         description: exp.achievements?.map((achievement: Achievement) => 
-          `${achievement.name}: ${achievement.description}`
+          `${achievement.name?.trim()}: ${achievement.description?.trim()}`
         ) || [''],
       })) || [],
       education: data.education?.map((edu: Education) => ({

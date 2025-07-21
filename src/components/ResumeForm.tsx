@@ -212,10 +212,15 @@ export default function ResumeForm({
         date_end: exp.isCurrentRole ? 'Present' : convertDateToAbbreviated(exp.end_date),
         achievements: exp.description
           .filter(desc => desc.trim() !== '')
-          .map(desc => ({
-            name: desc.split(':')[0] || 'Achievement',
-            description: desc.split(':')[1] || desc
-          }))
+          .map(desc => {
+            const parts = desc.split(':');
+            const name = parts[0]?.trim() || 'Achievement';
+            const description = parts[1]?.trim() || desc.trim();
+            return {
+              name,
+              description
+            };
+          })
       }));
 
     // Convert education to the correct format
@@ -715,7 +720,7 @@ export default function ResumeForm({
                       value={desc}
                       onChange={(e) => {
                         const newDescription = [...exp.description];
-                        newDescription[descIndex] = e.target.value;
+                        newDescription[descIndex] = e.target.value.trim();
                         updateExperience(index, 'description', newDescription);
                       }}
                       rows={1}

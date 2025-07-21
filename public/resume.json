@@ -35,15 +35,39 @@
   "skills": [
     {
       "category": "Languages & Frameworks",
-      "items": "Python, R, SQL, TensorFlow, PyTorch, scikit-learn, Pandas, NumPy"
+      "items": [
+        "Python",
+        "R",
+        "SQL",
+        "TensorFlow",
+        "PyTorch",
+        "scikit-learn",
+        "Pandas",
+        "NumPy"
+      ]
     },
     {
       "category": "Infrastructure",
-      "items": "AWS, Azure, Docker, Kubernetes, Git, MongoDB, PostgreSQL"
+      "items": [
+        "AWS",
+        "Azure",
+        "Docker",
+        "Kubernetes",
+        "Git",
+        "MongoDB",
+        "PostgreSQL"
+      ]
     },
     {
       "category": "Data Science & ML",
-      "items": "Machine Learning, Deep Learning, NLP, Time Series Analysis, A/B Testing, Statistical Modeling"
+      "items": [
+        "Machine Learning",
+        "Deep Learning",
+        "NLP",
+        "Time Series Analysis",
+        "A/B Testing",
+        "Statistical Modeling"
+      ]
     }
   ],
   "experience": [
@@ -52,7 +76,7 @@
       "company": "TechInnovate Inc.",
       "company_url": "https://www.techinnovate.example.com",
       "company_description": "AI-powered business intelligence platform",
-      "location": "Boston, MA",
+      "location": "Boston, MA, United States",
       "date_start": "Mar 2021",
       "date_end": "Present",
       "achievements": [
@@ -75,7 +99,7 @@
       "company": "FinData Analytics",
       "company_url": "https://www.findata.example.com",
       "company_description": "Financial services data analytics firm",
-      "location": "New York, NY",
+      "location": "Boston, MA, United States",
       "date_start": "Jun 2018",
       "date_end": "Feb 2021",
       "achievements": [
@@ -98,7 +122,7 @@
       "company": "HealthMetrics",
       "company_url": "https://www.healthmetrics.example.com",
       "company_description": "Healthcare analytics company",
-      "location": "Chicago, IL",
+      "location": "Boston, MA, United States",
       "date_start": "Aug 2016",
       "date_end": "May 2018",
       "achievements": [
@@ -117,14 +141,14 @@
     {
       "degree": "M.S. in Data Science",
       "institution": "Massachusetts Institute of Technology",
-      "location": "Cambridge, MA",
+      "location": "Boston, MA, United States",
       "date_start": "Sep 2014",
       "date_end": "May 2016"
     },
     {
-      "degree": "B.S. in Computer Science, Minor in Statistics",
+      "degree": "B.S. in Computer Science, Minor",
       "institution": "University of California, Berkeley",
-      "location": "Berkeley, CA",
+      "location": "Boston, MA, United States",
       "date_start": "Sep 2010",
       "date_end": "May 2014"
     }
@@ -177,4 +201,4 @@
       "url": "https://example.com/conferences/ichi2021"
     }
   ]
-} 
+}
