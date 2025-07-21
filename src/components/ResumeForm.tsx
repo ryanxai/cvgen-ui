@@ -68,6 +68,7 @@ interface ResumeFormProps {
   onDownloadPdf?: () => void;
   isLoading?: boolean;
   externalFormData?: ResumeFormData | null;
+  onFormDataChange?: (data: ResumeFormData) => void;
 }
 
 export default function ResumeForm({ 
@@ -77,7 +78,8 @@ export default function ResumeForm({
   onDownloadJson, 
   onDownloadPdf, 
   isLoading: externalIsLoading,
-  externalFormData
+  externalFormData,
+  onFormDataChange
 }: ResumeFormProps) {
   const [internalIsLoading, setInternalIsLoading] = useState(false);
   const isLoading = externalIsLoading !== undefined ? externalIsLoading : internalIsLoading;
@@ -137,6 +139,13 @@ export default function ResumeForm({
       setFormData(externalFormData);
     }
   }, [externalFormData]);
+
+  // Notify parent when internal formData changes
+  useEffect(() => {
+    if (onFormDataChange) {
+      onFormDataChange(formData);
+    }
+  }, [formData, onFormDataChange]);
 
   const convertDateToAbbreviated = (dateString: string): string => {
     if (!dateString || dateString === 'Present') return dateString;

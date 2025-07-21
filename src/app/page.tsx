@@ -323,7 +323,8 @@ export default function HomePage() {
       }],
       skills: data.skills?.map((skillGroup: any) => ({
         category: skillGroup.category || 'Technical Skills',
-        items: skillGroup.items || [],
+        items: Array.isArray(skillGroup.items) ? skillGroup.items : 
+               typeof skillGroup.items === 'string' ? skillGroup.items.split(',').map((s: string) => s.trim()).filter((s: string) => s) : [],
       })) || [{
         category: 'Technical Skills',
         items: [],
@@ -436,7 +437,7 @@ export default function HomePage() {
                   <div className="flex flex-col items-center space-y-3">
                     <div
                       className={`
-                        relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer w-full
+                        relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer w-full
                         transition-all duration-200 ease-in-out
                         ${isUploadingJson 
                           ? 'border-blue-500 bg-blue-50' 
@@ -494,13 +495,48 @@ export default function HomePage() {
                                 or click to browse files
                               </p>
                             </div>
-                            <p className="text-xs text-gray-400">
-                              Supports .json files (max 5MB)
-                            </p>
                           </>
                         )}
                       </div>
                     </div>
+                    
+                    <button
+                      onClick={async () => {
+                        try {
+                          setIsUploadingJson(true);
+                          const response = await fetch('/resume.json');
+                          const jsonContent = await response.text();
+                          const parsedData = parseJsonToFormData(jsonContent);
+                          setFormData(parsedData);
+                          setJsonUploadSuccess(true);
+                          setTimeout(() => setJsonUploadSuccess(false), 3000);
+                        } catch (error) {
+                          setError('Failed to load default JSON file');
+                        } finally {
+                          setIsUploadingJson(false);
+                        }
+                      }}
+                      disabled={isUploadingJson}
+                      className={`w-full px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        isUploadingJson
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}
+                    >
+                      {isUploadingJson ? (
+                        <div className="flex items-center justify-center space-x-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          <span>Loading...</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center space-x-2">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          </svg>
+                          <span>Use Default Json</span>
+                        </div>
+                      )}
+                    </button>
                     
                     {jsonUploadSuccess && (
                       <div className="bg-green-50 border border-green-200 rounded-lg p-2 w-full">
@@ -696,6 +732,7 @@ export default function HomePage() {
                   onDownloadPdf={handleFormDownloadPdf}
                   isLoading={isFormLoading}
                   externalFormData={formData}
+                  onFormDataChange={setFormData}
                 />
               
               {/* Loading overlay */}
