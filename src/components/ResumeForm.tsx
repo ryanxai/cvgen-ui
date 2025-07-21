@@ -473,7 +473,7 @@ export default function ResumeForm({
               </div>
 
               {/* Social Links */}
-              <div className="mt-4">
+              <div className="mt-4 mb-6">
                 <h4 className="text-md font-medium text-gray-900 mb-2">Social Links</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
