@@ -558,7 +558,7 @@ export default function ResumeForm({
               }`}
             >
               <span className="text-sm font-semibold">
-                {isPersonalInfoCollapsed ? 'Fill Personal Info' : 'Collapse'}
+                {isPersonalInfoCollapsed ? 'Expand Personal Info' : 'Collapse Personal Info'}
               </span>
               <svg
                 className={`w-5 h-5 transition-transform duration-200 ${
