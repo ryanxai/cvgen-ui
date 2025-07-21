@@ -939,6 +939,372 @@ export default function ResumeForm({
           ))}
         </div>
 
+        {/* Awards */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Awards</h3>
+            <button
+              type="button"
+              onClick={() => {
+                setFormData(prev => ({
+                  ...prev,
+                  awards: [...prev.awards, {
+                    title: '',
+                    organization: '',
+                    organization_detail: '',
+                    organization_url: '',
+                    location: '',
+                    date: '',
+                  }]
+                }));
+              }}
+              className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              Add Award
+            </button>
+          </div>
+          
+          {formData.awards.map((award, index) => (
+            <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="text-md font-medium text-gray-900">Award {index + 1}</h4>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData(prev => ({
+                      ...prev,
+                      awards: prev.awards.filter((_, i) => i !== index)
+                    }));
+                  }}
+                  className="text-red-600 hover:text-red-800"
+                >
+                  Remove
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Award Title</label>
+                  <input
+                    type="text"
+                    value={award.title}
+                    onChange={(e) => {
+                      const newAwards = [...formData.awards];
+                      newAwards[index] = { ...award, title: e.target.value };
+                      setFormData(prev => ({ ...prev, awards: newAwards }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="e.g., Best Paper Award"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Organization</label>
+                  <input
+                    type="text"
+                    value={award.organization}
+                    onChange={(e) => {
+                      const newAwards = [...formData.awards];
+                      newAwards[index] = { ...award, organization: e.target.value };
+                      setFormData(prev => ({ ...prev, awards: newAwards }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="e.g., International Conference on ML"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Organization Detail</label>
+                  <input
+                    type="text"
+                    value={award.organization_detail}
+                    onChange={(e) => {
+                      const newAwards = [...formData.awards];
+                      newAwards[index] = { ...award, organization_detail: e.target.value };
+                      setFormData(prev => ({ ...prev, awards: newAwards }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="e.g., Advanced Techniques in Time Series Forecasting"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Organization URL</label>
+                  <input
+                    type="url"
+                    value={award.organization_url}
+                    onChange={(e) => {
+                      const newAwards = [...formData.awards];
+                      newAwards[index] = { ...award, organization_url: e.target.value };
+                      setFormData(prev => ({ ...prev, awards: newAwards }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="https://example.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                  <input
+                    type="text"
+                    value={award.location}
+                    onChange={(e) => {
+                      const newAwards = [...formData.awards];
+                      newAwards[index] = { ...award, location: e.target.value };
+                      setFormData(prev => ({ ...prev, awards: newAwards }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="e.g., Online, New York, NY"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                  <input
+                    type="date"
+                    value={award.date}
+                    onChange={(e) => {
+                      const newAwards = [...formData.awards];
+                      newAwards[index] = { ...award, date: e.target.value };
+                      setFormData(prev => ({ ...prev, awards: newAwards }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Certifications */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Certifications</h3>
+            <button
+              type="button"
+              onClick={() => {
+                setFormData(prev => ({
+                  ...prev,
+                  certifications: [...prev.certifications, {
+                    title: '',
+                    organization: '',
+                    url: '',
+                    date: '',
+                  }]
+                }));
+              }}
+              className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              Add Certification
+            </button>
+          </div>
+          
+          {formData.certifications.map((cert, index) => (
+            <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="text-md font-medium text-gray-900">Certification {index + 1}</h4>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData(prev => ({
+                      ...prev,
+                      certifications: prev.certifications.filter((_, i) => i !== index)
+                    }));
+                  }}
+                  className="text-red-600 hover:text-red-800"
+                >
+                  Remove
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Certification Title</label>
+                  <input
+                    type="text"
+                    value={cert.title}
+                    onChange={(e) => {
+                      const newCerts = [...formData.certifications];
+                      newCerts[index] = { ...cert, title: e.target.value };
+                      setFormData(prev => ({ ...prev, certifications: newCerts }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="e.g., AWS Certified Machine Learning - Specialty"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Organization</label>
+                  <input
+                    type="text"
+                    value={cert.organization}
+                    onChange={(e) => {
+                      const newCerts = [...formData.certifications];
+                      newCerts[index] = { ...cert, organization: e.target.value };
+                      setFormData(prev => ({ ...prev, certifications: newCerts }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="e.g., Amazon Web Services"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">URL</label>
+                  <input
+                    type="url"
+                    value={cert.url}
+                    onChange={(e) => {
+                      const newCerts = [...formData.certifications];
+                      newCerts[index] = { ...cert, url: e.target.value };
+                      setFormData(prev => ({ ...prev, certifications: newCerts }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="https://aws.amazon.com/certification/"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                  <input
+                    type="date"
+                    value={cert.date}
+                    onChange={(e) => {
+                      const newCerts = [...formData.certifications];
+                      newCerts[index] = { ...cert, date: e.target.value };
+                      setFormData(prev => ({ ...prev, certifications: newCerts }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Publications */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Publications</h3>
+            <button
+              type="button"
+              onClick={() => {
+                setFormData(prev => ({
+                  ...prev,
+                  publications: [...prev.publications, {
+                    authors: '',
+                    title: '',
+                    venue: '',
+                    date: '',
+                    url: '',
+                  }]
+                }));
+              }}
+              className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              Add Publication
+            </button>
+          </div>
+          
+          {formData.publications.map((pub, index) => (
+            <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="text-md font-medium text-gray-900">Publication {index + 1}</h4>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData(prev => ({
+                      ...prev,
+                      publications: prev.publications.filter((_, i) => i !== index)
+                    }));
+                  }}
+                  className="text-red-600 hover:text-red-800"
+                >
+                  Remove
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Authors</label>
+                  <input
+                    type="text"
+                    value={pub.authors}
+                    onChange={(e) => {
+                      const newPubs = [...formData.publications];
+                      newPubs[index] = { ...pub, authors: e.target.value };
+                      setFormData(prev => ({ ...prev, publications: newPubs }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="e.g., Doe, J., Smith, A., Johnson, B."
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                  <input
+                    type="text"
+                    value={pub.title}
+                    onChange={(e) => {
+                      const newPubs = [...formData.publications];
+                      newPubs[index] = { ...pub, title: e.target.value };
+                      setFormData(prev => ({ ...prev, publications: newPubs }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="e.g., Hybrid Approaches to Time Series Forecasting in Financial Markets"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Venue</label>
+                  <input
+                    type="text"
+                    value={pub.venue}
+                    onChange={(e) => {
+                      const newPubs = [...formData.publications];
+                      newPubs[index] = { ...pub, venue: e.target.value };
+                      setFormData(prev => ({ ...prev, publications: newPubs }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="e.g., Journal of Applied Data Science, Vol. 15"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
+                  <input
+                    type="number"
+                    value={pub.date}
+                    onChange={(e) => {
+                      const newPubs = [...formData.publications];
+                      newPubs[index] = { ...pub, date: e.target.value };
+                      setFormData(prev => ({ ...prev, publications: newPubs }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="2023"
+                    min="1900"
+                    max="2030"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">URL</label>
+                  <input
+                    type="url"
+                    value={pub.url}
+                    onChange={(e) => {
+                      const newPubs = [...formData.publications];
+                      newPubs[index] = { ...pub, url: e.target.value };
+                      setFormData(prev => ({ ...prev, publications: newPubs }));
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="https://example.com/journal/jads/vol15"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Submit Button */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex justify-center">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? 'Generating Resume...' : 'Generate Resume'}
+            </button>
+          </div>
+        </div>
 
       </form>
     </div>
