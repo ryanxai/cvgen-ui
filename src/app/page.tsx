@@ -554,6 +554,8 @@ export default function HomePage() {
     if (files && files.length > 0) {
       handleJsonFileUpload(files[0]);
     }
+    // Reset the file input value so the same file can be selected again
+    e.target.value = '';
   };
 
   const openFileDialog = () => {
@@ -563,7 +565,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-3">
@@ -588,213 +590,116 @@ export default function HomePage() {
                 <p className="text-sm text-gray-500">Create Professional PDF Resumes</p>
               </div>
             </div>
+            
+            {/* Header Action Buttons */}
+            <div className="flex items-center space-x-4">
+              {jsonUploadSuccess && (
+                <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                  <div className="flex items-center">
+                    <svg className="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-sm text-green-800">JSON loaded successfully!</span>
+                  </div>
+                </div>
+              )}
+              {/* Upload JSON */}
+              <div className="relative">
+                <button
+                  onClick={openFileDialog}
+                  disabled={isUploadingJson}
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isUploadingJson
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                  }`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                  </svg>
+                  <span>Upload JSON</span>
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".json"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  disabled={isUploadingJson}
+                />
+              </div>
+
+              {/* Use Default JSON */}
+              <button
+                onClick={async () => {
+                  try {
+                    setIsUploadingJson(true);
+                    const response = await fetch('/resume.json');
+                    const jsonContent = await response.text();
+                    const parsedData = parseJsonToFormData(jsonContent);
+                    setFormData(parsedData);
+                    setJsonUploadSuccess(true);
+                    setTimeout(() => setJsonUploadSuccess(false), 3000);
+                  } catch {
+                    console.error('Failed to load default JSON file');
+                  } finally {
+                    setIsUploadingJson(false);
+                  }
+                }}
+                disabled={isUploadingJson}
+                className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isUploadingJson
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-green-50 text-green-700 hover:bg-green-100'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                <span>Use Default JSON</span>
+              </button>
+
+              {/* Download Resume */}
+              <button
+                onClick={handleGenerateResume}
+                disabled={!formData || isGenerating}
+                className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  formData && !isGenerating
+                    ? 'bg-purple-50 text-purple-700 hover:bg-purple-100'
+                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span>Download Resume</span>
+              </button>
+
+              {/* Download JSON */}
+              <button
+                onClick={handleFormDownloadJson}
+                disabled={!formData}
+                className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  formData
+                    ? 'bg-orange-50 text-orange-700 hover:bg-orange-100'
+                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span>Download JSON</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
         {/* Hero Section */}
 
-        {/* Main Action Buttons */}
-        {!isGenerating && (
-          <div className="text-center mb-8">
-            <div className="max-w-4xl mx-auto">
-              <div className="grid md:grid-cols-3 gap-4">
-                {/* Upload JSON Resume Data */}
-                <div id="upload-json-section" className="bg-white rounded-lg shadow-md p-6">
-                  <div className="flex flex-col items-center space-y-3">
-                    <div
-                      className={`
-                        relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer w-full
-                        transition-all duration-200 ease-in-out
-                        ${isUploadingJson 
-                          ? 'border-blue-500 bg-blue-50' 
-                          : 'border-gray-300 hover:border-gray-400'
-                        }
-                      `}
-                      onClick={openFileDialog}
-                      onDrop={(e) => {
-                        e.preventDefault();
-                        const files = Array.from(e.dataTransfer.files);
-                        if (files.length > 0) {
-                          handleJsonFileUpload(files[0]);
-                        }
-                      }}
-                      onDragOver={(e) => {
-                        e.preventDefault();
-                      }}
-                    >
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept=".json"
-                        onChange={handleFileSelect}
-                        className="hidden"
-                        disabled={isUploadingJson}
-                      />
-                      
-                      <div className="flex flex-col items-center space-y-2">
-                        {isUploadingJson ? (
-                          <>
-                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-                            <p className="text-gray-600 text-sm">Reading JSON file...</p>
-                          </>
-                        ) : (
-                          <>
-                            <svg
-                              className="w-6 h-6 text-blue-500"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
-                              />
-                            </svg>
-                            <div>
-                              <p className="text-xs font-medium text-gray-900">
-                                Drop your JSON file here
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                or click to browse files
-                              </p>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <button
-                      onClick={async () => {
-                        try {
-                          setIsUploadingJson(true);
-                          const response = await fetch('/resume.json');
-                          const jsonContent = await response.text();
-                          const parsedData = parseJsonToFormData(jsonContent);
-                          setFormData(parsedData);
-                          setJsonUploadSuccess(true);
-                          setTimeout(() => setJsonUploadSuccess(false), 3000);
-                        } catch {
-                          console.error('Failed to load default JSON file');
-                        } finally {
-                          setIsUploadingJson(false);
-                        }
-                      }}
-                      disabled={isUploadingJson}
-                      className={`w-full px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        isUploadingJson
-                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                          : 'bg-blue-600 text-white hover:bg-blue-700'
-                      }`}
-                    >
-                      {isUploadingJson ? (
-                        <div className="flex items-center justify-center space-x-2">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          <span>Loading...</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center space-x-2">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                          </svg>
-                          <span>Use Default Json</span>
-                        </div>
-                      )}
-                    </button>
-                    
-                    {jsonUploadSuccess && (
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-2 w-full">
-                        <div className="flex items-center">
-                          <svg className="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span className="text-xs text-green-800">JSON file loaded successfully!</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
 
-                {/* Generate Resume */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <div className="flex flex-col items-center space-y-3">
-                    <svg
-                      className="w-8 h-8 text-green-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                    <h4 className="font-medium text-gray-900">Generate Resume</h4>
-                    <p className="text-sm text-gray-600 text-center">
-                      {formData ? 'Create PDF from your data' : 'Fill form or upload JSON first'}
-                    </p>
-                    <button
-                      onClick={handleGenerateResume}
-                      disabled={!formData || isGenerating}
-                      className={`w-full px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                        formData
-                          ? 'bg-green-600 text-white hover:bg-green-700'
-                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      }`}
-                    >
-                      Generate PDF
-                    </button>
-                  </div>
-                </div>
-
-                {/* Download JSON */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <div className="flex flex-col items-center space-y-3">
-                    <svg
-                      className="w-8 h-8 text-orange-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
-                    <h4 className="font-medium text-gray-900">Download JSON</h4>
-                    <p className="text-sm text-gray-600 text-center">
-                      {formData ? 'Download your resume data' : 'Fill form first'}
-                    </p>
-                    <button
-                      onClick={handleFormDownloadJson}
-                      disabled={!formData}
-                      className={`w-full px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                        formData
-                          ? 'bg-orange-600 text-white hover:bg-orange-700'
-                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      }`}
-                    >
-                      Download JSON
-                    </button>
-                  </div>
-                </div>
-
-
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Loading Section */}
         {isGenerating && (
