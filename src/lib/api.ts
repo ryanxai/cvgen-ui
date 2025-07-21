@@ -24,6 +24,15 @@ export interface HealthResponse {
   };
 }
 
+export interface ImproveSummaryRequest {
+  instructions: string;
+  summary: string;
+}
+
+export interface ImproveSummaryResponse {
+  improved_summary: string;
+}
+
 class ResumeBuilderAPI {
   private baseUrl: string;
 
@@ -81,6 +90,27 @@ class ResumeBuilderAPI {
 
     if (!response.ok) {
       throw new Error(`Resume generation failed: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async improveSummary(summary: string): Promise<ImproveSummaryResponse> {
+    const improveData: ImproveSummaryRequest = {
+      instructions: "You are a professional recruiter. Improve the writing style of the following summary section to be more professional and concise. Don't provide any other text than the improved summary section.",
+      summary: summary
+    };
+
+    const response = await fetch(`${this.baseUrl}/improve-summary`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(improveData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Summary improvement failed: ${response.statusText}`);
     }
 
     return response.json();

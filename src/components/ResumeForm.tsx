@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
+import AiSummaryImprover from './AiSummaryImprover';
 
 interface ResumeFormData {
   personal: {
@@ -462,7 +463,9 @@ export default function ResumeForm({
               </div>
               
               <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Professional Summary</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">Professional Summary</label>
+                </div>
                 <textarea
                   value={formData.personal.summary}
                   onChange={(e) => updatePersonal('summary', e.target.value)}
@@ -470,6 +473,12 @@ export default function ResumeForm({
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
                   placeholder="Brief professional summary..."
                 />
+                <div className="mt-2">
+                  <AiSummaryImprover
+                    currentSummary={formData.personal.summary}
+                    onSummaryChange={(newSummary) => updatePersonal('summary', newSummary)}
+                  />
+                </div>
               </div>
 
               {/* Social Links */}
