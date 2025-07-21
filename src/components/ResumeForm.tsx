@@ -391,16 +391,16 @@ export default function ResumeForm({
 
   return (
     <div className="max-w-4xl mx-auto">
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-0">
 
 
         {/* Personal Information */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="rounded-lg">
           <div className="flex justify-between items-center mb-4">
             <button
               type="button"
               onClick={() => setIsPersonalInfoCollapsed(!isPersonalInfoCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg
@@ -539,12 +539,12 @@ export default function ResumeForm({
         </div>
 
         {/* Experience */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="rounded-lg">
           <div className="flex justify-between items-center mb-4">
             <button
               type="button"
               onClick={() => setIsExperienceCollapsed(!isExperienceCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg
@@ -684,12 +684,12 @@ export default function ResumeForm({
         </div>
 
         {/* Education */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="rounded-lg">
           <div className="flex justify-between items-center mb-4">
             <button
               type="button"
               onClick={() => setIsEducationCollapsed(!isEducationCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg
@@ -781,12 +781,12 @@ export default function ResumeForm({
         </div>
 
         {/* Skills */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="rounded-lg">
           <div className="flex justify-between items-center mb-4">
             <button
               type="button"
               onClick={() => setIsSkillsCollapsed(!isSkillsCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg
@@ -906,12 +906,12 @@ export default function ResumeForm({
         </div>
 
         {/* Awards */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="rounded-lg">
           <div className="flex justify-between items-center mb-4">
             <button
               type="button"
               onClick={() => setIsAwardsCollapsed(!isAwardsCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg
@@ -1059,12 +1059,12 @@ export default function ResumeForm({
         </div>
 
         {/* Certifications */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="rounded-lg">
           <div className="flex justify-between items-center mb-4">
             <button
               type="button"
               onClick={() => setIsCertificationsCollapsed(!isCertificationsCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg
@@ -1182,12 +1182,12 @@ export default function ResumeForm({
         </div>
 
         {/* Publications */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="rounded-lg">
           <div className="flex justify-between items-center mb-4">
             <button
               type="button"
               onClick={() => setIsPublicationsCollapsed(!isPublicationsCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg
