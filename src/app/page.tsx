@@ -435,7 +435,7 @@ export default function HomePage() {
         authors: pub.authors || '',
         title: pub.title || '',
         venue: pub.venue || '',
-        date: convertAbbreviatedDateToFormDate(pub.date || pub.year?.toString() || ''),
+        date: pub.year?.toString() || convertAbbreviatedDateToFormDate(pub.date || ''),
         url: pub.url || '',
       })) || [],
     };

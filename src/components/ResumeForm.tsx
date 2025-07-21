@@ -289,7 +289,7 @@ export default function ResumeForm({
           authors: (pub.authors as string) || '',
           title: (pub.title as string) || '',
           venue: (pub.venue as string) || '',
-          date: convertAbbreviatedDateToFormDate(((pub.year as number)?.toString()) || ''),
+          date: (pub.year as number)?.toString() || convertAbbreviatedDateToFormDate((pub.date as string) || ''),
           url: (pub.url as string) || '',
         })),
       };
