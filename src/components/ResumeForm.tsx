@@ -27,6 +27,7 @@ interface ResumeFormData {
     company_description: string;
     start_date: string;
     end_date: string;
+    isCurrentRole: boolean;
     description: string[];
   }>;
   education: Array<{
@@ -208,7 +209,7 @@ export default function ResumeForm({
         company_description: exp.company_description || '',
         location: data.personal.location,
         date_start: convertDateToAbbreviated(exp.start_date),
-        date_end: exp.end_date === 'Present' ? 'Present' : convertDateToAbbreviated(exp.end_date),
+        date_end: exp.isCurrentRole ? 'Present' : convertDateToAbbreviated(exp.end_date),
         achievements: exp.description
           .filter(desc => desc.trim() !== '')
           .map(desc => ({
@@ -310,7 +311,7 @@ export default function ResumeForm({
     }));
   };
 
-  const updateExperience = (index: number, field: string, value: string | string[]) => {
+  const updateExperience = (index: number, field: string, value: string | string[] | boolean) => {
     setFormData(prev => ({
       ...prev,
       experience: prev.experience.map((exp, i) =>
@@ -329,6 +330,7 @@ export default function ResumeForm({
         company_description: '',
         start_date: '',
         end_date: '',
+        isCurrentRole: false,
         description: [''],
       }]
     }));
@@ -614,7 +616,18 @@ export default function ResumeForm({
           {!isExperienceCollapsed && formData.experience.map((exp, index) => (
             <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
               <div className="flex justify-between items-center mb-4">
-                <h4 className="text-md font-medium text-gray-900">Experience {index + 1}</h4>
+                <div className="flex items-center gap-3">
+                  <h4 className="text-md font-medium text-gray-900">Experience {index + 1}</h4>
+                  <label className="flex items-center gap-2 text-sm text-gray-700">
+                    <input
+                      type="checkbox"
+                      checked={exp.isCurrentRole}
+                      onChange={(e) => updateExperience(index, 'isCurrentRole', e.target.checked)}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    Current Role
+                  </label>
+                </div>
                 <button
                   type="button"
                   onClick={() => removeExperience(index)}
@@ -670,15 +683,17 @@ export default function ResumeForm({
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                  <input
-                    type="date"
-                    value={exp.end_date}
-                    onChange={(e) => updateExperience(index, 'end_date', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                  />
-                </div>
+                {!exp.isCurrentRole && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                    <input
+                      type="date"
+                      value={exp.end_date}
+                      onChange={(e) => updateExperience(index, 'end_date', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    />
+                  </div>
+                )}
               </div>
               
               <div className="mt-4">

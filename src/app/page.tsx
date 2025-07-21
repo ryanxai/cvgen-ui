@@ -29,6 +29,7 @@ interface FormData {
     company_description: string;
     start_date: string;
     end_date: string;
+    isCurrentRole: boolean;
     description: string[];
   }>;
   education: Array<{
@@ -496,6 +497,7 @@ export default function HomePage() {
         company_description: exp.company_description || '',
         start_date: convertAbbreviatedDateToFormDate(exp.date_start || ''),
         end_date: exp.date_end === 'Present' ? 'Present' : convertAbbreviatedDateToFormDate(exp.date_end || ''),
+        isCurrentRole: exp.date_end === 'Present',
         description: exp.achievements?.map((achievement: Achievement) => 
           `${achievement.name}: ${achievement.description}`
         ) || [''],
