@@ -390,7 +390,7 @@ export default function ResumeForm({
 
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto">
       <form onSubmit={handleSubmit} className="space-y-0">
 
 

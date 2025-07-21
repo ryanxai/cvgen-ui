@@ -571,7 +571,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -709,7 +709,7 @@ export default function HomePage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-40 sm:pt-32">
+      <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-12 pt-40 sm:pt-32">
         {/* Hero Section */}
 
 
@@ -763,7 +763,7 @@ export default function HomePage() {
 
 
         {/* Main Actions */}
-        <div className="space-y-8 mb-12">
+        <div className="space-y-8 mb-0">
 
             {/* Form Section */}
             <div className="space-y-4">
@@ -789,51 +789,10 @@ export default function HomePage() {
             </div>
             </div>
         </div>
-
-        {/* Features Section */}
-        {!isGenerating && (
-          <div className="grid md:grid-cols-3 gap-8 mt-16">
-            <div className="text-center">
-              <div className="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">Lightning Fast</h4>
-              <p className="text-gray-600 text-sm">
-                Generate professional PDFs in seconds using our optimized LaTeX processing.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">Secure & Private</h4>
-              <p className="text-gray-600 text-sm">
-                Your data is processed securely and temporarily. No permanent storage of personal information.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="bg-purple-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
-                </svg>
-              </div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">Professional Quality</h4>
-              <p className="text-gray-600 text-sm">
-                LaTeX-powered typesetting ensures your resume looks crisp and professional.
-              </p>
-            </div>
-          </div>
-        )}
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-50 border-t border-gray-200 mt-16">
+      <footer className="bg-gray-50 border-t border-gray-200 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-gray-500 text-sm">
             <p>
