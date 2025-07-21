@@ -150,15 +150,41 @@ export default function ResumeForm({
   const convertDateToAbbreviated = (dateString: string): string => {
     if (!dateString || dateString === 'Present') return dateString;
     
+    // Handle ISO format "yyyy-mm-dd" directly to avoid timezone issues
+    const isoMatch = dateString.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (isoMatch) {
+      const year = parseInt(isoMatch[1]);
+      const month = parseInt(isoMatch[2]) - 1; // Convert to 0-based index
+      const day = parseInt(isoMatch[3]);
+      
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${months[month]} ${year}`;
+    }
+    
+    // Handle abbreviated format "Mar 2021"
+    const match = dateString.match(/^([A-Za-z]{3})\s+(\d{4})$/);
+    if (match) {
+      return dateString; // Already in correct format
+    }
+    
+    // Handle year-only format "2023"
+    const yearMatch = dateString.match(/^(\d{4})$/);
+    if (yearMatch) {
+      return `Jan ${yearMatch[1]}`;
+    }
+    
+    // Fallback to Date constructor for other formats
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) return dateString;
+    if (!isNaN(date.getTime())) {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const month = months[date.getMonth()];
+      const year = date.getFullYear();
+      return `${month} ${year}`;
+    }
     
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-    
-    return `${month} ${year}`;
+    return dateString;
   };
 
   const convertAbbreviatedDateToFormDate = (dateString: string): string => {
@@ -251,19 +277,19 @@ export default function ResumeForm({
           organization_detail: (award.organization_detail as string) || '',
           organization_url: (award.organization_url as string) || '',
           location: (award.location as string) || '',
-          date: (award.date as string) || '',
+          date: convertAbbreviatedDateToFormDate((award.date as string) || ''),
         })),
         certifications: ((data.certifications as Array<Record<string, unknown>>) || []).map((cert) => ({
           title: (cert.title as string) || '',
           organization: (cert.organization as string) || '',
           url: (cert.url as string) || '',
-          date: (cert.date as string) || '',
+          date: convertAbbreviatedDateToFormDate((cert.date as string) || ''),
         })),
         publications: ((data.publications as Array<Record<string, unknown>>) || []).map((pub) => ({
           authors: (pub.authors as string) || '',
           title: (pub.title as string) || '',
           venue: (pub.venue as string) || '',
-          date: ((pub.year as number)?.toString()) || '',
+          date: convertAbbreviatedDateToFormDate(((pub.year as number)?.toString()) || ''),
           url: (pub.url as string) || '',
         })),
       };
@@ -285,7 +311,7 @@ export default function ResumeForm({
         company_description: exp.company_description || '',
         location: data.personal.location,
         date_start: convertDateToAbbreviated(exp.start_date),
-        date_end: exp.end_date ? convertDateToAbbreviated(exp.end_date) : 'Present',
+        date_end: exp.end_date === 'Present' ? 'Present' : convertDateToAbbreviated(exp.end_date),
         achievements: exp.description
           .filter(desc => desc.trim() !== '')
           .map(desc => ({
@@ -510,6 +536,10 @@ export default function ResumeForm({
       const text = await file.text();
       const parsedData = parseJsonToFormData(text);
       setFormData(parsedData);
+      // Explicitly notify parent of the new form data
+      if (onFormDataChange) {
+        onFormDataChange(parsedData);
+      }
       setJsonUploadSuccess(true);
       // Clear success message after 3 seconds
       setTimeout(() => setJsonUploadSuccess(false), 3000);

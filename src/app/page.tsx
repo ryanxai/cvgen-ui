@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import ResumeGenerator from '@/components/ResumeGenerator';
 import ResumeForm from '@/components/ResumeForm';
 import { ResumeGenerationResponse } from '@/lib/api';
@@ -48,6 +48,50 @@ export default function HomePage() {
     setFormData(null);
   };
 
+  const handleFormDataChange = useCallback((data: any) => {
+    setFormData(data);
+  }, []);
+
+  const convertDateToAbbreviated = (dateString: string): string => {
+    if (!dateString || dateString === 'Present') return dateString;
+    
+    // Handle ISO format "yyyy-mm-dd" directly to avoid timezone issues
+    const isoMatch = dateString.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (isoMatch) {
+      const year = parseInt(isoMatch[1]);
+      const month = parseInt(isoMatch[2]) - 1; // Convert to 0-based index
+      const day = parseInt(isoMatch[3]);
+      
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${months[month]} ${year}`;
+    }
+    
+    // Handle abbreviated format "Mar 2021"
+    const match = dateString.match(/^([A-Za-z]{3})\s+(\d{4})$/);
+    if (match) {
+      return dateString; // Already in correct format
+    }
+    
+    // Handle year-only format "2023"
+    const yearMatch = dateString.match(/^(\d{4})$/);
+    if (yearMatch) {
+      return `Jan ${yearMatch[1]}`;
+    }
+    
+    // Fallback to Date constructor for other formats
+    const date = new Date(dateString);
+    if (!isNaN(date.getTime())) {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const month = months[date.getMonth()];
+      const year = date.getFullYear();
+      return `${month} ${year}`;
+    }
+    
+    return dateString;
+  };
+
 
 
   const handleFormGenerateResume = () => {
@@ -91,8 +135,8 @@ export default function HomePage() {
             company_url: exp.company_url || '',
             company_description: exp.company_description || '',
             location: formData.personal.location,
-            date_start: exp.start_date ? new Date(exp.start_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '',
-            date_end: exp.end_date === 'Present' ? 'Present' : (exp.end_date ? new Date(exp.end_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ''),
+            date_start: convertDateToAbbreviated(exp.start_date),
+            date_end: exp.end_date === 'Present' ? 'Present' : convertDateToAbbreviated(exp.end_date),
             achievements: exp.description
               .filter((desc: any) => desc.trim() !== '')
               .map((desc: any) => ({
@@ -106,8 +150,8 @@ export default function HomePage() {
             degree: `${edu.degree} in ${edu.field}`,
             institution: edu.institution,
             location: formData.personal.location,
-            date_start: edu.start_date ? new Date(edu.start_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '',
-            date_end: edu.end_date ? new Date(edu.end_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ''
+            date_start: convertDateToAbbreviated(edu.start_date),
+            date_end: convertDateToAbbreviated(edu.end_date)
           })),
         awards: formData.awards.map((award: any) => ({
           title: award.title,
@@ -115,13 +159,13 @@ export default function HomePage() {
           organization_detail: award.organization_detail,
           organization_url: award.organization_url,
           location: award.location,
-          date: award.date ? new Date(award.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ''
+          date: convertDateToAbbreviated(award.date)
         })),
         certifications: formData.certifications.map((cert: any) => ({
           title: cert.title,
           organization: cert.organization,
           url: cert.url,
-          date: cert.date ? new Date(cert.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ''
+          date: convertDateToAbbreviated(cert.date)
         })),
         publications: formData.publications.map((pub: any) => ({
           authors: pub.authors,
@@ -206,8 +250,8 @@ export default function HomePage() {
             company_url: exp.company_url || '',
             company_description: exp.company_description || '',
             location: formData.personal.location,
-            date_start: exp.start_date ? new Date(exp.start_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '',
-            date_end: exp.end_date === 'Present' ? 'Present' : (exp.end_date ? new Date(exp.end_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ''),
+            date_start: convertDateToAbbreviated(exp.start_date),
+            date_end: exp.end_date === 'Present' ? 'Present' : convertDateToAbbreviated(exp.end_date),
             achievements: exp.description
               .filter((desc: any) => desc.trim() !== '')
               .map((desc: any) => ({
@@ -221,8 +265,8 @@ export default function HomePage() {
             degree: `${edu.degree} in ${edu.field}`,
             institution: edu.institution,
             location: formData.personal.location,
-            date_start: edu.start_date ? new Date(edu.start_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '',
-            date_end: edu.end_date ? new Date(edu.end_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ''
+            date_start: convertDateToAbbreviated(edu.start_date),
+            date_end: convertDateToAbbreviated(edu.end_date)
           })),
         awards: formData.awards.map((award: any) => ({
           title: award.title,
@@ -230,13 +274,13 @@ export default function HomePage() {
           organization_detail: award.organization_detail,
           organization_url: award.organization_url,
           location: award.location,
-          date: award.date ? new Date(award.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ''
+          date: convertDateToAbbreviated(award.date)
         })),
         certifications: formData.certifications.map((cert: any) => ({
           title: cert.title,
           organization: cert.organization,
           url: cert.url,
-          date: cert.date ? new Date(cert.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : ''
+          date: convertDateToAbbreviated(cert.date)
         })),
         publications: formData.publications.map((pub: any) => ({
           authors: pub.authors,
@@ -271,6 +315,50 @@ export default function HomePage() {
     return null;
   };
 
+  const convertAbbreviatedDateToFormDate = (dateString: string): string => {
+    if (!dateString || dateString === 'Present') return dateString;
+    
+    // Handle "Mar 2021" format
+    const match = dateString.match(/^([A-Za-z]{3})\s+(\d{4})$/);
+    if (match) {
+      const monthStr = match[1];
+      const year = match[2];
+      
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const monthIndex = months.findIndex(m => m.toLowerCase() === monthStr.toLowerCase());
+      
+      if (monthIndex !== -1) {
+        const month = (monthIndex + 1).toString().padStart(2, '0');
+        return `${year}-${month}-01`;
+      }
+    }
+    
+    // Handle year-only format like "2023"
+    const yearMatch = dateString.match(/^(\d{4})$/);
+    if (yearMatch) {
+      const year = yearMatch[1];
+      return `${year}-01-01`; // Default to January 1st of that year
+    }
+    
+    // Handle "yyyy-mm-dd" format directly
+    const isoMatch = dateString.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (isoMatch) {
+      return dateString; // Already in correct format
+    }
+    
+    // Try to parse as regular date
+    const date = new Date(dateString);
+    if (!isNaN(date.getTime())) {
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    
+    return dateString;
+  };
+
   const parseJsonToFormData = (jsonContent: string): any => {
     const data = JSON.parse(jsonContent);
     
@@ -294,8 +382,8 @@ export default function HomePage() {
         position: exp.title || '',
         company_url: exp.company_url || '',
         company_description: exp.company_description || '',
-        start_date: exp.date_start || '',
-        end_date: exp.date_end || '',
+        start_date: convertAbbreviatedDateToFormDate(exp.date_start || ''),
+        end_date: exp.date_end === 'Present' ? 'Present' : convertAbbreviatedDateToFormDate(exp.date_end || ''),
         description: exp.achievements?.map((achievement: any) => 
           `${achievement.name}: ${achievement.description}`
         ) || [''],
@@ -312,8 +400,8 @@ export default function HomePage() {
         institution: edu.institution || '',
         degree: edu.degree?.split(' in ')[0] || '',
         field: edu.degree?.split(' in ')[1] || '',
-        start_date: edu.date_start || '',
-        end_date: edu.date_end || '',
+        start_date: convertAbbreviatedDateToFormDate(edu.date_start || ''),
+        end_date: convertAbbreviatedDateToFormDate(edu.date_end || ''),
       })) || [{
         institution: '',
         degree: '',
@@ -335,19 +423,19 @@ export default function HomePage() {
         organization_detail: award.organization_detail || '',
         organization_url: award.organization_url || '',
         location: award.location || '',
-        date: award.date || '',
+        date: convertAbbreviatedDateToFormDate(award.date || ''),
       })) || [],
       certifications: data.certifications?.map((cert: any) => ({
         title: cert.title || '',
         organization: cert.organization || '',
         url: cert.url || '',
-        date: cert.date || '',
+        date: convertAbbreviatedDateToFormDate(cert.date || ''),
       })) || [],
       publications: data.publications?.map((pub: any) => ({
         authors: pub.authors || '',
         title: pub.title || '',
         venue: pub.venue || '',
-        date: pub.date || pub.year?.toString() || '',
+        date: convertAbbreviatedDateToFormDate(pub.date || pub.year?.toString() || ''),
         url: pub.url || '',
       })) || [],
     };
@@ -732,7 +820,7 @@ export default function HomePage() {
                   onDownloadPdf={handleFormDownloadPdf}
                   isLoading={isFormLoading}
                   externalFormData={formData}
-                  onFormDataChange={setFormData}
+                  onFormDataChange={handleFormDataChange}
                 />
               
               {/* Loading overlay */}
