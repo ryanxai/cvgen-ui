@@ -400,7 +400,7 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={() => setIsPersonalInfoCollapsed(!isPersonalInfoCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg
@@ -544,7 +544,7 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={() => setIsExperienceCollapsed(!isExperienceCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg
@@ -689,7 +689,7 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={() => setIsEducationCollapsed(!isEducationCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg
@@ -786,7 +786,7 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={() => setIsSkillsCollapsed(!isSkillsCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg
@@ -911,7 +911,7 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={() => setIsAwardsCollapsed(!isAwardsCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg
@@ -1064,7 +1064,7 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={() => setIsCertificationsCollapsed(!isCertificationsCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg
@@ -1187,7 +1187,7 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={() => setIsPublicationsCollapsed(!isPublicationsCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-gray-50 p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg

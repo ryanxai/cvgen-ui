@@ -577,7 +577,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6 space-y-4 sm:space-y-0">
             <div className="flex items-center space-x-3">
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 -mt-3">
                 <svg
                   className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600"
                   fill="none"
@@ -594,8 +594,8 @@ export default function HomePage() {
                 </svg>
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Resume Builder</h1>
-                <p className="text-xs sm:text-sm text-gray-500">Create Professional PDF Resumes</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">CV Generator</h1>
+                <p className="text-xs sm:text-sm text-gray-500">Create Professional PDF Resumes using AI</p>
               </div>
             </div>
             
