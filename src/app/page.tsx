@@ -600,7 +600,7 @@ export default function HomePage() {
                 </svg>
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">CV Generator</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">AI PDF Resume Generator</h1>
                 <p className="text-xs sm:text-sm text-gray-500">Create Professional PDF Resumes using AI</p>
               </div>
             </div>
