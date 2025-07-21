@@ -11,7 +11,7 @@ on:
 
 jobs:
   build-and-test:
-    if: ${{ github.repository == 'ryanxai/der-ui' }}
+    if: ${{ github.repository == 'ryanxai/cvgen-ui' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
