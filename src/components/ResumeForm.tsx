@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 
 interface ResumeFormData {
@@ -64,8 +64,6 @@ interface ResumeFormProps {
   onFormSuccess: (result: { message: string; filename: string; download_url: string }) => void;
   onFormError: (error: string) => void;
   onGenerateResume?: () => void;
-  onDownloadJson?: () => void;
-  onDownloadPdf?: () => void;
   isLoading?: boolean;
   externalFormData?: ResumeFormData | null;
   onFormDataChange?: (data: ResumeFormData) => void;
@@ -75,18 +73,10 @@ export default function ResumeForm({
   onFormSuccess, 
   onFormError, 
   onGenerateResume, 
-  onDownloadJson, 
-  onDownloadPdf, 
-  isLoading: externalIsLoading,
   externalFormData,
   onFormDataChange
 }: ResumeFormProps) {
-  const [internalIsLoading, setInternalIsLoading] = useState(false);
-  const isLoading = externalIsLoading !== undefined ? externalIsLoading : internalIsLoading;
-  const [isUploadingJson, setIsUploadingJson] = useState(false);
-  const [jsonUploadSuccess, setJsonUploadSuccess] = useState(false);
   const [isPersonalInfoCollapsed, setIsPersonalInfoCollapsed] = useState(true);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<ResumeFormData>({
     personal: {
       name: '',
@@ -133,7 +123,6 @@ export default function ResumeForm({
     if (isoMatch) {
       const year = parseInt(isoMatch[1]);
       const month = parseInt(isoMatch[2]) - 1; // Convert to 0-based index
-      const day = parseInt(isoMatch[3]);
       
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -165,118 +154,9 @@ export default function ResumeForm({
     return dateString;
   };
 
-  const convertAbbreviatedDateToFormDate = (dateString: string): string => {
-    if (!dateString || dateString === 'Present') return '';
-    
-    // Handle "Mar 2021" format
-    const match = dateString.match(/^([A-Za-z]{3})\s+(\d{4})$/);
-    if (match) {
-      const monthStr = match[1];
-      const year = match[2];
-      
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      const monthIndex = months.findIndex(m => m.toLowerCase() === monthStr.toLowerCase());
-      
-      if (monthIndex !== -1) {
-        const month = (monthIndex + 1).toString().padStart(2, '0');
-        return `${year}-${month}-01`;
-      }
-    }
-    
-    // Handle year-only format like "2023"
-    const yearMatch = dateString.match(/^(\d{4})$/);
-    if (yearMatch) {
-      const year = yearMatch[1];
-      return `${year}-01-01`; // Default to January 1st of that year
-    }
-    
-    // Handle "yyyy-mm-dd" format directly
-    const isoMatch = dateString.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    if (isoMatch) {
-      return dateString; // Already in correct format
-    }
-    
-    // Try to parse as regular date
-    const date = new Date(dateString);
-    if (!isNaN(date.getTime())) {
-      const year = date.getFullYear();
-      const month = (date.getMonth() + 1).toString().padStart(2, '0');
-      const day = date.getDate().toString().padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    }
-    
-    return '';
-  };
 
-  const parseJsonToFormData = (jsonContent: string): ResumeFormData => {
-    try {
-      // Parse JSON content
-      const data = JSON.parse(jsonContent) as Record<string, unknown>;
-      
-      const formData: ResumeFormData = {
-        personal: {
-          name: (data.name as string) || '',
-          email: ((data.contact as Record<string, unknown>)?.email as string) || '',
-          phone: ((data.contact as Record<string, unknown>)?.phone as string) || '',
-          location: ((data.contact as Record<string, unknown>)?.location as string) || '',
-          summary: (data.summary as string) || '',
-          links: {
-            github: ((data.contact as Record<string, unknown>)?.links as Array<Record<string, string>>)?.find((link) => link.name === 'GitHub')?.url || '',
-            stackoverflow: ((data.contact as Record<string, unknown>)?.links as Array<Record<string, string>>)?.find((link) => link.name === 'StackOverflow')?.url || '',
-            googlescholar: ((data.contact as Record<string, unknown>)?.links as Array<Record<string, string>>)?.find((link) => link.name === 'GoogleScholar')?.url || '',
-            linkedin: ((data.contact as Record<string, unknown>)?.links as Array<Record<string, string>>)?.find((link) => link.name === 'LinkedIn')?.url || '',
-          },
-        },
-        experience: ((data.experience as Array<Record<string, unknown>>) || []).map((exp) => ({
-          company: (exp.company as string) || '',
-          position: (exp.title as string) || '',
-          company_url: (exp.company_url as string) || '',
-          company_description: (exp.company_description as string) || '',
-          start_date: convertAbbreviatedDateToFormDate((exp.date_start as string) || ''),
-          end_date: (exp.date_end as string) === 'Present' ? 'Present' : convertAbbreviatedDateToFormDate((exp.date_end as string) || ''),
-          description: ((exp.achievements as Array<Record<string, string>>) || []).map((achievement) => achievement.description || ''),
-        })),
-        education: ((data.education as Array<Record<string, unknown>>) || []).map((edu) => ({
-          institution: (edu.institution as string) || '',
-          degree: (edu.degree as string) || '',
-          field: '',
-          start_date: convertAbbreviatedDateToFormDate((edu.date_start as string) || ''),
-          end_date: convertAbbreviatedDateToFormDate((edu.date_end as string) || ''),
-        })),
-        skills: ((data.skills as Array<Record<string, unknown>>) || []).map((skillGroup) => ({
-          category: (skillGroup.category as string) || '',
-          items: Array.isArray(skillGroup.items) ? skillGroup.items as string[] : 
-                 typeof skillGroup.items === 'string' ? skillGroup.items.split(',').map(s => s.trim()).filter(s => s) : [],
-        })),
-        awards: ((data.awards as Array<Record<string, unknown>>) || []).map((award) => ({
-          title: (award.title as string) || '',
-          organization: (award.organization as string) || '',
-          organization_detail: (award.organization_detail as string) || '',
-          organization_url: (award.organization_url as string) || '',
-          location: (award.location as string) || '',
-          date: convertAbbreviatedDateToFormDate((award.date as string) || ''),
-        })),
-        certifications: ((data.certifications as Array<Record<string, unknown>>) || []).map((cert) => ({
-          title: (cert.title as string) || '',
-          organization: (cert.organization as string) || '',
-          url: (cert.url as string) || '',
-          date: convertAbbreviatedDateToFormDate((cert.date as string) || ''),
-        })),
-        publications: ((data.publications as Array<Record<string, unknown>>) || []).map((pub) => ({
-          authors: (pub.authors as string) || '',
-          title: (pub.title as string) || '',
-          venue: (pub.venue as string) || '',
-          date: (pub.year as number)?.toString() || convertAbbreviatedDateToFormDate((pub.date as string) || ''),
-          url: (pub.url as string) || '',
-        })),
-      };
 
-      return formData;
-    } catch {
-      throw new Error('Failed to parse JSON file. Please check the format.');
-    }
-  };
+
 
   const convertToJson = (data: ResumeFormData): string => {
     // Convert experience to the correct format
@@ -368,8 +248,6 @@ export default function ResumeForm({
       return;
     }
     
-    setInternalIsLoading(true);
-
     try {
       const jsonContent = convertToJson(formData);
       const jsonBlob = new Blob([jsonContent], { type: 'application/json' });
@@ -379,8 +257,6 @@ export default function ResumeForm({
       onFormSuccess(result);
     } catch (error) {
       onFormError(error instanceof Error ? error.message : 'Failed to generate resume');
-    } finally {
-      setInternalIsLoading(false);
     }
   };
 
@@ -492,52 +368,11 @@ export default function ResumeForm({
     setFormData(prev => ({ ...prev, skills: newSkills }));
   };
 
-  const validateJsonFile = (file: File): string | null => {
-    if (!file.name.endsWith('.json')) {
-      return 'Please select a JSON file (.json)';
-    }
-    if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      return 'File size must be less than 5MB';
-    }
-    return null;
-  };
 
-  const handleJsonFileUpload = async (file: File) => {
-    const validationError = validateJsonFile(file);
-    if (validationError) {
-      onFormError(validationError);
-      return;
-    }
 
-    setIsUploadingJson(true);
-    try {
-      const text = await file.text();
-      const parsedData = parseJsonToFormData(text);
-      setFormData(parsedData);
-      // Explicitly notify parent of the new form data
-      if (onFormDataChange) {
-        onFormDataChange(parsedData);
-      }
-      setJsonUploadSuccess(true);
-      // Clear success message after 3 seconds
-      setTimeout(() => setJsonUploadSuccess(false), 3000);
-    } catch (error) {
-      onFormError(error instanceof Error ? error.message : 'Failed to parse JSON file');
-    } finally {
-      setIsUploadingJson(false);
-    }
-  };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      handleJsonFileUpload(files[0]);
-    }
-  };
 
-  const openFileDialog = () => {
-    fileInputRef.current?.click();
-  };
+
 
   return (
     <div className="max-w-4xl mx-auto">

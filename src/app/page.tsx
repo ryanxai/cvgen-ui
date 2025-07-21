@@ -1,23 +1,151 @@
 'use client';
 
 import React, { useState, useRef, useCallback } from 'react';
-import ResumeGenerator from '@/components/ResumeGenerator';
 import ResumeForm from '@/components/ResumeForm';
 import { ResumeGenerationResponse } from '@/lib/api';
 import { api } from '@/lib/api';
 
+// Define proper types for form data
+interface FormData {
+  personal: {
+    name: string;
+    email: string;
+    phone: string;
+    location: string;
+    summary: string;
+    links: {
+      github: string;
+      stackoverflow: string;
+      googlescholar: string;
+      linkedin: string;
+    };
+  };
+  experience: Array<{
+    company: string;
+    position: string;
+    company_url: string;
+    company_description: string;
+    start_date: string;
+    end_date: string;
+    description: string[];
+  }>;
+  education: Array<{
+    institution: string;
+    degree: string;
+    field: string;
+    start_date: string;
+    end_date: string;
+  }>;
+  skills: Array<{
+    category: string;
+    items: string[];
+  }>;
+  awards: Array<{
+    title: string;
+    organization: string;
+    organization_detail: string;
+    organization_url: string;
+    location: string;
+    date: string;
+  }>;
+  certifications: Array<{
+    title: string;
+    organization: string;
+    url: string;
+    date: string;
+  }>;
+  publications: Array<{
+    authors: string;
+    title: string;
+    venue: string;
+    date: string;
+    url: string;
+  }>;
+}
+
+interface Link {
+  name: string;
+  url: string;
+}
+
+interface Achievement {
+  name: string;
+  description: string;
+}
+
+interface Experience {
+  title: string;
+  company: string;
+  company_url: string;
+  company_description: string;
+  location: string;
+  date_start: string;
+  date_end: string;
+  achievements: Achievement[];
+}
+
+interface Education {
+  degree: string;
+  institution: string;
+  location: string;
+  date_start: string;
+  date_end: string;
+}
+
+interface Award {
+  title: string;
+  organization: string;
+  organization_detail: string;
+  organization_url: string;
+  location: string;
+  date: string;
+}
+
+interface Certification {
+  title: string;
+  organization: string;
+  url: string;
+  date: string;
+}
+
+interface Publication {
+  authors: string;
+  title: string;
+  venue: string;
+  year: number;
+  url: string;
+  date?: string;
+}
+
+interface JsonData {
+  name: string;
+  contact: {
+    phone: string;
+    email: string;
+    location: string;
+    links: Link[];
+  };
+  summary: string;
+  skills: Array<{
+    category: string;
+    items: string[];
+  }>;
+  experience: Experience[];
+  education: Education[];
+  awards: Award[];
+  certifications: Certification[];
+  publications: Publication[];
+}
+
 export default function HomePage() {
-  const [error, setError] = useState<string | null>(null);
-  const [isFormLoading, setIsFormLoading] = useState(false);
-  const [formData, setFormData] = useState<any>(null);
+  const [isFormLoading] = useState(false);
+  const [formData, setFormData] = useState<FormData | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isUploadingJson, setIsUploadingJson] = useState(false);
   const [jsonUploadSuccess, setJsonUploadSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSuccess = async (result: ResumeGenerationResponse) => {
-    setError(null);
-    
     // Automatically trigger PDF download
     try {
       const blob = await api.downloadPdf(result.filename);
@@ -33,22 +161,16 @@ export default function HomePage() {
       // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Download failed:', error);
-      setError('PDF generated but download failed. Please try again.');
+    } catch (err) {
+      console.error('Download failed:', err);
     }
   };
 
-  const handleError = (errorMessage: string) => {
-    setError(errorMessage);
-  };
 
-  const handleReset = () => {
-    setError(null);
-    setFormData(null);
-  };
 
-  const handleFormDataChange = useCallback((data: any) => {
+
+
+  const handleFormDataChange = useCallback((data: FormData) => {
     setFormData(data);
   }, []);
 
@@ -60,7 +182,6 @@ export default function HomePage() {
     if (isoMatch) {
       const year = parseInt(isoMatch[1]);
       const month = parseInt(isoMatch[2]) - 1; // Convert to 0-based index
-      const day = parseInt(isoMatch[3]);
       
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -92,8 +213,6 @@ export default function HomePage() {
     return dateString;
   };
 
-
-
   const handleFormGenerateResume = () => {
     // This will be called by the form when it's ready to generate
     // The form data is already stored in formData state
@@ -101,13 +220,12 @@ export default function HomePage() {
 
   const handleFormDownloadJson = () => {
     if (!formData) {
-      setError('Please fill out the form first');
       return;
     }
     
     try {
       // Convert form data to proper JSON structure
-      const jsonData = {
+      const jsonData: JsonData = {
         name: formData.personal.name,
         contact: {
           phone: formData.personal.phone,
@@ -118,18 +236,18 @@ export default function HomePage() {
             { name: 'StackOverflow', url: formData.personal.links.stackoverflow },
             { name: 'GoogleScholar', url: formData.personal.links.googlescholar },
             { name: 'LinkedIn', url: formData.personal.links.linkedin }
-          ].filter((link: any) => link.url.trim() !== '')
+          ].filter((link: Link) => link.url.trim() !== '')
         },
         summary: formData.personal.summary,
         skills: formData.skills
-          .filter((skillGroup: any) => skillGroup.items.length > 0)
-          .map((skillGroup: any) => ({
+          .filter((skillGroup) => skillGroup.items.length > 0)
+          .map((skillGroup) => ({
             category: skillGroup.category,
             items: skillGroup.items
           })),
         experience: formData.experience
-          .filter((exp: any) => exp.company && exp.position)
-          .map((exp: any) => ({
+          .filter((exp) => exp.company && exp.position)
+          .map((exp) => ({
             title: exp.position,
             company: exp.company,
             company_url: exp.company_url || '',
@@ -138,22 +256,22 @@ export default function HomePage() {
             date_start: convertDateToAbbreviated(exp.start_date),
             date_end: exp.end_date === 'Present' ? 'Present' : convertDateToAbbreviated(exp.end_date),
             achievements: exp.description
-              .filter((desc: any) => desc.trim() !== '')
-              .map((desc: any) => ({
+              .filter((desc: string) => desc.trim() !== '')
+              .map((desc: string) => ({
                 name: desc.split(':')[0] || 'Achievement',
                 description: desc.split(':')[1] || desc
               }))
           })),
         education: formData.education
-          .filter((edu: any) => edu.institution && edu.degree)
-          .map((edu: any) => ({
+          .filter((edu) => edu.institution && edu.degree)
+          .map((edu) => ({
             degree: `${edu.degree} in ${edu.field}`,
             institution: edu.institution,
             location: formData.personal.location,
             date_start: convertDateToAbbreviated(edu.start_date),
             date_end: convertDateToAbbreviated(edu.end_date)
           })),
-        awards: formData.awards.map((award: any) => ({
+        awards: formData.awards.map((award) => ({
           title: award.title,
           organization: award.organization,
           organization_detail: award.organization_detail,
@@ -161,13 +279,13 @@ export default function HomePage() {
           location: award.location,
           date: convertDateToAbbreviated(award.date)
         })),
-        certifications: formData.certifications.map((cert: any) => ({
+        certifications: formData.certifications.map((cert) => ({
           title: cert.title,
           organization: cert.organization,
           url: cert.url,
           date: convertDateToAbbreviated(cert.date)
         })),
-        publications: formData.publications.map((pub: any) => ({
+        publications: formData.publications.map((pub) => ({
           authors: pub.authors,
           title: pub.title,
           venue: pub.venue,
@@ -193,36 +311,22 @@ export default function HomePage() {
       
       // Clean up the URL
       URL.revokeObjectURL(url);
-    } catch (error) {
-      handleError('Failed to download JSON file');
+    } catch (err) {
+      console.error('Failed to download JSON file:', err);
     }
   };
 
-  const handleFormDownloadPdf = async () => {
-    if (!formData) {
-      setError('Please fill out the form first');
-      return;
-    }
-    setIsFormLoading(true);
-    try {
-      // Implementation for downloading PDF from form data
-    } catch (error) {
-      handleError(error instanceof Error ? error.message : 'Failed to download PDF');
-    } finally {
-      setIsFormLoading(false);
-    }
-  };
+
 
   const handleGenerateResume = async () => {
     if (!formData) {
-      setError('Please fill out the form or upload JSON first');
       return;
     }
 
     setIsGenerating(true);
     try {
       // Convert form data to proper JSON structure
-      const jsonData = {
+      const jsonData: JsonData = {
         name: formData.personal.name,
         contact: {
           phone: formData.personal.phone,
@@ -237,14 +341,14 @@ export default function HomePage() {
         },
         summary: formData.personal.summary,
         skills: formData.skills
-          .filter((skillGroup: any) => skillGroup.items.length > 0)
-          .map((skillGroup: any) => ({
+          .filter((skillGroup) => skillGroup.items.length > 0)
+          .map((skillGroup) => ({
             category: skillGroup.category,
             items: skillGroup.items
           })),
         experience: formData.experience
-          .filter((exp: any) => exp.company && exp.position)
-          .map((exp: any) => ({
+          .filter((exp) => exp.company && exp.position)
+          .map((exp) => ({
             title: exp.position,
             company: exp.company,
             company_url: exp.company_url || '',
@@ -253,22 +357,22 @@ export default function HomePage() {
             date_start: convertDateToAbbreviated(exp.start_date),
             date_end: exp.end_date === 'Present' ? 'Present' : convertDateToAbbreviated(exp.end_date),
             achievements: exp.description
-              .filter((desc: any) => desc.trim() !== '')
-              .map((desc: any) => ({
+              .filter((desc: string) => desc.trim() !== '')
+              .map((desc: string) => ({
                 name: desc.split(':')[0] || 'Achievement',
                 description: desc.split(':')[1] || desc
               }))
           })),
         education: formData.education
-          .filter((edu: any) => edu.institution && edu.degree)
-          .map((edu: any) => ({
+          .filter((edu) => edu.institution && edu.degree)
+          .map((edu) => ({
             degree: `${edu.degree} in ${edu.field}`,
             institution: edu.institution,
             location: formData.personal.location,
             date_start: convertDateToAbbreviated(edu.start_date),
             date_end: convertDateToAbbreviated(edu.end_date)
           })),
-        awards: formData.awards.map((award: any) => ({
+        awards: formData.awards.map((award) => ({
           title: award.title,
           organization: award.organization,
           organization_detail: award.organization_detail,
@@ -276,13 +380,13 @@ export default function HomePage() {
           location: award.location,
           date: convertDateToAbbreviated(award.date)
         })),
-        certifications: formData.certifications.map((cert: any) => ({
+        certifications: formData.certifications.map((cert) => ({
           title: cert.title,
           organization: cert.organization,
           url: cert.url,
           date: convertDateToAbbreviated(cert.date)
         })),
-        publications: formData.publications.map((pub: any) => ({
+        publications: formData.publications.map((pub) => ({
           authors: pub.authors,
           title: pub.title,
           venue: pub.venue,
@@ -295,10 +399,10 @@ export default function HomePage() {
       console.log('Request body sent to /generate-resume:');
       console.log(JSON.stringify(jsonData, null, 2));
       
-      const result = await api.generateFromData(jsonData);
+      const result = await api.generateFromData(jsonData as unknown as Record<string, unknown>);
       handleSuccess(result);
-    } catch (error) {
-      handleError(error instanceof Error ? error.message : 'Failed to generate resume');
+    } catch (err) {
+      console.error('Failed to generate resume:', err);
     } finally {
       setIsGenerating(false);
     }
@@ -359,7 +463,7 @@ export default function HomePage() {
     return dateString;
   };
 
-  const parseJsonToFormData = (jsonContent: string): any => {
+  const parseJsonToFormData = (jsonContent: string): FormData => {
     const data = JSON.parse(jsonContent);
     
     // Convert the JSON structure to form data format
@@ -371,36 +475,36 @@ export default function HomePage() {
         location: data.contact?.location || '',
         summary: data.summary || '',
         links: {
-          github: data.contact?.links?.find((link: any) => link.name === 'GitHub')?.url || '',
-          stackoverflow: data.contact?.links?.find((link: any) => link.name === 'StackOverflow')?.url || '',
-          googlescholar: data.contact?.links?.find((link: any) => link.name === 'GoogleScholar')?.url || '',
-          linkedin: data.contact?.links?.find((link: any) => link.name === 'LinkedIn')?.url || '',
+          github: data.contact?.links?.find((link: Link) => link.name === 'GitHub')?.url || '',
+          stackoverflow: data.contact?.links?.find((link: Link) => link.name === 'StackOverflow')?.url || '',
+          googlescholar: data.contact?.links?.find((link: Link) => link.name === 'GoogleScholar')?.url || '',
+          linkedin: data.contact?.links?.find((link: Link) => link.name === 'LinkedIn')?.url || '',
         },
       },
-      experience: data.experience?.map((exp: any) => ({
+      experience: data.experience?.map((exp: Experience) => ({
         company: exp.company || '',
         position: exp.title || '',
         company_url: exp.company_url || '',
         company_description: exp.company_description || '',
         start_date: convertAbbreviatedDateToFormDate(exp.date_start || ''),
         end_date: exp.date_end === 'Present' ? 'Present' : convertAbbreviatedDateToFormDate(exp.date_end || ''),
-        description: exp.achievements?.map((achievement: any) => 
+        description: exp.achievements?.map((achievement: Achievement) => 
           `${achievement.name}: ${achievement.description}`
         ) || [''],
       })) || [],
-      education: data.education?.map((edu: any) => ({
+      education: data.education?.map((edu: Education) => ({
         institution: edu.institution || '',
         degree: edu.degree?.split(' in ')[0] || '',
         field: edu.degree?.split(' in ')[1] || '',
         start_date: convertAbbreviatedDateToFormDate(edu.date_start || ''),
         end_date: convertAbbreviatedDateToFormDate(edu.date_end || ''),
       })) || [],
-      skills: data.skills?.map((skillGroup: any) => ({
+      skills: data.skills?.map((skillGroup: { category: string; items: string[] | string }) => ({
         category: skillGroup.category || 'Technical Skills',
         items: Array.isArray(skillGroup.items) ? skillGroup.items : 
                typeof skillGroup.items === 'string' ? skillGroup.items.split(',').map((s: string) => s.trim()).filter((s: string) => s) : [],
       })) || [],
-      awards: data.awards?.map((award: any) => ({
+      awards: data.awards?.map((award: Award) => ({
         title: award.title || '',
         organization: award.organization || '',
         organization_detail: award.organization_detail || '',
@@ -408,13 +512,13 @@ export default function HomePage() {
         location: award.location || '',
         date: convertAbbreviatedDateToFormDate(award.date || ''),
       })) || [],
-      certifications: data.certifications?.map((cert: any) => ({
+      certifications: data.certifications?.map((cert: Certification) => ({
         title: cert.title || '',
         organization: cert.organization || '',
         url: cert.url || '',
         date: convertAbbreviatedDateToFormDate(cert.date || ''),
       })) || [],
-      publications: data.publications?.map((pub: any) => ({
+      publications: data.publications?.map((pub: Publication) => ({
         authors: pub.authors || '',
         title: pub.title || '',
         venue: pub.venue || '',
@@ -427,7 +531,6 @@ export default function HomePage() {
   const handleJsonFileUpload = async (file: File) => {
     const validationError = validateJsonFile(file);
     if (validationError) {
-      setError(validationError);
       return;
     }
 
@@ -439,8 +542,8 @@ export default function HomePage() {
       setJsonUploadSuccess(true);
       // Clear success message after 3 seconds
       setTimeout(() => setJsonUploadSuccess(false), 3000);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to parse JSON file');
+    } catch (err) {
+      console.error('Failed to parse JSON file:', err);
     } finally {
       setIsUploadingJson(false);
     }
@@ -581,8 +684,8 @@ export default function HomePage() {
                           setFormData(parsedData);
                           setJsonUploadSuccess(true);
                           setTimeout(() => setJsonUploadSuccess(false), 3000);
-                        } catch (error) {
-                          setError('Failed to load default JSON file');
+                        } catch {
+                          console.error('Failed to load default JSON file');
                         } finally {
                           setIsUploadingJson(false);
                         }
@@ -742,44 +845,7 @@ export default function HomePage() {
         )}
 
         {/* Error Display */}
-        {error && (
-          <div className="mb-8 max-w-md mx-auto">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <svg
-                    className="w-5 h-5 text-red-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">Error</h3>
-                  <p className="text-sm text-red-700 mt-1">{error}</p>
-                </div>
-                <div className="ml-auto pl-3">
-                  <button
-                    onClick={handleReset}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Error handling is now managed by ResumeForm */}
 
 
 
@@ -791,10 +857,8 @@ export default function HomePage() {
                                         <div id="resume-form" className="relative">
                 <ResumeForm
                   onFormSuccess={handleSuccess}
-                  onFormError={handleError}
+                  onFormError={(errorMessage: string) => console.error('Form error:', errorMessage)}
                   onGenerateResume={handleFormGenerateResume}
-                  onDownloadJson={handleFormDownloadJson}
-                  onDownloadPdf={handleFormDownloadPdf}
                   isLoading={isFormLoading}
                   externalFormData={formData}
                   onFormDataChange={handleFormDataChange}
