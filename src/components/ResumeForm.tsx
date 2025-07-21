@@ -622,7 +622,12 @@ export default function ResumeForm({
                     <input
                       type="checkbox"
                       checked={exp.isCurrentRole}
-                      onChange={(e) => updateExperience(index, 'isCurrentRole', e.target.checked)}
+                      onChange={(e) => {
+                        const isCurrentRole = e.target.checked;
+                        updateExperience(index, 'isCurrentRole', isCurrentRole);
+                        // Set end_date to "Present" when current role is checked, or clear it when unchecked
+                        updateExperience(index, 'end_date', isCurrentRole ? 'Present' : '');
+                      }}
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
                     Current Role
