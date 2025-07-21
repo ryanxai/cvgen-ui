@@ -144,7 +144,7 @@ export default function HomePage() {
   const [formData, setFormData] = useState<FormData | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isUploadingJson, setIsUploadingJson] = useState(false);
-  const [jsonUploadSuccess, setJsonUploadSuccess] = useState(false);
+  const [isLoadingDefaultJson, setIsLoadingDefaultJson] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSuccess = async (result: ResumeGenerationResponse) => {
@@ -543,13 +543,19 @@ export default function HomePage() {
     }
 
     setIsUploadingJson(true);
+    const startTime = Date.now();
+    
     try {
       const text = await file.text();
       const parsedData = parseJsonToFormData(text);
       setFormData(parsedData);
-      setJsonUploadSuccess(true);
-      // Clear success message after 3 seconds
-      setTimeout(() => setJsonUploadSuccess(false), 3000);
+      
+      // Ensure loading state lasts at least 0.5 seconds
+      const elapsedTime = Date.now() - startTime;
+      const minLoadingTime = 500; // 0.5 seconds
+      if (elapsedTime < minLoadingTime) {
+        await new Promise(resolve => setTimeout(resolve, minLoadingTime - elapsedTime));
+      }
     } catch (err) {
       console.error('Failed to parse JSON file:', err);
     } finally {
@@ -601,16 +607,6 @@ export default function HomePage() {
             
             {/* Header Action Buttons */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-              {jsonUploadSuccess && (
-                <div className="bg-green-50 border border-green-200 rounded-lg px-2 sm:px-3 py-1 sm:py-2 order-first w-full sm:w-auto">
-                  <div className="flex items-center justify-center sm:justify-start">
-                    <svg className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span className="text-xs sm:text-sm text-green-800">JSON loaded successfully!</span>
-                  </div>
-                </div>
-              )}
 
               {/* Mobile: Grid layout for buttons */}
               <div className="grid grid-cols-2 sm:flex gap-2 sm:gap-4 w-full sm:w-auto">
@@ -659,9 +655,15 @@ export default function HomePage() {
                         : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
                     }`}
                   >
-                    <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                    </svg>
+                    {isUploadingJson ? (
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    ) : (
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                      </svg>
+                    )}
                     <span className="hidden sm:inline">Upload JSON</span>
                     <span className="sm:hidden">Upload JSON</span>
                   </button>
@@ -679,29 +681,42 @@ export default function HomePage() {
                 <button
                   onClick={async () => {
                     try {
-                      setIsUploadingJson(true);
+                      setIsLoadingDefaultJson(true);
+                      const startTime = Date.now();
+                      
                       const response = await fetch('/resume.json');
                       const jsonContent = await response.text();
                       const parsedData = parseJsonToFormData(jsonContent);
                       setFormData(parsedData);
-                      setJsonUploadSuccess(true);
-                      setTimeout(() => setJsonUploadSuccess(false), 3000);
+                      
+                      // Ensure loading state lasts at least 0.5 seconds
+                      const elapsedTime = Date.now() - startTime;
+                      const minLoadingTime = 500; // 0.5 seconds
+                      if (elapsedTime < minLoadingTime) {
+                        await new Promise(resolve => setTimeout(resolve, minLoadingTime - elapsedTime));
+                      }
                     } catch {
                       console.error('Failed to load default JSON file');
                     } finally {
-                      setIsUploadingJson(false);
+                      setIsLoadingDefaultJson(false);
                     }
                   }}
-                  disabled={isUploadingJson}
+                  disabled={isLoadingDefaultJson}
                   className={`flex items-center justify-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
-                    isUploadingJson
+                    isLoadingDefaultJson
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                       : 'bg-green-50 text-green-700 hover:bg-green-100'
                   }`}
                 >
-                  <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
+                  {isLoadingDefaultJson ? (
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  ) : (
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  )}
                   <span className="hidden sm:inline">Use Default JSON</span>
                   <span className="sm:hidden">Use Default JSON</span>
                 </button>
@@ -712,7 +727,7 @@ export default function HomePage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-12 pt-40 sm:pt-32">
+      <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-12 pt-43 sm:pt-32">
         {/* Hero Section */}
 
 
