@@ -609,7 +609,7 @@ export default function HomePage() {
                 <button
                   onClick={openFileDialog}
                   disabled={isUploadingJson}
-                  className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
+                  className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-sm sm:text-sm font-medium transition-colors ${
                     isUploadingJson
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                       : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
@@ -649,7 +649,7 @@ export default function HomePage() {
                   }
                 }}
                 disabled={isUploadingJson}
-                className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
+                className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-sm sm:text-sm font-medium transition-colors ${
                   isUploadingJson
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     : 'bg-green-50 text-green-700 hover:bg-green-100'
@@ -666,7 +666,7 @@ export default function HomePage() {
               <button
                 onClick={handleGenerateResume}
                 disabled={!formData || isGenerating}
-                className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
+                className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-sm sm:text-sm font-medium transition-colors ${
                   formData && !isGenerating
                     ? 'bg-purple-50 text-purple-700 hover:bg-purple-100'
                     : 'bg-gray-100 text-gray-400 cursor-not-allowed'
@@ -683,7 +683,7 @@ export default function HomePage() {
               <button
                 onClick={handleFormDownloadJson}
                 disabled={!formData}
-                className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
+                className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-sm sm:text-sm font-medium transition-colors ${
                   formData
                     ? 'bg-orange-50 text-orange-700 hover:bg-orange-100'
                     : 'bg-gray-100 text-gray-400 cursor-not-allowed'
@@ -701,7 +701,7 @@ export default function HomePage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-32 sm:pt-24">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-40 sm:pt-32">
         {/* Hero Section */}
 
 
