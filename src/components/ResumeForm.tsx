@@ -523,7 +523,7 @@ export default function ResumeForm({
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">X/Twitter</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">X (Twitter)</label>
                     <input
                       type="url"
                       value={formData.personal.links.twitter}
