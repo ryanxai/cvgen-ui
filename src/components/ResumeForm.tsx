@@ -230,7 +230,7 @@ export default function ResumeForm({
         company: exp.company,
         company_url: exp.company_url || '',
         company_description: exp.company_description || '',
-        location: exp.location || data.personal.location,
+        location: exp.location,
         date_start: convertDateToAbbreviated(exp.start_date),
         date_end: exp.isCurrentRole ? 'Present' : convertDateToAbbreviated(exp.end_date),
         achievements: exp.achievements
@@ -251,7 +251,7 @@ export default function ResumeForm({
       .map(edu => ({
         degree: `${edu.degree} in ${edu.field}`,
         institution: edu.institution,
-        location: edu.location || data.personal.location,
+        location: edu.location,
         date_start: convertDateToAbbreviated(edu.start_date),
         date_end: convertDateToAbbreviated(edu.end_date)
       }));
