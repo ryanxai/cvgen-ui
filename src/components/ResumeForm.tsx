@@ -121,7 +121,13 @@ export default function ResumeForm({
   // Update internal formData when externalFormData changes
   useEffect(() => {
     if (externalFormData) {
-      setFormData(externalFormData);
+      setFormData(prevData => {
+        // Only update if the data is actually different
+        if (JSON.stringify(prevData) === JSON.stringify(externalFormData)) {
+          return prevData; // Return same reference to prevent re-render
+        }
+        return externalFormData;
+      });
     }
   }, [externalFormData]);
 
@@ -633,9 +639,17 @@ export default function ResumeForm({
                       checked={exp.isCurrentRole}
                       onChange={(e) => {
                         const isCurrentRole = e.target.checked;
-                        updateExperience(index, 'isCurrentRole', isCurrentRole);
-                        // Set end_date to "Present" when current role is checked, or clear it when unchecked
-                        updateExperience(index, 'end_date', isCurrentRole ? 'Present' : '');
+                        // Update both isCurrentRole and end_date in a single state update
+                        setFormData(prev => ({
+                          ...prev,
+                          experience: prev.experience.map((exp, i) =>
+                            i === index ? { 
+                              ...exp, 
+                              isCurrentRole: isCurrentRole,
+                              end_date: isCurrentRole ? 'Present' : ''
+                            } : exp
+                          )
+                        }));
                       }}
                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                     />
