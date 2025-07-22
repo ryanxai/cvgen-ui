@@ -183,6 +183,17 @@ export default function HomePage() {
   const convertDateToAbbreviated = (dateString: string): string => {
     if (!dateString || dateString === 'Present') return dateString;
     
+    // Handle "yyyy-mm" format - convert to abbreviated format
+    const monthMatch = dateString.match(/^(\d{4})-(\d{2})$/);
+    if (monthMatch) {
+      const year = parseInt(monthMatch[1]);
+      const month = parseInt(monthMatch[2]) - 1; // Convert to 0-based index
+      
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${months[month]} ${year}`;
+    }
+    
     // Handle ISO format "yyyy-mm-dd" directly to avoid timezone issues
     const isoMatch = dateString.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if (isoMatch) {
@@ -452,7 +463,7 @@ export default function HomePage() {
       
       if (monthIndex !== -1) {
         const month = (monthIndex + 1).toString().padStart(2, '0');
-        return `${year}-${month}-01`;
+        return `${year}-${month}`;
       }
     }
     
@@ -460,12 +471,20 @@ export default function HomePage() {
     const yearMatch = dateString.match(/^(\d{4})$/);
     if (yearMatch) {
       const year = yearMatch[1];
-      return `${year}-01-01`; // Default to January 1st of that year
+      return `${year}-01`; // Default to January of that year
     }
     
-    // Handle "yyyy-mm-dd" format directly
+    // Handle "yyyy-mm-dd" format - convert to yyyy-mm
     const isoMatch = dateString.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if (isoMatch) {
+      const year = isoMatch[1];
+      const month = isoMatch[2];
+      return `${year}-${month}`;
+    }
+    
+    // Handle "yyyy-mm" format - return as is
+    const monthMatch = dateString.match(/^(\d{4})-(\d{2})$/);
+    if (monthMatch) {
       return dateString; // Already in correct format
     }
     
@@ -474,8 +493,7 @@ export default function HomePage() {
     if (!isNaN(date.getTime())) {
       const year = date.getFullYear();
       const month = (date.getMonth() + 1).toString().padStart(2, '0');
-      const day = date.getDate().toString().padStart(2, '0');
-      return `${year}-${month}-${day}`;
+      return `${year}-${month}`;
     }
     
     return dateString;

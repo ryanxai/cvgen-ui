@@ -168,37 +168,46 @@ export default function ResumeForm({
   const convertDateToAbbreviated = (dateString: string): string => {
     if (!dateString || dateString === 'Present') return dateString;
     
-    // Handle ISO format "yyyy-mm-dd" directly to avoid timezone issues
+    // Handle month format "yyyy-mm" from month inputs - return as is
+    const monthMatch = dateString.match(/^(\d{4})-(\d{2})$/);
+    if (monthMatch) {
+      return dateString; // Return YYYY-MM format directly
+    }
+    
+    // Handle ISO format "yyyy-mm-dd" - convert to yyyy-mm
     const isoMatch = dateString.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if (isoMatch) {
-      const year = parseInt(isoMatch[1]);
-      const month = parseInt(isoMatch[2]) - 1; // Convert to 0-based index
-      
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      return `${months[month]} ${year}`;
+      const year = isoMatch[1];
+      const month = isoMatch[2];
+      return `${year}-${month}`;
     }
     
-    // Handle abbreviated format "Mar 2021"
+    // Handle abbreviated format "Mar 2021" - convert to yyyy-mm
     const match = dateString.match(/^([A-Za-z]{3})\s+(\d{4})$/);
     if (match) {
-      return dateString; // Already in correct format
+      const monthName = match[1];
+      const year = match[2];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const monthIndex = months.indexOf(monthName);
+      if (monthIndex !== -1) {
+        const month = String(monthIndex + 1).padStart(2, '0');
+        return `${year}-${month}`;
+      }
     }
     
-    // Handle year-only format "2023"
+    // Handle year-only format "2023" - convert to yyyy-01
     const yearMatch = dateString.match(/^(\d{4})$/);
     if (yearMatch) {
-      return `Jan ${yearMatch[1]}`;
+      return `${yearMatch[1]}-01`;
     }
     
     // Fallback to Date constructor for other formats
     const date = new Date(dateString);
     if (!isNaN(date.getTime())) {
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      const month = months[date.getMonth()];
       const year = date.getFullYear();
-      return `${month} ${year}`;
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      return `${year}-${month}`;
     }
     
     return dateString;
@@ -421,7 +430,7 @@ export default function ResumeForm({
     setFormData(prev => ({
       ...prev,
       skills: [...prev.skills, {
-        category: `Skill Category ${prev.skills.length + 1}`,
+        category: '',
         items: [],
       }]
     }));
@@ -545,7 +554,6 @@ export default function ResumeForm({
                   }}
                   rows={1}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 resize-none min-h-[40px] max-h-[300px] overflow-hidden"
-                  placeholder="Brief professional summary..."
                 />
                 <div className="mt-2">
                   <AiSummaryImprover
@@ -566,7 +574,6 @@ export default function ResumeForm({
                       value={formData.personal.links.website}
                       onChange={(e) => updatePersonal('links', { ...formData.personal.links, website: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                      placeholder="https://yourwebsite.com"
                     />
                   </div>
                   <div>
@@ -612,7 +619,6 @@ export default function ResumeForm({
                       value={formData.personal.links.twitter}
                       onChange={(e) => updatePersonal('links', { ...formData.personal.links, twitter: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                      placeholder="https://x.com/yourusername"
                     />
                   </div>
                 </div>
@@ -734,20 +740,24 @@ export default function ResumeForm({
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
                   <input
-                    type="date"
+                    type="text"
                     value={exp.start_date}
                     onChange={(e) => updateExperience(index, 'start_date', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="YYYY-MM"
+                    pattern="\d{4}-\d{2}"
                   />
                 </div>
                 {!exp.isCurrentRole && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
                     <input
-                      type="date"
+                      type="text"
                       value={exp.end_date}
                       onChange={(e) => updateExperience(index, 'end_date', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                      placeholder="YYYY-MM"
+                      pattern="\d{4}-\d{2}"
                     />
                   </div>
                 )}
@@ -781,28 +791,26 @@ export default function ResumeForm({
                           updateExperience(index, 'achievements', newAchievements);
                         }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                        placeholder="Achievement Title"
                       />
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
-                      <textarea
-                        ref={(el) => {
-                          if (!experienceDescriptionRefs.current[index]) {
-                            experienceDescriptionRefs.current[index] = [];
-                          }
-                          experienceDescriptionRefs.current[index][achievementIndex] = el;
-                        }}
-                        value={achievement.description}
-                        onChange={(e) => {
-                          const newAchievements = [...exp.achievements];
-                          newAchievements[achievementIndex] = { ...newAchievements[achievementIndex], description: e.target.value };
-                          updateExperience(index, 'achievements', newAchievements);
-                        }}
-                        rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 resize-none min-h-[40px] max-h-[300px] overflow-hidden"
-                        placeholder="Achievement description..."
-                      />
+                                              <textarea
+                          ref={(el) => {
+                            if (!experienceDescriptionRefs.current[index]) {
+                              experienceDescriptionRefs.current[index] = [];
+                            }
+                            experienceDescriptionRefs.current[index][achievementIndex] = el;
+                          }}
+                          value={achievement.description}
+                          onChange={(e) => {
+                            const newAchievements = [...exp.achievements];
+                            newAchievements[achievementIndex] = { ...newAchievements[achievementIndex], description: e.target.value };
+                            updateExperience(index, 'achievements', newAchievements);
+                          }}
+                          rows={2}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 resize-none min-h-[40px] max-h-[300px] overflow-hidden"
+                        />
                       <div className="mt-2">
                         <AiAchievementImprover
                           currentDescription={achievement.description}
@@ -911,19 +919,23 @@ export default function ResumeForm({
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
                   <input
-                    type="date"
+                    type="text"
                     value={edu.start_date}
                     onChange={(e) => updateEducation(index, 'start_date', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="YYYY-MM"
+                    pattern="\d{4}-\d{2}"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
                   <input
-                    type="date"
+                    type="text"
                     value={edu.end_date}
                     onChange={(e) => updateEducation(index, 'end_date', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="YYYY-MM"
+                    pattern="\d{4}-\d{2}"
                   />
                 </div>
               </div>
@@ -967,17 +979,20 @@ export default function ResumeForm({
           {!isSkillsCollapsed && formData.skills.map((skillGroup, skillGroupIndex) => (
             <div key={skillGroupIndex} className="border border-gray-200 rounded-lg p-4 mb-4">
               <div className="flex justify-between items-center mb-4">
-                <input
-                  type="text"
-                  value={skillGroup.category}
-                  onChange={(e) => {
-                    const newSkills = [...formData.skills];
-                    newSkills[skillGroupIndex] = { ...skillGroup, category: e.target.value };
-                    setFormData(prev => ({ ...prev, skills: newSkills }));
-                  }}
-                  className="text-md font-medium text-gray-900 border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-3 py-2 shadow-sm"
-                  placeholder="e.g., Technical Skills"
-                />
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Skill Category Name</label>
+                  <input
+                    type="text"
+                    value={skillGroup.category}
+                    onChange={(e) => {
+                      const newSkills = [...formData.skills];
+                      newSkills[skillGroupIndex] = { ...skillGroup, category: e.target.value };
+                      setFormData(prev => ({ ...prev, skills: newSkills }));
+                    }}
+                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="e.g., Technical Skills"
+                  />
+                </div>
                 <button
                   type="button"
                   onClick={() => {
@@ -1051,9 +1066,7 @@ export default function ResumeForm({
                   )) : null}
                 </div>
                 
-                <p className="text-xs text-gray-500 mt-2">
-                  Type a skill and press Enter or click Add to add it as a tag
-                </p>
+
               </div>
             </div>
           ))}
@@ -1134,7 +1147,6 @@ export default function ResumeForm({
                     value={award.title}
                     onChange={(e) => updateAward(index, 'title', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="e.g., Best Paper Award"
                   />
                 </div>
                 <div>
@@ -1144,7 +1156,6 @@ export default function ResumeForm({
                     value={award.organization}
                     onChange={(e) => updateAward(index, 'organization', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="e.g., International Conference on ML"
                   />
                 </div>
                 <div>
@@ -1154,7 +1165,6 @@ export default function ResumeForm({
                     value={award.organization_detail}
                     onChange={(e) => updateAward(index, 'organization_detail', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="e.g., Advanced Techniques in Time Series Forecasting"
                   />
                 </div>
                 <div>
@@ -1164,7 +1174,6 @@ export default function ResumeForm({
                     value={award.organization_url}
                     onChange={(e) => updateAward(index, 'organization_url', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="https://example.com"
                   />
                 </div>
                 <div>
@@ -1174,16 +1183,17 @@ export default function ResumeForm({
                     value={award.location}
                     onChange={(e) => updateAward(index, 'location', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="e.g., Online, New York, NY"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
                   <input
-                    type="date"
+                    type="text"
                     value={award.date}
                     onChange={(e) => updateAward(index, 'date', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="YYYY-MM"
+                    pattern="\d{4}-\d{2}"
                   />
                 </div>
               </div>
@@ -1264,7 +1274,6 @@ export default function ResumeForm({
                     value={cert.title}
                     onChange={(e) => updateCertification(index, 'title', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="e.g., AWS Certified Machine Learning - Specialty"
                   />
                 </div>
                 <div>
@@ -1274,7 +1283,6 @@ export default function ResumeForm({
                     value={cert.organization}
                     onChange={(e) => updateCertification(index, 'organization', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="e.g., Amazon Web Services"
                   />
                 </div>
                 <div>
@@ -1284,16 +1292,17 @@ export default function ResumeForm({
                     value={cert.url}
                     onChange={(e) => updateCertification(index, 'url', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="https://aws.amazon.com/certification/"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
                   <input
-                    type="date"
+                    type="text"
                     value={cert.date}
                     onChange={(e) => updateCertification(index, 'date', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="YYYY-MM"
+                    pattern="\d{4}-\d{2}"
                   />
                 </div>
               </div>
@@ -1375,7 +1384,6 @@ export default function ResumeForm({
                     value={pub.authors}
                     onChange={(e) => updatePublication(index, 'authors', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="e.g., Doe, J., Smith, A., Johnson, B."
                   />
                 </div>
                 <div className="md:col-span-2">
@@ -1385,7 +1393,6 @@ export default function ResumeForm({
                     value={pub.title}
                     onChange={(e) => updatePublication(index, 'title', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="e.g., Hybrid Approaches to Time Series Forecasting in Financial Markets"
                   />
                 </div>
                 <div>
@@ -1395,7 +1402,6 @@ export default function ResumeForm({
                     value={pub.venue}
                     onChange={(e) => updatePublication(index, 'venue', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="e.g., Journal of Applied Data Science, Vol. 15"
                   />
                 </div>
                 <div>
@@ -1405,7 +1411,6 @@ export default function ResumeForm({
                     value={pub.date}
                     onChange={(e) => updatePublication(index, 'date', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="2023"
                     min="1900"
                     max="2030"
                   />
@@ -1417,7 +1422,6 @@ export default function ResumeForm({
                     value={pub.url}
                     onChange={(e) => updatePublication(index, 'url', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                    placeholder="https://example.com/journal/jads/vol15"
                   />
                 </div>
               </div>
