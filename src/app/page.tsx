@@ -611,30 +611,19 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-200">
+      <header className="fixed top- left-0 right-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6 space-y-4 sm:space-y-0">
-            <div className="flex items-center space-x-3">
-              <div className="flex-shrink-0 -mt-3">
-                <svg
-                  className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-2 sm:py-3 space-y-2 sm:space-y-0">
+                                      <div className="flex flex-col">
+              <div className="flex items-center space-x-3">
+                <div className="flex-shrink-0">
+                  <i className="bi bi-robot text-blue-600" style={{ fontSize: '1.8rem' }}></i>
+                </div>
+                <div>
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900">CV Gen</h1>
+                </div>
               </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">AI PDF Resume Generator</h1>
-                <p className="text-xs sm:text-sm text-gray-500">Create Professional PDF Resumes using AI</p>
-              </div>
+              <p className="text-xs sm:text-sm text-gray-500 mt-1">A Fully Open-Source AI PDF Resume Generator</p>
             </div>
             
             {/* Header Action Buttons */}
