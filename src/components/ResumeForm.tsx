@@ -446,20 +446,18 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={() => setIsPersonalInfoCollapsed(!isPersonalInfoCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-gradient-to-r from-blue-50 to-purple-50 p-2 rounded-lg transition-all duration-200 focus:outline-none"
             >
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
-                <svg
-                  className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${
-                    isPersonalInfoCollapsed ? 'rotate-0' : 'rotate-180'
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
+              <svg
+                className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${
+                  isPersonalInfoCollapsed ? 'rotate-0' : 'rotate-180'
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
               <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
             </button>
           </div>
@@ -598,12 +596,12 @@ export default function ResumeForm({
         {/* Experience */}
         <div className="rounded-lg">
           <div className="flex justify-between items-center mb-4">
-            <button
-              type="button"
-              onClick={() => setIsExperienceCollapsed(!isExperienceCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none"
-            >
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
+            <div className="flex items-center space-x-3 flex-1 bg-gradient-to-r from-blue-50 to-purple-50 p-2 rounded-lg">
+              <button
+                type="button"
+                onClick={() => setIsExperienceCollapsed(!isExperienceCollapsed)}
+                className="flex items-center space-x-3 flex-1 cursor-pointer transition-all duration-200 focus:outline-none"
+              >
                 <svg
                   className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${
                     isExperienceCollapsed ? 'rotate-0' : 'rotate-180'
@@ -614,18 +612,18 @@ export default function ResumeForm({
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">Experience</h3>
-            </button>
-            <button
-              type="button"
-              onClick={addExperience}
-              className="flex items-center justify-center w-8 h-8 bg-green-100 border border-green-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-200"
-            >
-              <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </button>
+                <h3 className="text-lg font-semibold text-gray-900">Experience</h3>
+              </button>
+              <button
+                type="button"
+                onClick={addExperience}
+                className="flex items-center justify-center w-8 h-8 bg-green-100 border border-green-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-200"
+              >
+                <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </button>
+            </div>
           </div>
           
           {!isExperienceCollapsed && formData.experience.map((exp, index) => (
@@ -798,12 +796,12 @@ export default function ResumeForm({
         {/* Education */}
         <div className="rounded-lg">
           <div className="flex justify-between items-center mb-4">
-            <button
-              type="button"
-              onClick={() => setIsEducationCollapsed(!isEducationCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none"
-            >
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
+            <div className="flex items-center space-x-3 flex-1 bg-gradient-to-r from-blue-50 to-purple-50 p-2 rounded-lg">
+              <button
+                type="button"
+                onClick={() => setIsEducationCollapsed(!isEducationCollapsed)}
+                className="flex items-center space-x-3 flex-1 cursor-pointer transition-all duration-200 focus:outline-none"
+              >
                 <svg
                   className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${
                     isEducationCollapsed ? 'rotate-0' : 'rotate-180'
@@ -814,18 +812,18 @@ export default function ResumeForm({
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">Education</h3>
-            </button>
-            <button
-              type="button"
-              onClick={addEducation}
-              className="flex items-center justify-center w-8 h-8 bg-green-100 border border-green-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-200"
-            >
-              <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </button>
+                <h3 className="text-lg font-semibold text-gray-900">Education</h3>
+              </button>
+              <button
+                type="button"
+                onClick={addEducation}
+                className="flex items-center justify-center w-8 h-8 bg-green-100 border border-green-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-200"
+              >
+                <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </button>
+            </div>
           </div>
           
           {!isEducationCollapsed && formData.education.map((edu, index) => (
@@ -898,12 +896,12 @@ export default function ResumeForm({
         {/* Skills */}
         <div className="rounded-lg">
           <div className="flex justify-between items-center mb-4">
-            <button
-              type="button"
-              onClick={() => setIsSkillsCollapsed(!isSkillsCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none"
-            >
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
+            <div className="flex items-center space-x-3 flex-1 bg-gradient-to-r from-blue-50 to-purple-50 p-2 rounded-lg">
+              <button
+                type="button"
+                onClick={() => setIsSkillsCollapsed(!isSkillsCollapsed)}
+                className="flex items-center space-x-3 flex-1 cursor-pointer transition-all duration-200 focus:outline-none"
+              >
                 <svg
                   className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${
                     isSkillsCollapsed ? 'rotate-0' : 'rotate-180'
@@ -914,18 +912,18 @@ export default function ResumeForm({
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">Skills</h3>
-            </button>
-            <button
-              type="button"
-              onClick={addSkill}
-              className="flex items-center justify-center w-8 h-8 bg-green-100 border border-green-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-200"
-            >
-              <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </button>
+                <h3 className="text-lg font-semibold text-gray-900">Skills</h3>
+              </button>
+              <button
+                type="button"
+                onClick={addSkill}
+                className="flex items-center justify-center w-8 h-8 bg-green-100 border border-green-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-200"
+              >
+                <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </button>
+            </div>
           </div>
           
           {!isSkillsCollapsed && formData.skills.map((skillGroup, skillGroupIndex) => (
@@ -1026,12 +1024,12 @@ export default function ResumeForm({
         {/* Awards */}
         <div className="rounded-lg">
           <div className="flex justify-between items-center mb-4">
-            <button
-              type="button"
-              onClick={() => setIsAwardsCollapsed(!isAwardsCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none"
-            >
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
+            <div className="flex items-center space-x-3 flex-1 bg-gradient-to-r from-blue-50 to-purple-50 p-2 rounded-lg">
+              <button
+                type="button"
+                onClick={() => setIsAwardsCollapsed(!isAwardsCollapsed)}
+                className="flex items-center space-x-3 flex-1 cursor-pointer transition-all duration-200 focus:outline-none"
+              >
                 <svg
                   className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${
                     isAwardsCollapsed ? 'rotate-0' : 'rotate-180'
@@ -1042,31 +1040,31 @@ export default function ResumeForm({
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">Awards</h3>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setFormData(prev => ({
-                  ...prev,
-                  awards: [...prev.awards, {
-                    title: '',
-                    organization: '',
-                    organization_detail: '',
-                    organization_url: '',
-                    location: '',
-                    date: '',
-                  }]
-                }));
-                setIsAwardsCollapsed(false);
-              }}
-              className="flex items-center justify-center w-8 h-8 bg-green-100 border border-green-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-200"
-            >
-              <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </button>
+                <h3 className="text-lg font-semibold text-gray-900">Awards</h3>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData(prev => ({
+                    ...prev,
+                    awards: [...prev.awards, {
+                      title: '',
+                      organization: '',
+                      organization_detail: '',
+                      organization_url: '',
+                      location: '',
+                      date: '',
+                    }]
+                  }));
+                  setIsAwardsCollapsed(false);
+                }}
+                className="flex items-center justify-center w-8 h-8 bg-green-100 border border-green-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-200"
+              >
+                <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </button>
+            </div>
           </div>
           
           {!isAwardsCollapsed && formData.awards.map((award, index) => (
@@ -1182,12 +1180,12 @@ export default function ResumeForm({
         {/* Certifications */}
         <div className="rounded-lg">
           <div className="flex justify-between items-center mb-4">
-            <button
-              type="button"
-              onClick={() => setIsCertificationsCollapsed(!isCertificationsCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none"
-            >
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
+            <div className="flex items-center space-x-3 flex-1 bg-gradient-to-r from-blue-50 to-purple-50 p-2 rounded-lg">
+              <button
+                type="button"
+                onClick={() => setIsCertificationsCollapsed(!isCertificationsCollapsed)}
+                className="flex items-center space-x-3 flex-1 cursor-pointer transition-all duration-200 focus:outline-none"
+              >
                 <svg
                   className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${
                     isCertificationsCollapsed ? 'rotate-0' : 'rotate-180'
@@ -1198,29 +1196,29 @@ export default function ResumeForm({
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">Certifications</h3>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setFormData(prev => ({
-                  ...prev,
-                  certifications: [...prev.certifications, {
-                    title: '',
-                    organization: '',
-                    url: '',
-                    date: '',
-                  }]
-                }));
-                setIsCertificationsCollapsed(false);
-              }}
-              className="flex items-center justify-center w-8 h-8 bg-green-100 border border-green-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-200"
-            >
-              <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </button>
+                <h3 className="text-lg font-semibold text-gray-900">Certifications</h3>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData(prev => ({
+                    ...prev,
+                    certifications: [...prev.certifications, {
+                      title: '',
+                      organization: '',
+                      url: '',
+                      date: '',
+                    }]
+                  }));
+                  setIsCertificationsCollapsed(false);
+                }}
+                className="flex items-center justify-center w-8 h-8 bg-green-100 border border-green-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-200"
+              >
+                <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </button>
+            </div>
           </div>
           
           {!isCertificationsCollapsed && formData.certifications.map((cert, index) => (
@@ -1308,12 +1306,12 @@ export default function ResumeForm({
         {/* Publications */}
         <div className="rounded-lg">
           <div className="flex justify-between items-center mb-4">
-            <button
-              type="button"
-              onClick={() => setIsPublicationsCollapsed(!isPublicationsCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none"
-            >
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
+            <div className="flex items-center space-x-3 flex-1 bg-gradient-to-r from-blue-50 to-purple-50 p-2 rounded-lg">
+              <button
+                type="button"
+                onClick={() => setIsPublicationsCollapsed(!isPublicationsCollapsed)}
+                className="flex items-center space-x-3 flex-1 cursor-pointer transition-all duration-200 focus:outline-none"
+              >
                 <svg
                   className={`w-5 h-5 text-gray-600 transition-transform duration-200 ${
                     isPublicationsCollapsed ? 'rotate-0' : 'rotate-180'
@@ -1324,30 +1322,30 @@ export default function ResumeForm({
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">Publications</h3>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setFormData(prev => ({
-                  ...prev,
-                  publications: [...prev.publications, {
-                    authors: '',
-                    title: '',
-                    venue: '',
-                    date: '',
-                    url: '',
-                  }]
-                }));
-                setIsPublicationsCollapsed(false);
-              }}
-              className="flex items-center justify-center w-8 h-8 bg-green-100 border border-green-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-200"
-            >
-              <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </button>
+                <h3 className="text-lg font-semibold text-gray-900">Publications</h3>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData(prev => ({
+                    ...prev,
+                    publications: [...prev.publications, {
+                      authors: '',
+                      title: '',
+                      venue: '',
+                      date: '',
+                      url: '',
+                    }]
+                  }));
+                  setIsPublicationsCollapsed(false);
+                }}
+                className="flex items-center justify-center w-8 h-8 bg-green-100 border border-green-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-200"
+              >
+                <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </button>
+            </div>
           </div>
           
           {!isPublicationsCollapsed && formData.publications.map((pub, index) => (
