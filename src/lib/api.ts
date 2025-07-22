@@ -24,13 +24,15 @@ export interface HealthResponse {
   };
 }
 
-export interface ImproveSummaryRequest {
+export interface ImproveResumeSectionRequest {
   instructions: string;
-  summary: string;
+  section_name: string;
+  section_text: string;
 }
 
-export interface ImproveSummaryResponse {
-  improved_summary: string;
+export interface ImproveResumeSectionResponse {
+  improved_section: string;
+  message: string;
 }
 
 class ResumeBuilderAPI {
@@ -95,13 +97,14 @@ class ResumeBuilderAPI {
     return response.json();
   }
 
-  async improveSummary(summary: string): Promise<ImproveSummaryResponse> {
-    const improveData: ImproveSummaryRequest = {
-      instructions: "You are a professional recruiter. Improve the writing style of the following summary section to be more professional and concise. Don't provide any other text than the improved summary section.",
-      summary: summary
+  async improveResumeSection(sectionText: string, sectionName: string = "Professional Summary"): Promise<ImproveResumeSectionResponse> {
+    const improveData: ImproveResumeSectionRequest = {
+      instructions: "You are a professional recruiter. Improve the writing style of the following resume section to be more professional and concise. Don't provide any other text than the improved resume section.",
+      section_name: sectionName,
+      section_text: sectionText
     };
 
-    const response = await fetch(`${this.baseUrl}/improve-summary`, {
+    const response = await fetch(`${this.baseUrl}/improve-resume-section`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -110,7 +113,7 @@ class ResumeBuilderAPI {
     });
 
     if (!response.ok) {
-      throw new Error(`Summary improvement failed: ${response.statusText}`);
+      throw new Error(`Resume section improvement failed: ${response.statusText}`);
     }
 
     return response.json();

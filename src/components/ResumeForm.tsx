@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { api } from '@/lib/api';
 import AiSummaryImprover from './AiSummaryImprover';
+import AiAchievementImprover from './AiAchievementImprover';
 
 interface ResumeFormData {
   personal: {
@@ -775,6 +776,16 @@ export default function ResumeForm({
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 resize-none min-h-[40px] max-h-[300px] overflow-hidden"
                         placeholder="Achievement description..."
                       />
+                      <div className="mt-2">
+                        <AiAchievementImprover
+                          currentDescription={achievement.description}
+                          onDescriptionChange={(newDescription) => {
+                            const newAchievements = [...exp.achievements];
+                            newAchievements[achievementIndex] = { ...newAchievements[achievementIndex], description: newDescription };
+                            updateExperience(index, 'achievements', newAchievements);
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
                 ))}

@@ -3,20 +3,20 @@
 import React, { useState } from 'react';
 import { api } from '@/lib/api';
 
-interface AiSummaryImproverProps {
-  currentSummary: string;
-  onSummaryChange: (newSummary: string) => void;
+interface AiAchievementImproverProps {
+  currentDescription: string;
+  onDescriptionChange: (newDescription: string) => void;
 }
 
-export default function AiSummaryImprover({ currentSummary, onSummaryChange }: AiSummaryImproverProps) {
+export default function AiAchievementImprover({ currentDescription, onDescriptionChange }: AiAchievementImproverProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
-  const [improvedSummary, setImprovedSummary] = useState('');
+  const [improvedDescription, setImprovedDescription] = useState('');
   const [error, setError] = useState('');
 
-  const handleImproveSummary = async () => {
-    if (!currentSummary.trim()) {
-      setError('Please enter a summary to improve');
+  const handleImproveDescription = async () => {
+    if (!currentDescription.trim()) {
+      setError('Please enter a description to improve');
       return;
     }
 
@@ -24,31 +24,31 @@ export default function AiSummaryImprover({ currentSummary, onSummaryChange }: A
     setError('');
 
     try {
-      const response = await api.improveResumeSection(currentSummary);
-      setImprovedSummary(response.improved_section);
+      const response = await api.improveResumeSection(currentDescription, 'Achievement');
+      setImprovedDescription(response.improved_section);
       setShowComparison(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to improve summary');
+      setError(err instanceof Error ? err.message : 'Failed to improve description');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleApply = () => {
-    onSummaryChange(improvedSummary);
+    onDescriptionChange(improvedDescription);
     setShowComparison(false);
-    setImprovedSummary('');
+    setImprovedDescription('');
   };
 
   const handleDecline = () => {
     setShowComparison(false);
-    setImprovedSummary('');
+    setImprovedDescription('');
   };
 
   const handleRetry = () => {
     setShowComparison(false);
-    setImprovedSummary('');
-    handleImproveSummary();
+    setImprovedDescription('');
+    handleImproveDescription();
   };
 
   return (
@@ -57,8 +57,8 @@ export default function AiSummaryImprover({ currentSummary, onSummaryChange }: A
       <div className="flex items-center gap-2">
         <button
           type="button"
-          onClick={handleImproveSummary}
-          disabled={isLoading || !currentSummary.trim()}
+          onClick={handleImproveDescription}
+          disabled={isLoading || !currentDescription.trim()}
           className="inline-flex items-center gap-2 px-4 sm:px-3 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-md hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm whitespace-nowrap"
         >
           {isLoading ? (
@@ -91,10 +91,10 @@ export default function AiSummaryImprover({ currentSummary, onSummaryChange }: A
       {/* Comparison View */}
       {showComparison && (
         <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-          <h4 className="text-sm font-medium text-gray-900 mb-3">Summary Comparison</h4>
+          <h4 className="text-sm font-medium text-gray-900 mb-3">Description Comparison</h4>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            {/* Original Summary */}
+            {/* Original Description */}
             <div>
               <h5 className="text-xs font-medium text-red-700 mb-2 flex items-center gap-1">
                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -103,11 +103,11 @@ export default function AiSummaryImprover({ currentSummary, onSummaryChange }: A
                 Original
               </h5>
               <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-md p-3 min-h-[80px]">
-                {currentSummary || 'No summary provided'}
+                {currentDescription || 'No description provided'}
               </div>
             </div>
 
-            {/* Improved Summary */}
+            {/* Improved Description */}
             <div>
               <h5 className="text-xs font-medium text-green-700 mb-2 flex items-center gap-1">
                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -116,7 +116,7 @@ export default function AiSummaryImprover({ currentSummary, onSummaryChange }: A
                 Improved
               </h5>
               <div className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-md p-3 min-h-[80px]">
-                {improvedSummary}
+                {improvedDescription}
               </div>
             </div>
           </div>
