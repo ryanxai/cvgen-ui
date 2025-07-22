@@ -620,9 +620,9 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={addExperience}
-              className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-100"
+              className="flex items-center justify-center w-8 h-8 bg-green-100 border border-green-300 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-200"
             >
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
             </button>
@@ -659,9 +659,12 @@ export default function ResumeForm({
                 <button
                   type="button"
                   onClick={() => removeExperience(index)}
-                  className="text-red-600 hover:text-red-800"
+                  className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-50"
+                  title="Remove experience"
                 >
-                  Remove
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                  </svg>
                 </button>
               </div>
               
@@ -749,9 +752,12 @@ export default function ResumeForm({
                           const newAchievements = exp.achievements.filter((_, i) => i !== achievementIndex);
                           updateExperience(index, 'achievements', newAchievements);
                         }}
-                        className="text-red-600 hover:text-red-800 mt-6"
+                        className="text-red-600 hover:text-red-800 mt-6 p-1 rounded-full hover:bg-red-50"
+                        title="Remove achievement"
                       >
-                        Remove
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                        </svg>
                       </button>
                     </div>
                     <div>
@@ -831,9 +837,12 @@ export default function ResumeForm({
                 <button
                   type="button"
                   onClick={() => removeEducation(index)}
-                  className="text-red-600 hover:text-red-800"
+                  className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-50"
+                  title="Remove education"
                 >
-                  Remove
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                  </svg>
                 </button>
               </div>
               
@@ -941,9 +950,12 @@ export default function ResumeForm({
                     const newSkills = formData.skills.filter((_, i) => i !== skillGroupIndex);
                     setFormData(prev => ({ ...prev, skills: newSkills }));
                   }}
-                  className="text-red-600 hover:text-red-800"
+                  className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-50"
+                  title="Remove skill category"
                 >
-                  Remove Category
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                  </svg>
                 </button>
               </div>
               
@@ -957,7 +969,7 @@ export default function ResumeForm({
                 <div className="flex gap-2 mb-3">
                   <input
                     type="text"
-                    placeholder="Add a skill..."
+                    placeholder="Add a skill and hit Enter"
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
                     onKeyPress={(e) => {
                       if (e.key === 'Enter') {
@@ -977,7 +989,6 @@ export default function ResumeForm({
                     }}
                     className="flex items-center space-x-2 px-4 py-2 bg-green-100 text-green-700 hover:bg-green-200 border border-green-300 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500"
                   >
-                    <span className="text-sm font-semibold">Add</span>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
@@ -1071,9 +1082,12 @@ export default function ResumeForm({
                       awards: prev.awards.filter((_, i) => i !== index)
                     }));
                   }}
-                  className="text-red-600 hover:text-red-800"
+                  className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-50"
+                  title="Remove award"
                 >
-                  Remove
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                  </svg>
                 </button>
               </div>
               
@@ -1222,9 +1236,12 @@ export default function ResumeForm({
                       certifications: prev.certifications.filter((_, i) => i !== index)
                     }));
                   }}
-                  className="text-red-600 hover:text-red-800"
+                  className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-50"
+                  title="Remove certification"
                 >
-                  Remove
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                  </svg>
                 </button>
               </div>
               
@@ -1346,9 +1363,12 @@ export default function ResumeForm({
                       publications: prev.publications.filter((_, i) => i !== index)
                     }));
                   }}
-                  className="text-red-600 hover:text-red-800"
+                  className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-50"
+                  title="Remove publication"
                 >
-                  Remove
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                  </svg>
                 </button>
               </div>
               
