@@ -93,6 +93,7 @@ export default function ResumeForm({
   const [isPublicationsCollapsed, setIsPublicationsCollapsed] = useState(true);
   const summaryTextareaRef = useRef<HTMLTextAreaElement>(null);
   const experienceDescriptionRefs = useRef<(HTMLTextAreaElement | null)[][]>([]);
+  const isUpdatingFromExternalRef = useRef(false);
   const [formData, setFormData] = useState<ResumeFormData>({
     personal: {
       name: '',
@@ -121,20 +122,19 @@ export default function ResumeForm({
 
   // Update internal formData when externalFormData changes
   useEffect(() => {
-    if (externalFormData) {
-      setFormData(prevData => {
-        // Only update if the data is actually different
-        if (JSON.stringify(prevData) === JSON.stringify(externalFormData)) {
-          return prevData; // Return same reference to prevent re-render
-        }
-        return externalFormData;
-      });
+    if (externalFormData && !isUpdatingFromExternalRef.current) {
+      isUpdatingFromExternalRef.current = true;
+      setFormData(externalFormData);
+      // Reset the flag after a short delay to allow the state update to complete
+      setTimeout(() => {
+        isUpdatingFromExternalRef.current = false;
+      }, 0);
     }
   }, [externalFormData]);
 
   // Notify parent when internal formData changes
   useEffect(() => {
-    if (onFormDataChange) {
+    if (onFormDataChange && !isUpdatingFromExternalRef.current) {
       onFormDataChange(formData);
     }
   }, [formData, onFormDataChange]);
@@ -387,6 +387,33 @@ export default function ResumeForm({
     setFormData(prev => ({
       ...prev,
       education: prev.education.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateCertification = (index: number, field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      certifications: prev.certifications.map((cert, i) =>
+        i === index ? { ...cert, [field]: value } : cert
+      )
+    }));
+  };
+
+  const updateAward = (index: number, field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      awards: prev.awards.map((award, i) =>
+        i === index ? { ...award, [field]: value } : award
+      )
+    }));
+  };
+
+  const updatePublication = (index: number, field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      publications: prev.publications.map((pub, i) =>
+        i === index ? { ...pub, [field]: value } : pub
+      )
     }));
   };
 
@@ -1105,11 +1132,7 @@ export default function ResumeForm({
                   <input
                     type="text"
                     value={award.title}
-                    onChange={(e) => {
-                      const newAwards = [...formData.awards];
-                      newAwards[index] = { ...award, title: e.target.value };
-                      setFormData(prev => ({ ...prev, awards: newAwards }));
-                    }}
+                    onChange={(e) => updateAward(index, 'title', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
                     placeholder="e.g., Best Paper Award"
                   />
@@ -1119,11 +1142,7 @@ export default function ResumeForm({
                   <input
                     type="text"
                     value={award.organization}
-                    onChange={(e) => {
-                      const newAwards = [...formData.awards];
-                      newAwards[index] = { ...award, organization: e.target.value };
-                      setFormData(prev => ({ ...prev, awards: newAwards }));
-                    }}
+                    onChange={(e) => updateAward(index, 'organization', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
                     placeholder="e.g., International Conference on ML"
                   />
@@ -1133,11 +1152,7 @@ export default function ResumeForm({
                   <input
                     type="text"
                     value={award.organization_detail}
-                    onChange={(e) => {
-                      const newAwards = [...formData.awards];
-                      newAwards[index] = { ...award, organization_detail: e.target.value };
-                      setFormData(prev => ({ ...prev, awards: newAwards }));
-                    }}
+                    onChange={(e) => updateAward(index, 'organization_detail', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
                     placeholder="e.g., Advanced Techniques in Time Series Forecasting"
                   />
@@ -1147,11 +1162,7 @@ export default function ResumeForm({
                   <input
                     type="url"
                     value={award.organization_url}
-                    onChange={(e) => {
-                      const newAwards = [...formData.awards];
-                      newAwards[index] = { ...award, organization_url: e.target.value };
-                      setFormData(prev => ({ ...prev, awards: newAwards }));
-                    }}
+                    onChange={(e) => updateAward(index, 'organization_url', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
                     placeholder="https://example.com"
                   />
@@ -1161,11 +1172,7 @@ export default function ResumeForm({
                   <input
                     type="text"
                     value={award.location}
-                    onChange={(e) => {
-                      const newAwards = [...formData.awards];
-                      newAwards[index] = { ...award, location: e.target.value };
-                      setFormData(prev => ({ ...prev, awards: newAwards }));
-                    }}
+                    onChange={(e) => updateAward(index, 'location', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
                     placeholder="e.g., Online, New York, NY"
                   />
@@ -1175,11 +1182,7 @@ export default function ResumeForm({
                   <input
                     type="date"
                     value={award.date}
-                    onChange={(e) => {
-                      const newAwards = [...formData.awards];
-                      newAwards[index] = { ...award, date: e.target.value };
-                      setFormData(prev => ({ ...prev, awards: newAwards }));
-                    }}
+                    onChange={(e) => updateAward(index, 'date', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
                   />
                 </div>
@@ -1259,11 +1262,7 @@ export default function ResumeForm({
                   <input
                     type="text"
                     value={cert.title}
-                    onChange={(e) => {
-                      const newCerts = [...formData.certifications];
-                      newCerts[index] = { ...cert, title: e.target.value };
-                      setFormData(prev => ({ ...prev, certifications: newCerts }));
-                    }}
+                    onChange={(e) => updateCertification(index, 'title', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
                     placeholder="e.g., AWS Certified Machine Learning - Specialty"
                   />
@@ -1273,11 +1272,7 @@ export default function ResumeForm({
                   <input
                     type="text"
                     value={cert.organization}
-                    onChange={(e) => {
-                      const newCerts = [...formData.certifications];
-                      newCerts[index] = { ...cert, organization: e.target.value };
-                      setFormData(prev => ({ ...prev, certifications: newCerts }));
-                    }}
+                    onChange={(e) => updateCertification(index, 'organization', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
                     placeholder="e.g., Amazon Web Services"
                   />
@@ -1287,11 +1282,7 @@ export default function ResumeForm({
                   <input
                     type="url"
                     value={cert.url}
-                    onChange={(e) => {
-                      const newCerts = [...formData.certifications];
-                      newCerts[index] = { ...cert, url: e.target.value };
-                      setFormData(prev => ({ ...prev, certifications: newCerts }));
-                    }}
+                    onChange={(e) => updateCertification(index, 'url', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
                     placeholder="https://aws.amazon.com/certification/"
                   />
@@ -1301,11 +1292,7 @@ export default function ResumeForm({
                   <input
                     type="date"
                     value={cert.date}
-                    onChange={(e) => {
-                      const newCerts = [...formData.certifications];
-                      newCerts[index] = { ...cert, date: e.target.value };
-                      setFormData(prev => ({ ...prev, certifications: newCerts }));
-                    }}
+                    onChange={(e) => updateCertification(index, 'date', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
                   />
                 </div>
@@ -1386,11 +1373,7 @@ export default function ResumeForm({
                   <input
                     type="text"
                     value={pub.authors}
-                    onChange={(e) => {
-                      const newPubs = [...formData.publications];
-                      newPubs[index] = { ...pub, authors: e.target.value };
-                      setFormData(prev => ({ ...prev, publications: newPubs }));
-                    }}
+                    onChange={(e) => updatePublication(index, 'authors', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
                     placeholder="e.g., Doe, J., Smith, A., Johnson, B."
                   />
@@ -1400,11 +1383,7 @@ export default function ResumeForm({
                   <input
                     type="text"
                     value={pub.title}
-                    onChange={(e) => {
-                      const newPubs = [...formData.publications];
-                      newPubs[index] = { ...pub, title: e.target.value };
-                      setFormData(prev => ({ ...prev, publications: newPubs }));
-                    }}
+                    onChange={(e) => updatePublication(index, 'title', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
                     placeholder="e.g., Hybrid Approaches to Time Series Forecasting in Financial Markets"
                   />
@@ -1414,11 +1393,7 @@ export default function ResumeForm({
                   <input
                     type="text"
                     value={pub.venue}
-                    onChange={(e) => {
-                      const newPubs = [...formData.publications];
-                      newPubs[index] = { ...pub, venue: e.target.value };
-                      setFormData(prev => ({ ...prev, publications: newPubs }));
-                    }}
+                    onChange={(e) => updatePublication(index, 'venue', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
                     placeholder="e.g., Journal of Applied Data Science, Vol. 15"
                   />
@@ -1428,11 +1403,7 @@ export default function ResumeForm({
                   <input
                     type="number"
                     value={pub.date}
-                    onChange={(e) => {
-                      const newPubs = [...formData.publications];
-                      newPubs[index] = { ...pub, date: e.target.value };
-                      setFormData(prev => ({ ...prev, publications: newPubs }));
-                    }}
+                    onChange={(e) => updatePublication(index, 'date', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
                     placeholder="2023"
                     min="1900"
@@ -1444,11 +1415,7 @@ export default function ResumeForm({
                   <input
                     type="url"
                     value={pub.url}
-                    onChange={(e) => {
-                      const newPubs = [...formData.publications];
-                      newPubs[index] = { ...pub, url: e.target.value };
-                      setFormData(prev => ({ ...prev, publications: newPubs }));
-                    }}
+                    onChange={(e) => updatePublication(index, 'url', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
                     placeholder="https://example.com/journal/jads/vol15"
                   />
