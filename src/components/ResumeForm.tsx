@@ -26,6 +26,7 @@ interface ResumeFormData {
     position: string;
     company_url: string;
     company_description: string;
+    location: string;
     start_date: string;
     end_date: string;
     isCurrentRole: boolean;
@@ -38,6 +39,7 @@ interface ResumeFormData {
     institution: string;
     degree: string;
     field: string;
+    location: string;
     start_date: string;
     end_date: string;
   }>;
@@ -226,7 +228,7 @@ export default function ResumeForm({
         company: exp.company,
         company_url: exp.company_url || '',
         company_description: exp.company_description || '',
-        location: data.personal.location,
+        location: exp.location || data.personal.location,
         date_start: convertDateToAbbreviated(exp.start_date),
         date_end: exp.isCurrentRole ? 'Present' : convertDateToAbbreviated(exp.end_date),
         achievements: exp.achievements
@@ -247,7 +249,7 @@ export default function ResumeForm({
       .map(edu => ({
         degree: `${edu.degree} in ${edu.field}`,
         institution: edu.institution,
-        location: data.personal.location,
+        location: edu.location || data.personal.location,
         date_start: convertDateToAbbreviated(edu.start_date),
         date_end: convertDateToAbbreviated(edu.end_date)
       }));
@@ -351,6 +353,7 @@ export default function ResumeForm({
         position: '',
         company_url: '',
         company_description: '',
+        location: '',
         start_date: '',
         end_date: '',
         isCurrentRole: false,
@@ -385,6 +388,7 @@ export default function ResumeForm({
         institution: '',
         degree: '',
         field: '',
+        location: '',
         start_date: '',
         end_date: '',
       }]
@@ -738,6 +742,16 @@ export default function ResumeForm({
                   />
                 </div>
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                  <input
+                    type="text"
+                    value={exp.location}
+                    onChange={(e) => updateExperience(index, 'location', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="City, State/Country"
+                  />
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
                   <input
                     type="text"
@@ -914,6 +928,16 @@ export default function ResumeForm({
                     value={edu.field}
                     onChange={(e) => updateEducation(index, 'field', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                  <input
+                    type="text"
+                    value={edu.location}
+                    onChange={(e) => updateEducation(index, 'location', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="City, State/Country"
                   />
                 </div>
                 <div>
@@ -1283,10 +1307,11 @@ export default function ResumeForm({
                     value={cert.organization}
                     onChange={(e) => updateCertification(index, 'organization', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                    placeholder="e.g. Coursera"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">URL</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Certificate Link (URL)</label>
                   <input
                     type="url"
                     value={cert.url}
@@ -1396,7 +1421,7 @@ export default function ResumeForm({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Venue</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Journal or Conference Name</label>
                   <input
                     type="text"
                     value={pub.venue}
@@ -1416,7 +1441,7 @@ export default function ResumeForm({
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">URL</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Paper Link (URL)</label>
                   <input
                     type="url"
                     value={pub.url}

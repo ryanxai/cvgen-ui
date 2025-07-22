@@ -27,6 +27,7 @@ interface FormData {
     position: string;
     company_url: string;
     company_description: string;
+    location: string;
     start_date: string;
     end_date: string;
     isCurrentRole: boolean;
@@ -39,6 +40,7 @@ interface FormData {
     institution: string;
     degree: string;
     field: string;
+    location: string;
     start_date: string;
     end_date: string;
   }>;
@@ -271,7 +273,7 @@ export default function HomePage() {
             company: exp.company,
             company_url: exp.company_url || '',
             company_description: exp.company_description || '',
-            location: formData.personal.location,
+            location: exp.location || formData.personal.location,
             date_start: convertDateToAbbreviated(exp.start_date),
             date_end: exp.end_date === 'Present' ? 'Present' : convertDateToAbbreviated(exp.end_date),
             achievements: exp.achievements
@@ -290,7 +292,7 @@ export default function HomePage() {
           .map((edu) => ({
             degree: `${edu.degree} in ${edu.field}`,
             institution: edu.institution,
-            location: formData.personal.location,
+            location: edu.location || formData.personal.location,
             date_start: convertDateToAbbreviated(edu.start_date),
             date_end: convertDateToAbbreviated(edu.end_date)
           })),
@@ -378,7 +380,7 @@ export default function HomePage() {
             company: exp.company,
             company_url: exp.company_url || '',
             company_description: exp.company_description || '',
-            location: formData.personal.location,
+            location: exp.location || formData.personal.location,
             date_start: convertDateToAbbreviated(exp.start_date),
             date_end: exp.end_date === 'Present' ? 'Present' : convertDateToAbbreviated(exp.end_date),
             achievements: exp.achievements
@@ -397,7 +399,7 @@ export default function HomePage() {
           .map((edu) => ({
             degree: `${edu.degree} in ${edu.field}`,
             institution: edu.institution,
-            location: formData.personal.location,
+            location: edu.location || formData.personal.location,
             date_start: convertDateToAbbreviated(edu.start_date),
             date_end: convertDateToAbbreviated(edu.end_date)
           })),
@@ -524,6 +526,7 @@ export default function HomePage() {
         position: exp.title || '',
         company_url: exp.company_url || '',
         company_description: exp.company_description || '',
+        location: exp.location || '',
         start_date: convertAbbreviatedDateToFormDate(exp.date_start || ''),
         end_date: exp.date_end === 'Present' ? 'Present' : convertAbbreviatedDateToFormDate(exp.date_end || ''),
         isCurrentRole: exp.date_end === 'Present',
@@ -536,6 +539,7 @@ export default function HomePage() {
         institution: edu.institution || '',
         degree: edu.degree?.split(' in ')[0] || '',
         field: edu.degree?.split(' in ')[1] || '',
+        location: edu.location || '',
         start_date: convertAbbreviatedDateToFormDate(edu.date_start || ''),
         end_date: convertAbbreviatedDateToFormDate(edu.date_end || ''),
       })) || [],
