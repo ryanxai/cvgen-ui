@@ -446,7 +446,7 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={() => setIsPersonalInfoCollapsed(!isPersonalInfoCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg
@@ -601,7 +601,7 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={() => setIsExperienceCollapsed(!isExperienceCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg
@@ -620,7 +620,7 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={addExperience}
-              className="flex items-center justify-center w-8 h-8 bg-green-100 border border-green-300 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-200"
+              className="flex items-center justify-center w-8 h-8 bg-green-100 border border-green-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-200"
             >
               <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -659,10 +659,10 @@ export default function ResumeForm({
                 <button
                   type="button"
                   onClick={() => removeExperience(index)}
-                  className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-50"
+                  className="flex items-center justify-center w-8 h-8 bg-red-100 border border-red-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 hover:bg-red-200"
                   title="Remove experience"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                   </svg>
                 </button>
@@ -730,35 +730,33 @@ export default function ResumeForm({
               <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Achievements</label>
                 {exp.achievements.map((achievement, achievementIndex) => (
-                  <div key={achievementIndex} className="border border-gray-200 rounded-lg p-3 mb-3">
-                    <div className="flex items-start space-x-2 mb-2">
-                      <div className="flex-1">
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Achievement Title</label>
-                        <input
-                          type="text"
-                          value={achievement.title}
-                          onChange={(e) => {
-                            const newAchievements = [...exp.achievements];
-                            newAchievements[achievementIndex] = { ...newAchievements[achievementIndex], title: e.target.value };
-                            updateExperience(index, 'achievements', newAchievements);
-                          }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
-                          placeholder="Achievement Title"
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const newAchievements = exp.achievements.filter((_, i) => i !== achievementIndex);
+                  <div key={achievementIndex} className="border border-gray-200 rounded-lg p-3 mb-3 relative">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newAchievements = exp.achievements.filter((_, i) => i !== achievementIndex);
+                        updateExperience(index, 'achievements', newAchievements);
+                      }}
+                      className="absolute top-2 right-2 flex items-center justify-center w-8 h-8 bg-red-100 border border-red-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 hover:bg-red-200"
+                      title="Remove achievement"
+                    >
+                      <svg className="w-5 h-5 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                      </svg>
+                    </button>
+                    <div className="mb-2 pr-12">
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Achievement Title</label>
+                      <input
+                        type="text"
+                        value={achievement.title}
+                        onChange={(e) => {
+                          const newAchievements = [...exp.achievements];
+                          newAchievements[achievementIndex] = { ...newAchievements[achievementIndex], title: e.target.value };
                           updateExperience(index, 'achievements', newAchievements);
                         }}
-                        className="text-red-600 hover:text-red-800 mt-6 p-1 rounded-full hover:bg-red-50"
-                        title="Remove achievement"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                        </svg>
-                      </button>
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                        placeholder="Achievement Title"
+                      />
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
@@ -803,7 +801,7 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={() => setIsEducationCollapsed(!isEducationCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg
@@ -822,9 +820,9 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={addEducation}
-              className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-100"
+              className="flex items-center justify-center w-8 h-8 bg-green-100 border border-green-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-200"
             >
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
             </button>
@@ -837,10 +835,10 @@ export default function ResumeForm({
                 <button
                   type="button"
                   onClick={() => removeEducation(index)}
-                  className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-50"
+                  className="flex items-center justify-center w-8 h-8 bg-red-100 border border-red-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 hover:bg-red-200"
                   title="Remove education"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                   </svg>
                 </button>
@@ -903,7 +901,7 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={() => setIsSkillsCollapsed(!isSkillsCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg
@@ -922,9 +920,9 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={addSkill}
-              className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-100"
+              className="flex items-center justify-center w-8 h-8 bg-green-100 border border-green-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-200"
             >
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
             </button>
@@ -950,10 +948,10 @@ export default function ResumeForm({
                     const newSkills = formData.skills.filter((_, i) => i !== skillGroupIndex);
                     setFormData(prev => ({ ...prev, skills: newSkills }));
                   }}
-                  className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-50"
+                  className="flex items-center justify-center w-8 h-8 bg-red-100 border border-red-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 hover:bg-red-200"
                   title="Remove skill category"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                   </svg>
                 </button>
@@ -1006,9 +1004,10 @@ export default function ResumeForm({
                       <button
                         type="button"
                         onClick={() => removeSkillTag(skillGroupIndex, skill)}
-                        className="ml-1 text-blue-600 hover:text-blue-800 focus:outline-none"
+                        className="ml-1 flex items-center justify-center w-5 h-5 bg-red-100 border border-red-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 hover:bg-red-200"
+                        title="Remove skill"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                       </button>
@@ -1030,7 +1029,7 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={() => setIsAwardsCollapsed(!isAwardsCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg
@@ -1062,9 +1061,9 @@ export default function ResumeForm({
                 }));
                 setIsAwardsCollapsed(false);
               }}
-              className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-100"
+              className="flex items-center justify-center w-8 h-8 bg-green-100 border border-green-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-200"
             >
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
             </button>
@@ -1082,10 +1081,10 @@ export default function ResumeForm({
                       awards: prev.awards.filter((_, i) => i !== index)
                     }));
                   }}
-                  className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-50"
+                  className="flex items-center justify-center w-8 h-8 bg-red-100 border border-red-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 hover:bg-red-200"
                   title="Remove award"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                   </svg>
                 </button>
@@ -1186,7 +1185,7 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={() => setIsCertificationsCollapsed(!isCertificationsCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg
@@ -1216,9 +1215,9 @@ export default function ResumeForm({
                 }));
                 setIsCertificationsCollapsed(false);
               }}
-              className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-100"
+              className="flex items-center justify-center w-8 h-8 bg-green-100 border border-green-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-200"
             >
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
             </button>
@@ -1236,10 +1235,10 @@ export default function ResumeForm({
                       certifications: prev.certifications.filter((_, i) => i !== index)
                     }));
                   }}
-                  className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-50"
+                  className="flex items-center justify-center w-8 h-8 bg-red-100 border border-red-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 hover:bg-red-200"
                   title="Remove certification"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                   </svg>
                 </button>
@@ -1312,7 +1311,7 @@ export default function ResumeForm({
             <button
               type="button"
               onClick={() => setIsPublicationsCollapsed(!isPublicationsCollapsed)}
-              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex items-center space-x-3 flex-1 cursor-pointer bg-white p-2 rounded-lg transition-all duration-200 focus:outline-none"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200">
                 <svg
@@ -1343,9 +1342,9 @@ export default function ResumeForm({
                 }));
                 setIsPublicationsCollapsed(false);
               }}
-              className="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-100"
+              className="flex items-center justify-center w-8 h-8 bg-green-100 border border-green-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 hover:bg-green-200"
             >
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
             </button>
@@ -1363,10 +1362,10 @@ export default function ResumeForm({
                       publications: prev.publications.filter((_, i) => i !== index)
                     }));
                   }}
-                  className="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-50"
+                  className="flex items-center justify-center w-8 h-8 bg-red-100 border border-red-300 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 hover:bg-red-200"
                   title="Remove publication"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                   </svg>
                 </button>
