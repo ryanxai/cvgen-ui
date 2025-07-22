@@ -28,7 +28,10 @@ interface ResumeFormData {
     start_date: string;
     end_date: string;
     isCurrentRole: boolean;
-    description: string[];
+    achievements: Array<{
+      title: string;
+      description: string;
+    }>;
   }>;
   education: Array<{
     institution: string;
@@ -144,7 +147,7 @@ export default function ResumeForm({
     // Only resize if experience section is not collapsed
     if (!isExperienceCollapsed) {
       formData.experience.forEach((exp, expIndex) => {
-        exp.description.forEach((desc, descIndex) => {
+        exp.achievements.forEach((desc, descIndex) => {
           const textarea = experienceDescriptionRefs.current[expIndex]?.[descIndex];
           if (textarea) {
             textarea.style.height = 'auto';
@@ -210,15 +213,14 @@ export default function ResumeForm({
         location: data.personal.location,
         date_start: convertDateToAbbreviated(exp.start_date),
         date_end: exp.isCurrentRole ? 'Present' : convertDateToAbbreviated(exp.end_date),
-        achievements: exp.description
-          .filter(desc => desc.trim() !== '')
-          .map(desc => {
-            const parts = desc.split(':');
-            const name = parts[0]?.trim() || 'Achievement';
-            const description = parts[1]?.trim() || desc.trim();
+        achievements: exp.achievements
+          .filter(achievement => achievement.title.trim() !== '' || achievement.description.trim() !== '')
+          .map(achievement => {
+            const title = achievement.title.trim();
+            const description = achievement.description.trim();
             return {
-              name,
-              description
+              name: title,
+              description: description
             };
           })
       }));
@@ -316,7 +318,7 @@ export default function ResumeForm({
     }));
   };
 
-  const updateExperience = (index: number, field: string, value: string | string[] | boolean) => {
+  const updateExperience = (index: number, field: string, value: string | string[] | boolean | Array<{title: string; description: string}>) => {
     setFormData(prev => ({
       ...prev,
       experience: prev.experience.map((exp, i) =>
@@ -336,7 +338,9 @@ export default function ResumeForm({
         start_date: '',
         end_date: '',
         isCurrentRole: false,
-        description: [''],
+        achievements: [
+          { title: '', description: '' }
+        ],
       }]
     }));
     setIsExperienceCollapsed(false);
@@ -707,43 +711,62 @@ export default function ResumeForm({
               </div>
               
               <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Achievements/Description</label>
-                {exp.description.map((desc, descIndex) => (
-                  <div key={descIndex} className="flex items-start space-x-2 mb-2">
-                    <textarea
-                      ref={(el) => {
-                        if (!experienceDescriptionRefs.current[index]) {
-                          experienceDescriptionRefs.current[index] = [];
-                        }
-                        experienceDescriptionRefs.current[index][descIndex] = el;
-                      }}
-                      value={desc}
-                      onChange={(e) => {
-                        const newDescription = [...exp.description];
-                        newDescription[descIndex] = e.target.value.trim();
-                        updateExperience(index, 'description', newDescription);
-                      }}
-                      rows={1}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 resize-none min-h-[40px] max-h-[300px] overflow-hidden"
-                      placeholder="Achievement or responsibility..."
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newDescription = exp.description.filter((_, i) => i !== descIndex);
-                        updateExperience(index, 'description', newDescription);
-                      }}
-                      className="text-red-600 hover:text-red-800 mt-2"
-                    >
-                      Remove
-                    </button>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Achievements</label>
+                {exp.achievements.map((achievement, achievementIndex) => (
+                  <div key={achievementIndex} className="border border-gray-200 rounded-lg p-3 mb-3">
+                    <div className="flex items-start space-x-2 mb-2">
+                      <div className="flex-1">
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Achievement Title</label>
+                        <input
+                          type="text"
+                          value={achievement.title}
+                          onChange={(e) => {
+                            const newAchievements = [...exp.achievements];
+                            newAchievements[achievementIndex] = { ...newAchievements[achievementIndex], title: e.target.value };
+                            updateExperience(index, 'achievements', newAchievements);
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500"
+                          placeholder="Achievement Title"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newAchievements = exp.achievements.filter((_, i) => i !== achievementIndex);
+                          updateExperience(index, 'achievements', newAchievements);
+                        }}
+                        className="text-red-600 hover:text-red-800 mt-6"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
+                      <textarea
+                        ref={(el) => {
+                          if (!experienceDescriptionRefs.current[index]) {
+                            experienceDescriptionRefs.current[index] = [];
+                          }
+                          experienceDescriptionRefs.current[index][achievementIndex] = el;
+                        }}
+                        value={achievement.description}
+                        onChange={(e) => {
+                          const newAchievements = [...exp.achievements];
+                          newAchievements[achievementIndex] = { ...newAchievements[achievementIndex], description: e.target.value };
+                          updateExperience(index, 'achievements', newAchievements);
+                        }}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 resize-none min-h-[40px] max-h-[300px] overflow-hidden"
+                        placeholder="Achievement description..."
+                      />
+                    </div>
                   </div>
                 ))}
                 <button
                   type="button"
                   onClick={() => {
-                    const newDescription = [...exp.description, ''];
-                    updateExperience(index, 'description', newDescription);
+                    const newAchievements = [...exp.achievements, { title: '', description: '' }];
+                    updateExperience(index, 'achievements', newAchievements);
                   }}
                   className="text-blue-600 hover:text-blue-800 text-sm"
                 >

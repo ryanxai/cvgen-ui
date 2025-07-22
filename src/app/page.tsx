@@ -30,7 +30,10 @@ interface FormData {
     start_date: string;
     end_date: string;
     isCurrentRole: boolean;
-    description: string[];
+    achievements: Array<{
+      title: string;
+      description: string;
+    }>;
   }>;
   education: Array<{
     institution: string;
@@ -260,15 +263,14 @@ export default function HomePage() {
             location: formData.personal.location,
             date_start: convertDateToAbbreviated(exp.start_date),
             date_end: exp.end_date === 'Present' ? 'Present' : convertDateToAbbreviated(exp.end_date),
-            achievements: exp.description
-              .filter((desc: string) => desc.trim() !== '')
-              .map((desc: string) => {
-                const parts = desc.split(':');
-                const name = parts[0]?.trim() || 'Achievement';
-                const description = parts[1]?.trim() || desc.trim();
+            achievements: exp.achievements
+              .filter((achievement: {title: string; description: string}) => achievement.title.trim() !== '' || achievement.description.trim() !== '')
+              .map((achievement: {title: string; description: string}) => {
+                const title = achievement.title.trim();
+                const description = achievement.description.trim();
                 return {
-                  name,
-                  description
+                  name: title,
+                  description: description
                 };
               })
           })),
@@ -368,15 +370,14 @@ export default function HomePage() {
             location: formData.personal.location,
             date_start: convertDateToAbbreviated(exp.start_date),
             date_end: exp.end_date === 'Present' ? 'Present' : convertDateToAbbreviated(exp.end_date),
-            achievements: exp.description
-              .filter((desc: string) => desc.trim() !== '')
-              .map((desc: string) => {
-                const parts = desc.split(':');
-                const name = parts[0]?.trim() || 'Achievement';
-                const description = parts[1]?.trim() || desc.trim();
+            achievements: exp.achievements
+              .filter((achievement: {title: string; description: string}) => achievement.title.trim() !== '' || achievement.description.trim() !== '')
+              .map((achievement: {title: string; description: string}) => {
+                const title = achievement.title.trim();
+                const description = achievement.description.trim();
                 return {
-                  name,
-                  description
+                  name: title,
+                  description: description
                 };
               })
           })),
@@ -508,9 +509,10 @@ export default function HomePage() {
         start_date: convertAbbreviatedDateToFormDate(exp.date_start || ''),
         end_date: exp.date_end === 'Present' ? 'Present' : convertAbbreviatedDateToFormDate(exp.date_end || ''),
         isCurrentRole: exp.date_end === 'Present',
-        description: exp.achievements?.map((achievement: Achievement) => 
-          `${achievement.name?.trim()}: ${achievement.description?.trim()}`
-        ) || [''],
+        achievements: exp.achievements?.map((achievement: Achievement) => ({
+          title: achievement.name?.trim() || '',
+          description: achievement.description?.trim() || ''
+        })) || [{ title: '', description: '' }],
       })) || [],
       education: data.education?.map((edu: Education) => ({
         institution: edu.institution || '',
