@@ -93,6 +93,8 @@ export default function ResumeForm({
   const [isAwardsCollapsed, setIsAwardsCollapsed] = useState(true);
   const [isCertificationsCollapsed, setIsCertificationsCollapsed] = useState(true);
   const [isPublicationsCollapsed, setIsPublicationsCollapsed] = useState(true);
+  const [summaryCharLimitExceeded, setSummaryCharLimitExceeded] = useState(false);
+  const [achievementCharLimitExceeded, setAchievementCharLimitExceeded] = useState<{[key: string]: boolean}>({});
   const summaryTextareaRef = useRef<HTMLTextAreaElement>(null);
   const experienceDescriptionRefs = useRef<(HTMLTextAreaElement | null)[][]>([]);
   const isUpdatingFromExternalRef = useRef(false);
@@ -336,6 +338,30 @@ export default function ResumeForm({
     }));
   };
 
+  const handleSummaryChange = (value: string) => {
+    const maxLength = 1024;
+    if (value.length <= maxLength) {
+      updatePersonal('summary', value);
+      setSummaryCharLimitExceeded(false);
+    } else {
+      setSummaryCharLimitExceeded(true);
+    }
+  };
+
+  const handleAchievementDescriptionChange = (expIndex: number, achievementIndex: number, value: string) => {
+    const maxLength = 1024;
+    const key = `${expIndex}-${achievementIndex}`;
+    
+    if (value.length <= maxLength) {
+      const newAchievements = [...formData.experience[expIndex].achievements];
+      newAchievements[achievementIndex] = { ...newAchievements[achievementIndex], description: value };
+      updateExperience(expIndex, 'achievements', newAchievements);
+      setAchievementCharLimitExceeded(prev => ({ ...prev, [key]: false }));
+    } else {
+      setAchievementCharLimitExceeded(prev => ({ ...prev, [key]: true }));
+    }
+  };
+
   const updateExperience = (index: number, field: string, value: string | string[] | boolean | Array<{title: string; description: string}>) => {
     setFormData(prev => ({
       ...prev,
@@ -549,20 +575,28 @@ export default function ResumeForm({
               <div className="mt-4">
                 <div className="flex items-center justify-between mb-2">
                   <label className="block text-sm font-medium text-gray-700">Professional Summary</label>
+                  <span className={`text-xs ${formData.personal.summary.length > 1024 ? 'text-red-500' : 'text-gray-500'}`}>
+                    {formData.personal.summary.length}/1024
+                  </span>
                 </div>
                 <textarea
                   ref={summaryTextareaRef}
                   value={formData.personal.summary}
                   onChange={(e) => {
-                    updatePersonal('summary', e.target.value);
+                    handleSummaryChange(e.target.value);
                   }}
                   rows={1}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 resize-none min-h-[40px] max-h-[300px] overflow-hidden"
                 />
+                {summaryCharLimitExceeded && (
+                  <div className="mt-1 text-red-500 text-sm">
+                    Maximum character length limit reached (1024 characters)
+                  </div>
+                )}
                 <div className="mt-2">
                   <AiSummaryImprover
                     currentSummary={formData.personal.summary}
-                    onSummaryChange={(newSummary) => updatePersonal('summary', newSummary)}
+                    onSummaryChange={(newSummary) => handleSummaryChange(newSummary)}
                   />
                 </div>
               </div>
@@ -808,30 +842,36 @@ export default function ResumeForm({
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
-                                              <textarea
-                          ref={(el) => {
-                            if (!experienceDescriptionRefs.current[index]) {
-                              experienceDescriptionRefs.current[index] = [];
-                            }
-                            experienceDescriptionRefs.current[index][achievementIndex] = el;
-                          }}
-                          value={achievement.description}
-                          onChange={(e) => {
-                            const newAchievements = [...exp.achievements];
-                            newAchievements[achievementIndex] = { ...newAchievements[achievementIndex], description: e.target.value };
-                            updateExperience(index, 'achievements', newAchievements);
-                          }}
-                          rows={2}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 resize-none min-h-[40px] max-h-[300px] overflow-hidden"
-                        />
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-xs font-medium text-gray-600">Description</label>
+                        <span className={`text-xs ${achievement.description.length > 1024 ? 'text-red-500' : 'text-gray-500'}`}>
+                          {achievement.description.length}/1024
+                        </span>
+                      </div>
+                      <textarea
+                        ref={(el) => {
+                          if (!experienceDescriptionRefs.current[index]) {
+                            experienceDescriptionRefs.current[index] = [];
+                          }
+                          experienceDescriptionRefs.current[index][achievementIndex] = el;
+                        }}
+                        value={achievement.description}
+                        onChange={(e) => {
+                          handleAchievementDescriptionChange(index, achievementIndex, e.target.value);
+                        }}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-500 resize-none min-h-[40px] max-h-[300px] overflow-hidden"
+                      />
+                      {achievementCharLimitExceeded[`${index}-${achievementIndex}`] && (
+                        <div className="mt-1 text-red-500 text-xs">
+                          Maximum character length limit reached (1024 characters)
+                        </div>
+                      )}
                       <div className="mt-2">
                         <AiAchievementImprover
                           currentDescription={achievement.description}
                           onDescriptionChange={(newDescription) => {
-                            const newAchievements = [...exp.achievements];
-                            newAchievements[achievementIndex] = { ...newAchievements[achievementIndex], description: newDescription };
-                            updateExperience(index, 'achievements', newAchievements);
+                            handleAchievementDescriptionChange(index, achievementIndex, newDescription);
                           }}
                         />
                       </div>
