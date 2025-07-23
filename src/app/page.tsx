@@ -627,7 +627,7 @@ export default function HomePage() {
                   <h1 className="text-xl sm:text-2xl font-bold text-gray-900">CV Gen</h1>
                 </div>
               </div>
-              <p className="text-xs sm:text-sm text-gray-500 mt-1">A Fully Open-Source AI PDF Resume Generator</p>
+              <p className="text-xs sm:text-sm text-gray-500 mt-1">A Free & Open-Source AI PDF Resume Generator</p>
             </div>
             
             {/* Header Action Buttons */}
@@ -840,7 +840,7 @@ export default function HomePage() {
           <div className="text-center text-gray-500 text-sm">
             <div className="flex items-center justify-center space-x-2">
               <span className="text-gray-500 inline-flex items-center space-x-1">
-                <span>Created and open-sourced by</span>
+                <span>Created by</span>
                 <a
                   href="https://ryanxai.com"
                   target="_blank"
@@ -858,7 +858,17 @@ export default function HomePage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center space-x-1 text-gray-500 hover:text-gray-700 transition-colors"
               >
-                <span>View on GitHub</span>
+                <span>Frontend on GitHub</span>
+                <i className="bi bi-github" style={{ fontSize: '1.2rem' }}></i>
+              </a>
+              <span className="text-gray-500" style={{ fontSize: '1.2rem' }}>•</span>
+              <a
+                href="https://github.com/ryanxai/cvgen"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-1 text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <span>Backend on GitHub</span>
                 <i className="bi bi-github" style={{ fontSize: '1.2rem' }}></i>
               </a>
             </div>
